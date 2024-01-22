@@ -1,0 +1,314 @@
+modules:
+  - docassemble.base.util
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+---
+features:
+  labels above fields: True
+  navigation: True
+  navbar: True
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:collapse_template.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.AssemblyLine:al_package_unstyled.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+mandatory: True
+code: |
+  test_field
+  download_forms 
+  has_original_dvro_petition
+  # ...
+  if has_original_dvro_petition:
+    original_dvro_petition.file.gather()
+  # ...
+---
+depends on:
+  - has_original_dvro_petition
+code: |
+  original_dvro_petition.enabled=has_original_dvro_petition
+---
+question: 
+  Test question
+fields: 
+  - Test field: test_field
+---
+question: |
+  Original Request for DVRO
+subquestion: |
+  If you have a copy of the notice you got from your landlord, upload it now.
+fields:
+  - Do you have the original Request for Domestic Violence Restraining Order (the one you previously filed with the court and need to amend)?: has_original_dvro_petition
+    datatype: yesnoradio
+  - Upload it now: original_dvro_petition.file
+    datatype: file
+    show if: has_original_dvro_petition
+---
+event: download_forms
+question: |
+  Your form is ready to download.
+subquestion: |
+  Thank you. Your forms are ready to download and deliver.
+  
+  View, download and send your forms below. 
+  
+  ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download a copy as a single PDF", icon='download') }
+---
+objects:
+  - DV_100_attachment: ALDocument.using(filename="DV_100", title="DV-100, Request for Domestic Violence Restraining Order", enabled=True, has_addendum=True, default_overflow_message="[See Attachment]")  
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[DV_100_attachment, original_dvro_petition, exhibit_attachment], title="Forms to download and deliver to court", filename="DV_100.pdf")
+---
+attachment:
+  variable name: DV_100_attachment.addendum
+  docx template file: Test_Addendum.docx
+---
+code: |
+  DV_100_attachment.overflow_fields['test_field'].overflow_trigger = 60
+  DV_100_attachment.overflow_fields['test_field'].label = "1. Test Section Label"
+  DV_100_attachment.overflow_fields.gathered = True  
+---
+objects:
+  - original_dvro_petition: ALDocumentUpload.using(
+          title="Original Request for Domestic Violence Restraining Order Petition",
+          filename="original_dvro_petiton",
+        )
+---
+objects:
+  - exhibit_attachment: ALExhibitDocument.using(
+          title="Exhibits",
+          filename="exhibits",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+        )
+---
+attachment:
+    variable name: DV_100_attachment[i]
+    name: DV-100, Request for Domestic Violence Restraining Order
+    filename: DV_100_attachment
+    skip undefined: True
+    pdf template file: 2023_DV_100.pdf
+    fields: 
+      - "other_custody_info": ${ DV_100_attachment.safe_value('test_field') }
+---
+#### ALExhibit, Don't touch valication code
+generic object: ALExhibitList
+id: any exhibits
+question: |
+  Do you have any documents that you want to attach to this form?
+fields:
+  - Do you have any documents you want to upload?: x.has_exhibits
+    datatype: yesnoradio
+  - note: |
+      **Okay**. You will have a chance to upload multiple documents. 
+      You can also add additional pages to this document.
+    show if: x.has_exhibits
+  - First document title: x[0].title
+    maxlength: 60 # longer might break TOC
+    show if: x.has_exhibits    
+  - Upload the first document: x[0].pages
+    show if: x.has_exhibits    
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x.has_exhibits:
+    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[0].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+    x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+code: |
+  x.there_are_any = x.has_exhibits
+---
+generic object: ALExhibitList
+id: exhibit i
+question: |
+  Upload the ${ ordinal(i) } document
+subquestion: |
+  You will have a chance to upload additional pages for this document later.  
+fields:
+  - Document title: x[i].title
+    maxlength: 60 # longer might break TOC
+  - Upload the first exhibit: x[i].pages
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages)
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+  if defined('x[i].pages'):    
+    x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i has additional pages
+question: |
+  Does "**${ x[i] }**" have any additional pages?
+subquestion: |
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+  ${ collapse_template(x[i].in_progress_template )}
+  
+field: x[i].pages.there_is_another
+buttons:
+  - Finished adding pages: False
+  - Add another page: True
+---
+generic object: ALExhibitList
+template: x[i].in_progress_template
+subject: |
+  Preview "${ x[i].title }" so far
+content: |
+  Use the buttons to rearrange the pages.
+  
+  ${ x[i].rearrange_pages_table }
+---
+generic object: ALExhibitList
+id: exhibit additional page
+question: |
+  Upload the ${ ordinal(j) } part of your ${ x[i].title } document
+fields:
+  - Upload a PDF, Word, or image file: x[i].pages[j]
+    datatype: file
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages[j])
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+  x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
+---
+generic object: ALExhibitList
+id: another exhibit
+question: |
+  You have ${ x.number_gathered() } document(s) so far. Do you have another document
+  you want to upload?
+subquestion: |
+  ${ collapse_template(x.in_progress_exhibits) }
+field: x.there_is_another
+buttons:
+  - Finished adding documents: False
+  - Add another document: True
+---
+generic object: ALExhibitList
+template: x.in_progress_exhibits
+subject: |
+  Preview your documents so far
+content: |
+  ${ x.rearrange_exhibits_table }
+---
+generic object: ALExhibitList
+table: x.rearrange_exhibits_table
+rows: x
+allow reordering: True
+delete buttons: True
+columns:
+  - ${ al_exhibit_title_label }: |
+      row_item.title
+  - ${ al_exhibit_preview_label }: |
+      row_item.pages.show(width="50%")
+  - ${ al_exhibit_total_pages_label }: |
+      row_item.pages.num_pages()
+edit:
+  - rearrange_pages
+---
+generic object: ALExhibit
+table: x.rearrange_pages_table
+rows: x.pages
+allow reordering: True
+delete buttons: True
+columns: 
+  - ${ al_exhibit_preview_label }: |
+      row_item.show(width="50%")
+---  
+template: al_exhibit_preview_label
+content: |
+  Thumbnail
+---
+template: al_exhibit_title_label
+content: |
+  Title
+---
+template: al_exhibit_total_pages_label
+content: |
+  Total pages
+---
+generic object: ALExhibitList
+question: |
+  Review your documents
+subquestion: |
+  % if x.auto_label:
+  Each document will be labeled in the order below, starting at 
+  ${ x.auto_labeler(0) }, and continuing with ${ x.auto_labeler(1) } and so on.
+  
+  % endif
+  ${ x.rearrange_exhibits_table }
+  ${ x.add_action() }
+continue button field: x.rearrange_exhibits
+---
+generic object: ALExhibit
+question: |
+  Review your document pages
+subquestion: |
+  ${ x.rearrange_pages_table }
+  ${ x.pages.add_action() }
+continue button field: x.rearrange_pages
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  docx template file: sksr_exhibit_cover.docx
+  field code:
+    exhibit_label: raw(x.label)
+---
+generic object: ALExhibitDocument
+attachment:
+  variable name: x.table_of_contents
+  docx template file: exhibit_table_of_contents.docx
+  field code:
+    exhibits: raw(x.exhibits)
+    include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)
+---
+generic object: ALDocumentBundle
+code: |
+  x.there_is_another = False
+---

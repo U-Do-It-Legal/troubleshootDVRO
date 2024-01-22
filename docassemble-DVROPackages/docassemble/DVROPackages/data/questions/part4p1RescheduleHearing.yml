@@ -1,0 +1,766 @@
+metadata:
+  title: |
+    Request for DVRO: Part 4.1, Reschedule Hearing
+  short title: |
+    DV-115, DV-116
+  description: |
+    An interview guiding self-representing DVRO Petitioners through the Request to Continue Hearing and Order on Request to Continue Court Hearing Forms
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      revision_date: 2023-04-19
+      require privileges: [dvro-p1, admin]
+  required privileges for listing: [dvro-p1, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+  counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - pet: Individual
+  - resp: Individual
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+	- caseinfo: Case Information
+  - justification: Reasons for Rescheduling
+  - conclusion: Conclusion
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  safety_warning
+  interview_part
+  welcome1
+  welcome2
+  welcome3
+  
+  nav.set_section('caseinfo')
+  court_name
+  pet.name.first
+  resp.name.first
+  tro_in_effect
+  # ...
+  if tro_in_effect_upload:
+    tro_attachment.file
+  # ...
+  
+  nav.set_section('justification')
+  rescheduling_reason
+
+  nav.set_section('conclusion')
+  filing_date
+  next_steps_info
+  download_forms
+---
+depends on:
+  - tro_in_effect_upload
+code: |
+  tro_attachment.enabled=tro_in_effect_upload
+---
+question: |
+  Welcome to U Do It Legal's **Request for Domestic Violence Restraining Order, Part 4.1: Reschedule Hearing** 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+  
+  We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place. 
+continue button field: safety_warning
+---
+template: part1
+subject: |
+  **Part 1, Introduction**
+content: |
+  This interview covers:
+  
+  - Your Request for Domestic Violence Restraining Order Roadmap
+  - The Importance of Safety Planning and Related Resources
+---
+template: part2
+subject: |
+  **Part 2, Case Information**
+content: |
+  This interview prepares the following forms for you:
+  
+  - California Law Enforcement Telecommunications System Information Form (form [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf))
+  - Notice of Hearing (form [DV-109](https://www.courts.ca.gov/documents/dv109.pdf))
+---
+template: part3
+subject: |
+  **Part 3, Requesting Restraining Orders**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request for Domestic Violence Restraining Order (form [DV-100](https://www.courts.ca.gov/documents/dv100.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))
+---
+template: part3_1
+subject: |
+  **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Income and Expense Declaration (form [FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part3_2
+subject: |
+  **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request for Child Custody and Visitation Orders (form [DV-105](https://www.courts.ca.gov/documents/dv105.pdf))
+  - Request for Child Abduction Prevention Orders (form [DV-108](https://www.courts.ca.gov/documents/dv108.pdf)) (Optional) *if requesting orders to prevent your child from being kidnapped by the other party**
+  
+  This interview also prepares the following proposed order forms for court completion:
+  
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+  - Child Abduction PReventions Orders (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part3_3
+subject: |
+  **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the Other Party**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request to Keep Minor's Information Confidential (form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Order on Request to Keep Minor's Information Confidential (form [DV-165](https://www.courts.ca.gov/documents/dv165.pdf))
+---
+template: part4
+subject: |
+  **Part 4, Next Steps** 
+content: |
+  This interview not only guides you through your next steps after form preparation, encompassing filing, service, hearing preparation, and more, but also provides you with a personalized Proof of Service (form [DV-200](https://www.courts.ca.gov/documents/dv200.pdf)) featuring a completed caption for your ease. For context, the "caption" is the section at the top of a legal document where you provide your basic information, like your name and address.
+
+  In addition to the prepped Proof of Service form, which is intended to be completed by your designated server, the interview provides you with a written summary and a checklist of your next steps, ensuring your readiness to confidently navigate each step of your case beyond preparing your court forms and documents.
+---
+template: part4_1
+subject: |
+  **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule/postpone their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing (form [DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing (form [DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part5
+subject: |
+  **Part 5, Restraining Order After Hearing and Renewal** 
+content: |
+  This interview is tailored toward individuals who were granted a Restraining Order After Hearing. It explains different scenarios that may happen after your hearing and will provide you with blank versions of the relevant ROAH forms, such as:
+  
+  - Restraining Order After Hearing (form [DV-130](https://www.courts.ca.gov/documents/dv130.pdf))
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf)) *If child custody and visitation orders are issued**
+  - Child Abduction Prevention Order (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *If child abduction prevention orders are issued**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf))  *If supervised visitation or exchange orders are issued**
+  - Order on Request to Keep Minor's Information Confidential (Form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf)) *If orders to keep minor's information confidential are issued**
+  - Child Support Information and Order Attachment (Form [FL-342](https://www.courts.ca.gov/documents/fl342.pdf)) *If child support orders are issued**
+  - Spousal, Domestic Partner, or Family Support Order Attachment (Form [FL-343](https://www.courts.ca.gov/documents/fl343.pdf)) *If spousal, partner, or family support orders are issued**
+  
+  This interview will also offer valuable recommendations on locating assistance for ROAH form preparation if your court does not prepare ROAH forms or self-representing parties. Please note that, as of 2023, we are aware of only 6 CA counties that do not prepare ROAH forms for self-representing parties.
+  
+  Lastly, this interview will provide you with a personalized Request to Renew Restraining Order (form [DV-700](https://www.courts.ca.gov/documents/dv700.pdf)) and Notice of Hearing to Renew Restraining Order (form [DV-710](https://www.courts.ca.gov/documents/dv710.pdf)) featuring completed captions for your ease, should you wish to renew the ROAH prior to its expiration. 
+---
+question: |
+  **Interview 4.1:** Request to Reschedule Hearing 
+subquestion: |
+ Our website will guide you through and assist you with the preparation of the court forms and documents required for your Domestic Violence Restraining Order (DVRO) proceeding. 
+ 
+ This interview is **Part 4.1** of 5:
+  
+  ${prog_disclose(part1)}
+  
+  ${prog_disclose(part2)}
+  
+  ${prog_disclose(part3)}
+    
+  ${prog_disclose(part3_1)}
+  
+  ${prog_disclose(part3_2)}
+  
+  ${prog_disclose(part3_3)}
+  
+  ${prog_disclose(part4)}
+  
+  **You are here:**
+  ${prog_disclose(part4_1)}
+  
+  ${prog_disclose(part5)}
+continue button field: interview_part
+---
+template: dv_116_explanation
+subject: |
+  **DV-116,** Order on Request to Reschedule Court Hearing 
+content: |
+  The DV-116 form is used by the court to document the court's decision on your request to reschedule the court hearing through form DV-115. The form includes information such as the original hearing date and time, the new hearing date and time (if the continuance was granted), and any additional information the court may want to include.
+  
+  Please note that we do not complete this form on your behalf. The official court order can only be prepared and issued by the judge/judicial officer assigned to your case. The judge/judicial officer will specify on this form which orders are granted or denied, any additional orders being made, and will sign the order form. However, our website will prepare a proposed order that you would like the judge to issue, which you can give to the court clerk alongside your DV-115. This proposed order helps streamline the process for the court in completing the form accurately.
+---
+template: dv_115_explanation
+subject: |
+  **DV-115,** Request to Continue Hearing
+content: |
+  The DV-115 form allows you to ask the court to reschedule your hearing for a later date, for reasons such as being unable to attend or needing more time to prepare. If the request is granted and the hearing is rescheduled, you will be notified of the new hearing date and time.
+---
+template: pos_forms
+subject: |
+  **Proof of Service** Documents
+content: |
+  - **DV-200,** Proof of Personal Service
+  - **DV-200-INFO,** Proof of Service Information Sheet
+  - **DV-205-INFO,** Service Evasion Information Sheet
+  
+  As a reminder, the Proof of Service is a legal document that serves as the official record that the Other Party (the person against whom a restraining order is sought) has been properly served with the court papers relating to the case. After the person serving the papers (theserver) has delivered the documents to the Other Party, the server prepares Form DV-200. This form details when, where, and how the papers were served, providing a critical record of service.
+
+  It's essential to file a completed proof of service with the court before the hearing on the restraining order. The judge will use this form to confirm that the Other Party was duly served and had adequate notice of the proceedings.
+---
+question: |
+  Court Forms this Interview Prepares for You
+subquestion: | 
+  More specifically, this interview will help you complete or prepare the following documents: 
+  
+  ${prog_disclose(dv_115_explanation)}
+  
+  ${prog_disclose(dv_116_explanation)}
+  
+  ${prog_disclose(pos_forms)}
+  
+  This interview is very simple and should only take you about 10 minutes to complete. 
+  
+  If you're unsure whether you need to complete this interview, please proceed to the next page to review some common reasons the court cites for requesting a continuance (rescheduling a hearing).
+continue button field: welcome1
+---
+template: good_cause_explanation
+subject: |
+  How is "good cause" defined under California Law?
+content: |
+  [Rule 3.1332.](https://www.courts.ca.gov/cms/rules/index.cfm?title=three&linkid=rule3_1332) Motion or application for continuance of trial in the 2023 California Rules of Court states the following:
+  
+  (c) Grounds for continuance
+
+  Although continuances of trials are disfavored, each request for a continuance must be considered on its own merits. The court may grant a continuance only on an affirmative showing of good cause requiring the continuance. **Circumstances that may indicate good cause include:**
+
+  - (1)  The unavailability of an essential lay or expert witness because of death, illness, or other excusable circumstances;
+  - (2)  The unavailability of a party because of death, illness, or other excusable circumstances;
+  - (3)  The unavailability of trial counsel because of death, illness, or other excusable circumstances;
+  - (4)  The substitution of trial counsel, but only where there is an affirmative showing that the substitution is required in the interests of justice;
+  - (5)  The addition of a new party if:
+      (A)  The new party has not had a reasonable opportunity to conduct discovery and prepare for trial; or
+      (B)  The other parties have not had a reasonable opportunity to conduct discovery and prepare for trial in regard to the new party's involvement in the case;
+  - (6)  A party's excused inability to obtain essential testimony, documents, or other material evidence despite diligent efforts; or
+  - (7)  A significant, unanticipated change in the status of the case as a result of which the case is not ready for trial.
+---
+template: resp_continuance_explanation
+subject: |
+  Can the Other Party request to reschedule the hearing?
+content: |
+  In short, yes. Keep in mind that after the Other Party is served the Temporary Restraining Order (or Notice of Court Hearing, if a TRO was not granted), he or she can ask for more time to get ready for the hearing. The judge might agree to their request and change the date of the hearing by issuing the form DV-116, Order on Request to Continue Hearing. This can be based on any of the "good cause" grounds above or their first-time request for more time (this ground is reserved for the Other Party, who's hearing preparation is limited to the time between when they're served and the scheduled court date).
+---
+question: |
+  Reasons to File a Request to Reschedule Hearing
+subquestion: |
+  You may need to ask for a new court date if:
+  
+  - You are unable to have the Other Party served in time before your court date
+  - You have a good reason for needing a new court date (the court may grant your request to reschedule your court date in a showing of "good cause")
+  
+  ${prog_disclose(good_cause_explanation)}
+  
+  ${prog_disclose(resp_continuance_explanation)}
+continue button field: welcome2
+---
+template: continuance_granted_explanation
+subject: |
+  If the Request to Reschedule Hearing is Granted
+content: |
+  If your request to reschedule the hearing is granted, you must have the Other Party served with (given) a copy of the court papers as described in Item 7 on form DV-116. The person who you have serve the papers will need to complete a Proof of Personal Service (form DV-200) and give it to you. The sheriff should be able to serve your papers free of charge. 
+  
+  You must file the signed Proof of Service form with the court clerk before the new hearing date to prove that the Other Party was notified of the hearing's new date, time, and location.
+---
+template: continuance_denied_explanation
+subject: |
+  If the Request to Reschedule Hearing is Denied
+content: |
+  If the judge denies your request to reschedule the hearing, you must go to the court hearing at the date, time, and location under Item 3 on form DV-109: Notice of Court Hearing. This date should match the date written on form DV-116: Order on Request to Continue Hearing. 
+
+  You must attend the hearing if you want the judge to make restraining orders or continue any orders already made. If you cancel the hearing or do not attend the hearing, any restraining orders made on form DV-110 will end on the date of the hearing and you will have to completely restart your case.
+---
+template: continuance_granted_tro_explanation
+subject: |
+  If you have a Temporary Restraining Order
+content: |
+  If the court granted your temporary restraining order and the judge grants your request to reschedule the hearing, the court will also extend the expiration date of the temporary restraining order until the new court date. The clerk will send the updated restraining order to law enforcement, or CLETS, for you. CLETS is a statewide computer system that lets police know about the order.
+---
+question: |
+  What happens after I request to reschedule the hearing?
+subquestion: |  
+  ${card_start("Note:", color="info")}
+  All of the information below will be included on a "Next Steps" document generated at the end of this interview.
+  ${card_end()}
+  
+  After filing form DV-115 with the court clerk, the judge will need to review the Request to Reschedule Hearing. You may need to check with the clerk's office to see when you will be notified of the judge's decision. The court can approve or deny your request to reschedule the court date. If the request is granted and the judge signs form DV-116, you will receive a new court date. If the judge does not sign the form, you'll have to attend the original court date as indicated on form DV-109.
+
+  ${prog_disclose(continuance_granted_explanation)}
+
+  ${prog_disclose(continuance_granted_tro_explanation)}  
+  
+  ${prog_disclose(continuance_denied_explanation)}
+  
+  You may begin answering questions on the next page. Having file-stamped copies of forms DV-110 and DV-109 on hand will allow you to speed through this interview. *For context, file-stamped copies are just the copies of your completed court forms that were stamped and given back to you by the court clerk after filing.* 
+continue button field: welcome3
+---
+initial: True
+code: |
+  after_hours = ((current_datetime() > current_datetime().replace(hour=16,minute=30)) or (current_datetime() < current_datetime().replace(hour=8,minute=30)) )
+  court_closed_today = (today().dow > 5)
+---
+question: |
+  **Protected Party:** What is your name?
+subquestion: |
+  Provide your full legal name. This should match the name written on both your ID and your other court forms. 
+fields:
+  - First name: pet.name.first
+  - Middle name (if applicable): pet.name.middle
+    required: False 
+  - Last name: pet.name.last
+  - Suffix (if applicable): pet.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  **Other Party's Name** 
+subquestion: |
+  Provide the Other Party's full legal name. This should match the name written on both your other court forms.  
+fields:
+  - First name: resp.name.first
+  - Middle name (if applicable): resp.name.middle
+    required: false
+  - Last name: resp.name.last
+  - Suffix (if applicable): resp.name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+template: tro_granted_explanation
+subject: |
+  How can I check whether I was issued a TRO?
+content: |
+  For a quick way to check if the court granted you any Temporary Restraining Orders, look at Item 4, "Temporary Restraining Orders" on form DV-109: the Notice of Court Hearing. 
+  
+  If boxes 4a(1) or 4a(3) are checked, the court has temporarily granted all or some of the orders you requested under a TRO. If box 4a(2) is checked, you were not issued a TRO. 
+  
+  To see which orders were granted, look at form DV-110 and go down to Item 8. If the judge checked any of the boxes that say "Granted as follows" under Items 8 through 23, this means that the judge has granted those orders temporarily. 
+  
+  Remember, any orders granted as part of your TRO only last until your court date. 
+---
+template: tro_denied_explanation
+subject: |
+  What happens if the court did not issue a TRO? 
+content: |
+  For a quick way to see if the court did *not* issue you any Temporary Restraining Orders, look at Item 4, "Temporary Restraining Orders" on form DV-109: the Notice of Court Hearing. 
+  
+  If box 4a(2) is checked, the court did not issue you a TRO. The judge must indicate why he or she denied the orders under Item 4b. However, the judge may still grant or deny any of the orders you've requested after hearing from both sides at your hearing.
+  
+  You can also check by looking at form DV-110 and going down to Item 8. If the judge checked "Denied until the hearing" for *every single* order you requested between Items 8 and 23, this means that the court did not issue you a Temporary Restraining Order. 
+---
+question: |
+  Information About Your Case
+fields: 
+  - Has the court provided you with your hearing's date, time, and location? (If you have not yet filed any paperwork with the court, select 'No'): hearing_set
+    datatype: yesnoradio
+  - When is your hearing date currently scheduled for? (specify date): current_hearing_date
+    datatype: date
+    show if: hearing_set
+    min: ${ today().plus(days=1) }
+    help: |
+      Your current hearing date is listed on form DV-109, the Notice of Court Hearing, in the box under Item 3: Notice of Hearing
+  - Is a Temporary Restraining Order currently in effect?: tro_in_effect
+    datatype: yesnoradio
+    help: |
+      In other words, did the court issue you a Temporary Restraining Order after you filed your Request for Domestic Violence Restraining Order paperwork with the court clerk? Read the information boxes below for more information. 
+  - note: "${prog_disclose(tro_granted_explanation)}"
+    hide if: tro_in_effect
+  - note: "${prog_disclose(tro_denied_explanation)}"
+    hide if: tro_in_effect
+  - note: |
+      ${card_start("Note:", color="info")}
+      Note: If your court date is rescheduled, the Temporary Restraining Order (form DV-110) will remain in effect until the end of the new court date, unless otherwise ordered by the court. 
+      ${card_end()}
+  - Date the Temporary Restraining Order was issued: tro_date
+    datatype: date
+    show if: tro_in_effect
+  - Do you have a digital copy of your TRO that you can upload?: tro_in_effect_upload
+    show if: tro_in_effect
+    datatype: yesnoradio 
+  - Upload it now: tro_attachment.file
+    datatype: file
+    show if: tro_in_effect_upload
+  - Case Number: case_number
+    show if: hearing_set
+    help: |
+      Your case number will be stamped or written at the top of any forms you've filed with the court. Make sure this number matches the case number on your other forms. 
+---
+question: |
+  Explain Why You Need to Reschedule Your Hearing
+fields: 
+  - Do you need more time to serve ${resp.name.first}?: more_time_for_service
+    datatype: yesnoradio
+    help: |
+      In other words, do you need more time to have a server give ${resp.name.first} a copy of your Request for Domestic Violence Restraining Order and Temporary Reatraining Order (if granted)?
+  - Is there another reason you need the court to reschedule your hearing?: rescheduling_reason
+    datatype: yesnoradio
+  - Briefly explain why you need the court to reschedule your hearing: rescheduling_reason_explain
+    input type: area
+    show if: rescheduling_reason
+---
+question: |
+  Identify your Court
+subquestion: |
+  Provide the following information about the Court in which you'll file your paperwork. Make sure that this information matches the information on your other court forms regarding the identity of the court where you are filing your DVRO case.  
+fields: 
+  - Court name: court_name
+    maxlength: 28
+  - County: court_county
+    code: counties_list
+  - note: |
+      Please provide the court's address below
+  - Street: courtstreetaddress_street 
+  - City: courtstreetaddress_city
+  - Zip code: courtstreetaddress_zip
+---
+question: |
+  When do you plan on filing?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date. If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file.
+fields: 
+  - When do you plan to file these forms with the court?: filing_date
+    datatype: date
+    default: ${today().format("yyyy-MM-dd")}
+---
+question: |
+  Almost there!
+subquestion: |
+  #####**Your Next Steps:**
+  
+  All of the instructions you'll need to complete your next steps, including instructions for filing, service, and hearing preparation, will be generated on a document titled, "Request to Reschedule Hearing, Next Steps" on the next page. 
+  
+  Please note that it may take one to two minutes to generate your forms after pressing "Continue" below. We thank you for your patience. 
+continue button field: next_steps_info
+---
+template: order_form_reminder
+subject: |
+  Prepped DV-116 Reminder
+content: |
+  As a reminder: Bring this form with you when filing form DV-115. Please note that we did not complete this form on your behalf. The official court order can only be issued by the judicial officer assigned to your case, who will indicate which orders are granted or denied and sign the order form. However, we assist by pre-populating the form with your case information and the specific orders you are requesting, which you can give to the court clerk alongside your DV-115. This helps streamline the process for the court in completing the form accurately.
+---
+mandatory: true
+event: download_forms
+question: |
+  Your forms are ready to download.
+subquestion: |
+  @RYAN -- we're still troubleshooting the attachment code so please note that the forms below will not populate completely/correctly 
+  
+  Thank you. Your forms are ready to download and deliver.
+  
+  1. Look over the forms below.
+  2. If they look correct, download them or email them to yourself.
+  3. Follow the instructions and checklist provided on your "Request to Reschedule Hearing, Next Steps" Document below.  
+  
+  ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download Completed DV-115", icon='download') } 
+  
+  ${ action_button_html(al_user_bundle2.as_pdf().url_for(), label="Download Proposed DV-116", icon='download') } 
+  ${prog_disclose(order_form_reminder)}
+  
+  ${ action_button_html(al_user_bundle3.as_pdf().url_for(), label='Download your "Next Steps" Document', icon='download') }
+  
+  ${ action_button_html(al_user_bundle4.as_pdf().url_for(), label='Download your Proof of Service Documents', icon='download') }
+  
+  ${ al_user_bundle.send_button_html() }
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+  Get a copy of your forms in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  % if len(x) > 1:
+  Your ${ x.title } document is ready
+  % else:
+  Your "${ x.title }" documents are ready
+  % endif
+content: |
+  Thank you for using U Do It Legal!
+
+  Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### Attachment objects
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[DV_115_attachment, tro_attachment], title="Forms to download and deliver to court", filename="Request_to_Reschedule_Hearing_Forms")
+  - al_user_bundle2: ALDocumentBundle.using(elements=[DV_116_attachment], title="Forms to download and deliver to court", filename="Request_to_Reschedule_Hearing_Forms")
+  - al_user_bundle3: ALDocumentBundle.using(elements=[next_steps], title="Request to Reschedule Hearing, Next Steps", filename="Next_Steps_and_Proof_of_Service")
+  - al_user_bundle4: ALDocumentBundle.using(elements=[DV_200_attachment, DV_200_info, DV_205_info], title="Proof of Service Documents", filename="Next_Steps_and_Proof_of_Service")
+  
+---
+objects:
+  - DV_115_attachment: ALDocument.using(filename="DV_115", title="Request to Continue Hearing", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+  - DV_116_attachment: ALDocument.using(filename="DV_116", title="Order On Request to Continue Court Hearing", enabled=True, has_addendum=False)
+  - DV_200_attachment: ALDocument.using(filename="DV_200", title="Proof of Personal Service", enabled=True, has_addendum=False)
+  - tro_attachment: ALDocumentUpload.using(
+          title="Temporary Restraining Order",
+          filename="tro",
+        )
+  - next_steps: ALDocument.using(filename="Next_Steps", title="Request to Reschedule Hearing, Next Steps", enabled=True)
+  - DV_200_info:  ALDocument.using(filename="DV_200_info", title="Personal Service Information Sheet", enabled=True, has_addendum=False)
+  - DV_205_info:  ALDocument.using(filename="DV_205_info", title="Service Evasion Info Sheet", enabled=True, has_addendum=False)
+---
+attachment:
+  variable name: DV_115_attachment.addendum
+  docx template file: DV_115_Attachment.docx
+---
+code: |
+  DV_115_attachment.overflow_fields['rescheduling_reason_explain'].overflow_trigger = 900
+  DV_115_attachment.overflow_fields['rescheduling_reason_explain'].label = "4. Why does the court date need to be rescheduled? (Other reason)"
+  DV_115_attachment.overflow_fields.gathered = True 
+---
+#### DV-115 Attachment Code
+attachment:
+    variable name: DV_115_attachment[i]
+    name: DV-115, Request to Continue Hearing
+    filename: DV-115
+    skip undefined: true
+    pdf template file: 2023_DV_115.pdf
+    fields:
+      - pet.name: "${pet.name}"
+      - court_address_county: "${court_county}"
+      - petitioner: Yes
+      - court_name: "${court_name}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - respondent: No
+      - court_city_street_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - case_number: "${case_number}"
+      - resp_address_street: "${}"
+      - resp_address_city: "${}"
+      - resp_address_state: "${}"
+      - resp_address_zip: "${}"
+      - resp_fax: "${}"
+      - resp_phone: "${}"
+      - resp_email: "${}"
+      - other_party_name: "${resp.name}"
+      - current_hearing_date: "${current_hearing_date}"
+      - case_number2: "${case_number}"
+      - tro_in_effect_yes: "${tro_in_effect}"
+      - tro_in_effect_date: "${tro_date}"
+      - tro_in_effect_no: "${not tro_in_effect}"
+      - tro_in_effect_idk: No
+      - pet_needs_more_time_for_service: "${more_time_for_service}"
+      - resp_first_request_for_continuance: No
+      - needs_continuance_for_other_reason: "${rescheduling_reason}"
+      - "needs_continuance_for_other_reason_explain": ${DV_115_attachment.safe_value('rescheduling_reason_explain')}
+      - date: "${today()}"
+      - party_name2: "${pet.name}"
+      - party_signature_es_:signer:signature: "${}"
+---
+#### DV-116 Attachment Code
+attachment:
+    variable name: DV_116_attachment[i]
+    name: DV-116, Order on Request to Continue Court Hearing
+    filename: DV-116
+    skip undefined: true
+    pdf template file: 2023_DV_116.pdf
+    fields:
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_street_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - case_number: "${case_number}"
+      - case_number2: "${case_number}"
+      - case_number3: "${case_number}"
+---
+#### Next Steps Attachment Code
+attachment:
+  variable name: next_steps[i]
+  name: Request to Reschedule Hearing, Next Steps
+  filename: next_steps
+  docx template file: Next_Steps_Continuance.docx
+  skip undefined: true
+---
+#### DV-200 Attachment Code
+attachment:
+    variable name: DV_200_attachment[i]
+    name: DV-200, Proof of Personal Service
+    filename: DV-200
+    skip undefined: true
+    pdf template file: 2023_DV_200.pdf
+    fields:
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_street_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - DV_109: No
+      - case_number: "${case_number}"
+      - DV_110: "${tro_in_effect_upload}"
+      - DV_105: No
+      - FL_150: No
+      - FL_155: No
+      - DV_115: Yes
+      - DV_116: Yes
+      - DV_130: No
+      - other_attachment: No
+      - other_attachment_specify: "${}"
+      - service_time_am: "${}"
+      - service_time_pm: "${}"
+      - service_date: "${}"
+      - service_time: "${}"
+      - service_address_street: "${}"
+      - service_address_city: "${}"
+      - service_address_state: "${}"
+      - service_address_zip: "${}"
+      - server_name: "${}"
+      - server_address_street: "${}"
+      - server_address_city: "${}"
+      - server_address_state: "${}"
+      - server_address_zip: "${}"
+      - server_phone: "${}"
+      - process_registration_number: "${}"
+      - process_registration_county: "${}"
+      - date: "${}"
+      - Signature Block3_es_:signer:signatureblock: "${}"
+      - server_name2: "${}"
+---
+attachment:
+  variable name: DV_200_info[i]
+  name: Personal Service Information Sheet
+  filename: DV_200_info
+  pdf template file: 2023_DV_200_info.pdf
+  skip undefined: true
+  fields:
+    - date_generated: "${today()}"
+---
+attachment:
+  variable name: DV_205_info[i]
+  name: Service Evasion Info Sheet 
+  filename: DV_205_info
+  pdf template file: 2023_DV_205_info.pdf
+  skip undefined: true
+  fields:
+    - date_generated: "${filing_date}"

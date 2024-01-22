@@ -1,0 +1,277 @@
+#### @ KELLY ensure Josh updates priveledges for Response Interviews
+metadata:
+  title: |
+    Demo Interview
+  short title: |
+    Demo
+  description: |
+    A guide explaining how our software fuctions for our users' ease of use.
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      require privileges: [dvro-p2, admin]
+    - exit url: https://www.udoitlegal.com/
+  required privileges for listing: [dvro-p2, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+  - demo: How to Use Our Web Application 
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  safety_warning
+  
+  nav.set_section('demo')
+  demo1
+  demo2
+  demo3
+  demo4
+  demo5
+  demo6
+  demo7
+  demo8
+  demo9
+  demo10
+  demo11
+---
+question: |
+  Welcome to the Demo: A Quick, 5-Minute Interview to Get You Started. 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+continue button field: safety_warning
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  
+  [@ KELLY, embed demo video]
+continue button field: demo1
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  ${card_start("Informational Cards:", color="info")}
+  Blue cards (like this one) explain important information.
+  ${card_end()}
+continue button field: demo2
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  ${card_start("Informational Cards:", color="light")}
+  Gray cards (like this one) also explain important information, but are typically used when the card contains a blue hyperlink. You can click these hyperlinks to open the link in abother tab. [Click here](https://www.google.com/) to test this, which should open the Google homepage in another tab in your browser. 
+  ${card_end()}
+continue button field: demo3
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  ${card_start("Warning Cards:", color="warning")}
+  Yellow cards (like this one) highlight essential information, so make sure you read them.
+  ${card_end()}
+continue button field: demo4
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  #####Information Boxes (Expandable/Collapsiable):
+  ${prog_disclose(template_explanation)}
+continue button field: demo5
+---
+template: template_explanation
+subject: |
+  Click here to expand this Info Box. Click it again to collapse it. 
+content: |
+  Like the info cards just shown, these info boxes contain helpful information. These boxes are designed to condense pages that have a lot of text. 
+  
+  Simply click on an info box to expand and access additional information, and click again to collapse it and conserve space on the page.
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+fields: 
+  - note: "#####Mandatory Fields:"
+  - Mandatory fields (like this one) are marked with a red asterisk. You must answer these fields/questions before you can move to the next page. Select 'Yes' to indicate that you understand.: mandatory_yes
+    datatype: yesnoradio
+  - note: "#####Optional Fields:"
+  - Optional fields (like this one) are not marked with a red asterisk. If you do not know how to answer an optional field/question, you may leave it blank.: optional_field
+    required: False
+continue button field: demo6
+validation code: |
+  if mandatory_yes is False:
+    validation_error("Error messages like these will pop-up if you try to skip a mandatory field. Answer 'Yes' under Mandatory Fields to continue.")
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+
+  #####Text Area Fields:
+fields: 
+  - Text area fields (like this one) are reserved for questions that require longer answers with multiple rows of text. If you need to expand the text area field to view what you've written, click on the bottom-right corner of the field and drag downwards. You can also scroll up or down inside text area fields.: text_area
+    input type: area
+    required: False
+continue button field: demo7
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+
+  #####Help Icons:
+fields: 
+  - note: "Click on the help icon to the right."
+    help: "These help buttons will provide tips to help you answer any complicated or confusing questions or fields."
+continue button field: demo8
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+
+  #####Dates:
+fields: 
+  - When prompted to input dates, you may fill in a specific date or click the calendar icon to the right to select the appropriate date from a dropdown menu. Select today's date below to test this.: date_icon
+    datatype: date
+continue button field: demo9
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  
+  #####Your Responses Guide the Interview
+  
+  Our software will use your answers to guide your interview and prepare your court forms.
+  
+  ${card_start("Appearing and Disappearing Question Fields:", color="info")}
+  Your responses may cause additional questions, instructions, or fields on the page to appear or disappear. We do this to save you time and avoid showing you irrelevant information.
+  ${card_end()}
+fields: 
+  - Select 'Yes' or 'No' to see examples of how your answers may cause additional fields to appear or disappear.: conditional_logic_example
+    datatype: yesnoradio
+    required: False
+  - note: "For Example: If you select 'Yes' above, this text will disappear."
+    hide if: conditional_logic_example
+continue button field: demo10
+---
+question: |
+  **How it Works:** Our Features and How to Use Them 
+subquestion: |
+  Welcome to the demo section! Here, we'll show you how our software functions and guide you on how to interact with specific features for a seamless experience.
+  
+  #####Saving Your Progress and Pausing Interviews:
+  
+  Your progress is automatically saved on this website, allowing you to pause and pick up where you left off whenever it suits you. 
+  
+  As you progress through each page of the interview, make sure to carefully review your responses before moving to the next page.
+  
+  If you pause any of your interviews with the intention of completing them later, make sure you keep track of important deadlines.
+continue button field: demo11
+---
+mandatory: True
+question: |
+  Thank You For Completing Our Demo.
+subquestion: |
+  You may now exit this interview and return to your membership homepage to begin the **Part 1, Roadmap** interview. 
+buttons:
+  - Exit: exit
+    url: https://www.udoitlegal.com

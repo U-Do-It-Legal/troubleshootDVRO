@@ -1,0 +1,3262 @@
+metadata:
+  title: |
+    Request for DVRO: Part 3.0, Request for Domsetic violence Restraining Order
+  short title: |
+    DV-100 and DV-110
+  description: |
+    An interview guiding self-representing California litigants through their preliminary request for TRO and DVRO filings.
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      revision_date: 2023-05-08
+      require privileges: [dvro-p1, admin]
+  required privileges for listing: [dvro-p1, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: False
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+  - docassemble.AssemblyLine:al_package_unstyled.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+  counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - pet: Individual
+  - resp: Individual
+  - additionalprotectedpersons: DAList.using(ask_number=True, object_type=Individual)
+  - othercourtcases: DAList.using(ask_number=True, object_type=Thing)
+  - children: DAList.using(ask_number=False, object_type=Individual)
+  - firearms: DAList.using(ask_number=False, object_type=Thing)
+  - ammunition: DAList.using(ask_number=False, object_type=Thing)
+  - animals: DAList.using(ask_number=True, object_type=Thing)
+  - debtpayment: DAList.using(ask_number=False, object_type=Thing)
+  - payexpenses: DAList.using(object_type=Thing)
+  - installmentpaymentsanddebts: DAList.using(object_type=Thing)
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+	- caseinfo: Case Information
+		subsections:
+			- aboutyou: About You
+			- additionalprotectedpeople: Other Protected People
+			- aboutrespondent: About the Other Party
+			- relationshiptoresp: Your Relationship
+			- yourchildren: Your Children
+			- othercases: Other Court Cases/Restraining Orders
+	- orders: Requesting Orders
+		subsections: 
+			- orders_notabuse: Order To Not Abuse
+			- orders_moveout: Move-Out Order
+			- orders_firearms: Firearms Restrictions
+			- orders_recording: Recordings
+			- orders_animals: Protect Pets/Animals
+			- orders_propertycontrol: Property Control 
+			- orders_mobile: Mobile Account Transfer
+			- orders_debtpayment: Debt Payment
+			- orders_insurance: Insurance
+			- orders_expenses: Expense Reimbursement
+			- orders_batterer: Batterer Intervention Program
+			- orders_timeforservice: Extend Deadline for Service
+			- orders_propertyrestraint: Property Restraint
+			- orders_spousalsupport: Spousal Support
+			- orders_childsupport: Child Support
+			- orders_childcustody_visitation: Child Custody and Visitation
+      - orders_childabduction_prevention: Child Abduction Prevention
+			- orders_attorneysfees: Attorney's Fees and Costs
+	- abusedeclaration: Declaration of Abuse
+  - orders_conclusion: Conclusion
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  safety_warning
+  interview_part
+  welcome1
+  welcome2
+  
+  nav.set_section('caseinfo')
+  amended_form
+  if amended_form:
+    has_original_dvro_petition
+  court_name
+  
+  nav.set_section('aboutyou')
+  pet.name.first
+  pet.birthdate
+  pet.address.street
+
+  nav.set_section('additionalprotectedpeople')
+  additionalprotectedpersons.there_are_any
+  if additionalprotectedpersons.there_are_any:
+    additionalprotectedpersons.target_number
+    additionalprotectedpersons.gather()
+  
+  nav.set_section('aboutrespondent')
+  resp.name.first
+  resp.sex
+  resp.address.street
+  
+  nav.set_section('relationshiptoresp')
+  relationship_now_married_or_dp
+  relationship_now_live_together
+  
+  nav.set_section('yourchildren')
+  children.there_are_any
+  if children.there_are_any:
+    children.gather()
+    good_cause_report
+
+  nav.set_section('othercases')
+  other_restraining_order
+  if other_restraining_order:
+    has_other_restraining_order
+  if other_restraining_order:
+    another_restraining_order
+    if another_restraining_order:
+      has_another_restraining_order
+    
+  othercourtcases
+  if othercourtcases:
+    prior_divorce
+  else: 
+    orders_explanation
+  
+  nav.set_section('orders')
+  nav.set_section('orders_notabuse')
+  orders_explanation
+  order_to_not_abuse
+  no_contact
+  stay_away_order
+  
+  nav.set_section('orders_moveout')
+  if relationship_now_live_together == True:
+    move_out_order
+  
+  nav.set_section('orders_firearms')
+  firearms.there_are_any
+  if firearms.there_are_any:
+    firearms.gather()
+  if ammunition.there_are_any:
+    ammunition.gather()
+  
+  nav.set_section('orders_recording')
+  record_unlawful_communications
+  
+  nav.set_section('orders_animals')
+  animals.there_are_any
+  if animals.there_are_any:
+    animals.gather()
+    animals_no_harm
+  
+  nav.set_section('orders_propertycontrol')
+  property_control
+  
+  nav.set_section('orders_mobile')
+  mobile_devices
+  
+  nav.set_section('orders_debtpayment')
+  debtpayment.there_are_any
+  if debtpayment.there_are_any:
+    debtpayment.gather()
+    debtpayment_explain
+    if any(item.special_decision == True for item in debtpayment):
+      debtpayment_explanation
+  
+  nav.set_section('orders_insurance')
+  insurance
+  
+  nav.set_section('orders_expenses')
+  payexpenses.there_are_any
+  if payexpenses.there_are_any:
+    payexpenses.gather()
+  
+  nav.set_section('orders_batterer')
+  batterer_intervention
+  
+  nav.set_section('orders_timeforservice')
+  time_for_service
+  
+  nav.set_section('orders_propertyrestraint')
+  if relationship_now_married_or_dp:
+    property_restraint
+    
+  nav.set_section('orders_spousalsupport')
+  if relationship_now_married_or_dp:
+    ss_info1
+    spousal_support
+  
+  nav.set_section('orders_childsupport')
+  if children.there_are_any:
+    cs_info1
+    child_support_previousorder
+    if child_support_previousorder:
+      has_child_support_previousorder
+  
+  nav.set_section('orders_childcustody_visitation')
+  if children.there_are_any:
+    cc_intro
+    cc_info1
+    requesting_custody_and_visitation
+    nav.set_section('orders_childabduction_prevention')
+    child_abduction_risk
+    
+  nav.set_section('orders_attorneysfees')
+  attorneys_fees
+  minors_confidentiality
+  other_orders
+  
+  nav.set_section('abusedeclaration')
+  abuse_description_info1
+  abuse_description_info2
+  mostrecentabuse_date
+  otherabuse
+  if otherabuse:
+    anotherabuse
+    if anotherabuse:
+      more_abuse
+  if exhibit_attachment.exhibits.has_exhibits:
+    exhibit_attachment.exhibits.gather()
+  if additionalprotectedpersons.there_are_any:
+    additionalprotectedpersons_explanation
+  
+  nav.set_section('orders_conclusion')
+  signature_date
+  download_forms
+---
+question: |
+  Welcome to U Do It Legal's **Request for Domestic Violence Restraining Orders, Part 3.0: Requesting Restraining Orders** 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+  
+  We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place. 
+continue button field: safety_warning
+---
+template: part1
+subject: |
+  **Part 1, Introduction**
+content: |
+  This interview covers:
+  
+  - Your Request for Domestic Violence Restraining Order Roadmap
+  - The Importance of Safety Planning and Related Resources
+---
+template: part2
+subject: |
+  **Part 2, Case Information**
+content: |
+  This interview prepares the following forms for you:
+  
+  - California Law Enforcement Telecommunications System Information Form (form [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf))
+  - Notice of Hearing (form [DV-109](https://www.courts.ca.gov/documents/dv109.pdf))
+---
+template: part3
+subject: |
+  **Part 3, Requesting Restraining Orders**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request for Domestic Violence Restraining Order (form [DV-100](https://www.courts.ca.gov/documents/dv100.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))
+---
+template: part3_1
+subject: |
+  **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Income and Expense Declaration (form [FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part3_2
+subject: |
+  **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request for Child Custody and Visitation Orders (form [DV-105](https://www.courts.ca.gov/documents/dv105.pdf))
+  - Request for Child Abduction Prevention Orders (form [DV-108](https://www.courts.ca.gov/documents/dv108.pdf)) (Optional) *if requesting orders to prevent your child from being kidnapped by the other party**
+  
+  This interview also prepares the following proposed order forms for court completion:
+  
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+  - Child Abduction PReventions Orders (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part3_3
+subject: |
+  **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the Other Party**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request to Keep Minor's Information Confidential (form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Order on Request to Keep Minor's Information Confidential (form [DV-165](https://www.courts.ca.gov/documents/dv165.pdf))
+---
+template: part4
+subject: |
+  **Part 4, Next Steps** 
+content: |
+  This interview not only guides you through your next steps after form preparation, encompassing filing, service, hearing preparation, and more, but also provides you with a personalized Proof of Service (form [DV-200](https://www.courts.ca.gov/documents/dv200.pdf)) featuring a completed caption for your ease. For context, the "caption" is the section at the top of a legal document where you provide your basic information, like your name and address.
+
+  In addition to the prepped Proof of Service form, which is intended to be completed by your designated server, the interview provides you with a written summary and a checklist of your next steps, ensuring your readiness to confidently navigate each step of your case beyond preparing your court forms and documents.
+---
+template: part4_1
+subject: |
+  **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule/postpone their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing (form [DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing (form [DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part5
+subject: |
+  **Part 5, Restraining Order After Hearing and Renewal** 
+content: |
+  This interview is tailored toward individuals who were granted a Restraining Order After Hearing. It explains different scenarios that may happen after your hearing and will provide you with blank versions of the relevant ROAH forms, such as:
+  
+  - Restraining Order After Hearing (form [DV-130](https://www.courts.ca.gov/documents/dv130.pdf))
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf)) *If child custody and visitation orders are issued**
+  - Child Abduction Prevention Order (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *If child abduction prevention orders are issued**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf))  *If supervised visitation or exchange orders are issued**
+  - Order on Request to Keep Minor's Information Confidential (Form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf)) *If orders to keep minor's information confidential are issued**
+  - Child Support Information and Order Attachment (Form [FL-342](https://www.courts.ca.gov/documents/fl342.pdf)) *If child support orders are issued**
+  - Spousal, Domestic Partner, or Family Support Order Attachment (Form [FL-343](https://www.courts.ca.gov/documents/fl343.pdf)) *If spousal, partner, or family support orders are issued**
+  
+  This interview will also offer valuable recommendations on locating assistance for ROAH form preparation if your court does not prepare ROAH forms or self-representing parties. Please note that, as of 2023, we are aware of only 6 CA counties that do not prepare ROAH forms for self-representing parties.
+  
+  Lastly, this interview will provide you with a personalized Request to Renew Restraining Order (form [DV-700](https://www.courts.ca.gov/documents/dv700.pdf)) and Notice of Hearing to Renew Restraining Order (form [DV-710](https://www.courts.ca.gov/documents/dv710.pdf)) featuring completed captions for your ease, should you wish to renew the ROAH prior to its expiration. 
+---
+question: |
+  Let's get started. 
+subquestion: |
+  Our website will guide you through and assist you with the preparation of the court forms and documents required for your Domestic Violence Restraining Order (DVRO) proceeding. 
+  
+  This interview is **Part 3** of 5:
+  
+  ${prog_disclose(part1)}
+  
+  ${prog_disclose(part2)}
+  
+  ${card_start("You are here:", color="light")}
+  ${prog_disclose(part3)}
+  ${card_end()}
+  
+  ${prog_disclose(part3_1)}
+  
+  ${prog_disclose(part3_2)}
+  
+  ${prog_disclose(part3_3)}
+  
+  ${prog_disclose(part4)}
+  
+  ${prog_disclose(part4_1)}
+  
+  ${prog_disclose(part5)}
+continue button field: interview_part
+---
+template: dv_100_explanation
+subject: |
+  **DV-100,** Request for Domestic Violence Restraining Order
+content: |
+  Form [DV-100, Request for Domestic Violence Restraining Order](https://www.courts.ca.gov/documents/dv100.pdf), is a legal document used in California by individuals seeking protection from domestic violence, abuse, or harassment. This form initiates the process for requesting a restraining order by providing the court with necessary information about the petitioner (the person seeking protection, in this case you) and the respondent (the other party), the circumstances on which the request for restraining order is based, and the specific orders requested to ensure the petitioner's safety.
+---
+template: dv_110_explanation
+subject: |
+  **DV-110,** Temporary Restraining Order
+content: |
+  Form [DV-110, Temporary Restraining Order](https://www.courts.ca.gov/documents/dv110.pdf), is a legal document issued by a California court that provides short-term protection to individuals claiming to have been the victims of domestic violence, abuse, or harassment. This form is a court order that states the specific restrictions placed on the respondent (the other party) and is typically in effect for two to three weeks, until a court hearing is held to determine whether a longer restraining order is necessary for the petitioner's (person seeking protection) safety.
+  
+  Please note that we do not complete this form on your behalf. The official court order can only be prepared and issued by the judge/judicial officer assigned to your case. The judge/judicial officer will specify on this form which orders are granted or denied, any additional orders being made, and will sign the order. However, our website will prepare a proposed order that you would like the judge to issue, which you can give to the court clerk along with your DV-100. This proposed order helps streamline the process for the court in completing the form accurately.
+---
+question: |
+  Let's get started.
+subquestion: |
+  This interview will help you complete 1 court form: 
+  
+  ${prog_disclose(dv_100_explanation)}
+  
+  In addition, this interview will help you prepare the following official court order form for court completion:
+  
+  ${prog_disclose(dv_110_explanation)}
+  
+  The interview can take between one to several hours to complete, depending on your specific situation.
+continue button field: welcome1 
+---
+template: tro_explanation
+subject: |
+  What is a Temporary Restraining Order? 
+content: |
+  A temporary restraining order, or TRO, is a court order which can provide, depending on what is requested, for one person to temporarily stay away from, or communicate with, the person seeking protection. For example, the temprary order can state that the restrained person cannot come within a certain distance of the protected person's home, vehicle, work, school, and designated household or family members, as well as not telephone (cvcall), text, or email the person seeking protection and designated household or family members. A TRO, if granted, can also order the restrained person to do things such as move out of a shared residence, pay utility bills or child support, and turn over any firearms he/she owns to law enforcement. 
+
+  TROs can be valid for around three weeks (or until the scheduled court hearing) and may be made permanent (up to 5 years) after a hearing. Additionally: 
+  
+  - Anyone 12 and over can apply for a TRO without parental consent
+  - A TRO is issued by a civil court, not a criminal court
+  - The respondent (i.e. the person against whom the restraining order is sought) must be served with the TRO before it can be enforced by law enforcement (*we will explain service at the end of this interview*)
+  - A TRO is **only valid and enforceable until the date of the hearing**
+---
+template: court_hearing_explanation
+subject: |
+	Court Hearing
+content: |
+  Once you submit your court forms in support of your request for a TRO and DVRO, the court will assess whether a TRO should be granted, and will schedule a hearing on your request for a DVRO. If the judge does not grant a TRO, the judge will nevertheless address your rewquest for a DVRO at the scheduled hearing. 
+---
+template: dvro_explanation
+subject: |
+	What is a Domestic Violence Restraining Order?
+content: |
+  Just like a TRO, a Domestic Violence Restraining Order can help protect you from an abusive partner, a family member, or someone in your household. In California, we often call this order a Domestic Violence Restraining Order (also known as a “Restraining Order After Hearing (ROAH)"). 
+  
+  The DVRO is a “permanent” restraining order issued by the court against the Other Party **after a hearing**. A DVRO provides the same specific restrictions of a TRO and may be ordered for up to five years. The victim may renew the order when it expires, if necessary. 
+---
+question: |
+  Introduction to TROs and DVROs
+subquestion: |
+  #####As a Reminder:
+  
+  ${prog_disclose(tro_explanation)}
+
+  ${prog_disclose(court_hearing_explanation)}
+  
+  ${prog_disclose(dvro_explanation)}
+  
+  ${card_start("Summary:", color="info")}
+
+  1) *If granted,* a TRO can protect you and your loved ones before and up until the date of your hearing.
+  
+  2) Even if a judge does not grant your request for a TRO, you may still be granted a DVRO at your hearing.
+  
+  3) *If granted,* a DVRO (aka ROAH) can protect you and your loved ones after your hearing, for up to 5 years. You may renew your DVRO before it expires, if necessary. 
+  ${card_end()}
+  
+  ${card_start("Safety Planning:", color="warning")}
+  A restraining order is only a part of your overall safety plan. We highly encourage you to speak with a domestic violence advocate for more help with safety planning.
+  ${card_end()}
+continue button field: welcome2
+---
+initial: True
+code: |
+  after_hours = ((current_datetime() > current_datetime().replace(hour=16,minute=30)) or (current_datetime() < current_datetime().replace(hour=8,minute=30)) )
+  court_closed_today = (today().dow > 5)
+---
+template: amending_petition_explanation
+subject: 'What do we mean by "Have you previously filed..."'
+content: |
+  If you have not previously filed documents with the court to request a Domestic Violence Restraining Order, select 'No.' 
+  
+  If you have previously filed documents with the court in *this* case, and you are now changing some of the information or requests that you previously submitted, select 'Yes.'
+  
+  ${card_start("Note on past cases:", color="info")}
+  If you requested a Domestic Violence Restraining Order against this person in the past, and if the court heard and denied your previous Request for DVRO, note that this is now a new and *separate* case.
+  ${card_end()}
+---
+depends on:
+  - has_original_dvro_petition
+code: |
+  original_dvro_petition.enabled=has_original_dvro_petition
+---
+question: |
+  **Amending a Request for DVRO** 
+fields:
+  - Have you previously filed (submitted) a Request for Domestic Violence Restraining Order Petition in *this* case?: amended_form
+    datatype: yesnoradio
+  - note: "${prog_disclose(amending_petition_explanation)}"
+  - Provide the date you filed the Petition: amended_filing_date
+    datatype: date 
+    help: "The filing date should be written at the top of your previously filed CLETS-100 form or stamped in the top right box on the front page of the DV-100, DV-109, and DV-110 forms" 
+    show if: amended_form
+  - Case Number (if you've been assigned one): case_number
+    show if: amended_form
+    help: |
+      Your case number will be stamped or written at the top of any forms you've filed with the court. If you have not filed any court forms with the court, you do not have a case number yet and you may leave this field blank.
+---
+question: |
+  Upload a Copy of your Original Request for DVRO Petition
+subquestion: |
+  Your previous DVRO Petition may include the CLETS-001, DV-100, DV-105, DV-108, DV-109, and/or DV-110 forms, as well as any applicable attachments. 
+fields: 
+  - Are you able to upload a copy of the original Request for Domestic Violence Restraining Order Petition that you previously filed with the court?: has_original_dvro_petition
+    datatype: yesnoradio
+  - Upload it now: original_dvro_petition.file
+    datatype: file
+    show if: has_original_dvro_petition
+---
+question: |
+  Identify your Court
+subquestion: |
+  Provide the following information about the Court in which are filing your paperwork. Make sure that this information matches what's written on any other forms you've prepared or submitted to the court in this case.
+fields: 
+  - Court name: court_name
+    maxlength: 28
+  - County: court_county
+    code: counties_list
+  - note: |
+      Please provide the court's address below
+  - Street: courtstreetaddress_street 
+  - City: courtstreetaddress_city
+  - Zip code: courtstreetaddress_zip
+---
+question: |
+  When do you plan to file your application?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date.
+  
+  If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file.
+fields: 
+  - Date: signature_date
+    datatype: date
+    default: ${today().format("yyyy-MM-dd")}
+---
+question: |
+  **Protected Party:** What is your name?
+subquestion: |
+  Provide your full legal name. This should match the name written on your Driver's Licence or ID.
+fields:
+  - First name: pet.name.first
+  - Middle name (if applicable): pet.name.middle
+    required: False 
+  - Last name: pet.name.last
+  - Suffix (if applicable): pet.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  **Your Information:** Provide Your Personal Information
+fields:
+  - note: |
+      #####Birthdate
+  - Date of Birth: pet.birthdate
+    datatype: date
+  - note: |
+      #####Contact Information
+  - note: |
+      Provide your phone number below. You can use any phone number, whether your cell, work, or home number. Note that the Other Party will see this information and that listing it is optional. If the Other Party does not have your current phone number, you may leave this blank. The court may reach out to you at this number.
+  - Phone Number: pet.phone
+    help: "You may use the following format: ###-###-####"
+    required: false
+  - note: |
+       Provide your preferred email address below. The court may use it to contact you. Note that the Other Party will see this information and that listing it is optional, so you may leave it blank if you prefer.
+  - Email Address: pet.email
+    datatype: email 
+    required: false
+validation code: |
+  pet.phone = phone_number_formatted(pet.phone)
+---
+template: confidentialaddress_explanation
+subject: "Can I keep my address confidential?"
+content: |
+  California mandates that if a party (or his or her children) alleges to be a victim of domestic violence or abuse at the hands of the opposing party, that the victim and his or her children's current address must remain confidential if unknown to the other party. 
+  
+  The Court requires that you include an address on your forms where you can receive mail regarding the case you are filing, such as a friend or relative's address or P.O. box. **This address does not have to be the place where you live.** Court documents and court files are public record and whatever address is included on your forms will be seen by the other party and anyone else who looks at the Court file. 
+---
+template: dv_shelter_warning
+subject: |
+  What if I'm staying at a Domestic Violence Shelter?
+content: |
+   ${card_start("Warning", color="warning")}
+   As a reminder, if you are staying at a domestic violence shelter, do NOT write the physical address of the domestic violence shelter anywhere. Most shelters have a P.O. Box you can use if the court needs to contact you or mail you anything.
+   ${card_end()}
+---
+question: |
+  **Your Information:** Provide Your Mailing Address
+subquestion: |
+  Provide your mailing address, and make sure it matches the address written on your other court forms.
+  ${prog_disclose(confidentialaddress_explanation)}
+  ${prog_disclose(dv_shelter_warning)}
+  #####Your Mailing Address:
+fields:
+  - Street address: pet.address.street  
+  - Apartment or Unit: pet.address.unit
+    required: False 
+  - City: pet.address.city
+  - State: pet.address.state
+    code: states_list()
+  - Zip: pet.address.zip
+---
+question: |
+  **Other Party's Information** 
+subquestion: |
+  #####Who are you getting a restraining order against?
+  
+  Provide the Other Party's full legal name.
+fields:
+  - First name: resp.name.first
+  - Middle name (if applicable): resp.name.middle
+    required: false
+  - Last name: resp.name.last
+  - Suffix (if applicable): resp.name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  **${resp.name}'s Information**
+subquestion: |
+  Provide ${resp.name.first}'s identifying information and characteristics. Law enforcement will use this information to identify ${resp.name.first} and enforce this restraining order. 
+
+  #####Other Party's Information:
+fields:
+  - Gender: resp.sex
+    choices:
+      - Male: resp.sex_male
+      - Female: resp.sex_female
+      - Nonbinary: resp.sex_nonbinary
+  - Height: resp.height
+    help: |
+      Example: 5'10"
+    required: False
+  - Weight: resp.weight
+    help: "Example: 175 lbs"
+    required: False
+  - Race: resp.race
+    help: |
+      Some common racial and ethnic categories include: White, Black or African American, American Indian or Alaska Native, Asian, Native Hawaiian or Pacific Islander, Hispanic or Latino/Latina/Latinx, and Multiracial (ensure you specify)
+  - Hair Color: resp.hair_color
+    required: False
+  - Eye Color: resp.eye_color
+    required: False
+  - Age (give estimate if you do not know exact age): resp.age
+  - Date of Birth (if known): resp.birthdate
+    datatype: date
+    required: false
+---
+question: |
+  **${resp.name}'s Information** 
+subquestion: |
+  #####Provide ${ resp.name.first }'s address:
+  
+  If you do not know ${ resp.name.first }'s current address, you may provide their last known address (be it your home, a friend or family member's home, etc.).
+fields:
+  - Street address: resp.address.street  
+  - Apartment or Unit: resp.address.unit
+    required: False 
+  - City: resp.address.city
+  - State: resp.address.state
+    code: states_list()
+  - Zip: resp.address.zip
+---
+question: |
+  **Relationship Information** 
+subquestion: |
+  ${card_start("Your relationship:", color="info")}
+  To file for a Domestic Violence Restraining Order rather than a Civil Harassment Restraining Order, you and ${ resp.name.first } must be related by blood, marriage, or adoption.
+  ${card_end()}
+fields:
+  - note: "What is your relationship to ${resp.name.first}?" 
+  - We have a child or children together: children_together
+    datatype: yesno
+  - Names of Children: names_of_children
+    show if: children_together
+  - We are currently married or registered domestic partners: relationship_now_married_or_dp
+    datatype: yesno
+  - We were previously married or registered domestic partners: relationship_was_married_or_dp
+    datatype: yesno
+  - We are, or were, engaged to be married: relationship_engaged
+    datatype: yesno
+  - We are, or were, dating: relationship_dating_or_dated
+    datatype: yesno
+  - ${ resp.name.first } is my Parent, Step-Parent, or Parent-in-Law: relationship_parent
+    datatype: yesno
+  - ${ resp.name.first } is my Child, Step-Child, or Legally Adopted Child: relationship_child
+    datatype: yesno
+  - ${ resp.name.first } is my Child's Spouse: relationship_childs_spouse
+    datatype: yesno
+  - ${ resp.name.first } is my Brother, Sister, Sibling, Half-Sibling, Step-Sibling, or Sibling-in-Law: relationship_sibling
+    datatype: yesno
+  - ${ resp.name.first } is my Grandparent, Step-Grandparent, or Grandparent-in-Law: relationship_grandparent
+    datatype: yesno
+  - ${ resp.name.first } is my Grandchild, Step-Grandchild, or Grandchild-in-Law: relationship_grandchild
+    datatype: yesno
+  - note: |
+      ${ card_start("Note regarding in-laws:", color="info")}
+      If ${resp.name.first} is your "in-law," to file a DVRO rather than a CHRO, you and ${resp.name.first} must be related by a *current* marriage."
+      ${card_end()}
+  - Please specify your relationship to ${resp.name.first} by finishing the following sentence. ${resp.name} is my: relationship_specify
+    help: "Examples: Husband, Sister, Ex-Boyfriend, Mother-in-Law, etc."
+---
+question: |
+  **Relationship Information**
+fields:
+  - Do you and ${ resp.name.first } currently live together?: relationship_now_live_together
+    datatype: yesnoradio
+  - note: |
+      ${card_start("Note on living together:", color="info")}
+      You may select 'Yes' even if you have left the home due to the abuse you claim and you intend to return to the home and have ${ resp.name.first } removed.
+      ${card_end()}
+    hide if: 
+      variable: relationship_now_live_together
+      is: False   
+  - Did you and ${ resp.name.first } previously live together?: relationship_were_living_together
+    datatype: yesnoradio
+    show if: 
+      variable: relationship_now_live_together
+      is: False
+  - Have you lived together with ${resp.name.first} as a family or household member (If no, you do not qualify for this kind of restraining order unless you answered yes to one of the other relationships previously asked about.): relationship_were_living_together_household
+    datatype: yesnoradio
+    show if: relationship_were_living_together
+---
+template: step_children_explanation
+subject: "I have stepchildren, but I am not their adoptive parent or legal guardian. Why can't I use U Do It Legal to request custody and visitation orders for my stepchildren?"
+content: |
+  Contrary to what many assume, being a stepparent does not automatically make you a legal guardian or parent under the law. Even if you marry one of the parents of a child, the rights over the child remain with both natural parents after a separation or divorce and only are granted to a stepparent if a court order has been issued granting the stepparent custodial rights. 
+  
+  If you intend to seek custody and visitation orders for stepchildren that you have not formally adopted or over whom you have not been granted custodial rights, we highly encourage you to seek legal advice from an attorney.  
+---
+question: |
+  **Relationship Information**
+subquestion: | 
+  #####The court needs to know if you and ${ resp.name.first } have minor children together.
+  
+  This includes:
+  
+  - Children born to you and ${resp.name.first} who are under 18. 
+  - Any children you have legally adopted with ${resp.name.first} who are under 18.
+  - Any children over whom you have legal guardianship with ${resp.name.first} who are under 18. 
+  
+  In other words, to request custody and visitation orders over a minor child **in this case** using U Do It Legal, you and ${resp.name.first} **must both be a parent (biological or adoptive) or legal guardian** to that child. 
+  
+  This does not include:
+  
+  - Any of your children aged 18 or older.
+  - Any of your children or any minor children under your care whose other parent or legal guardian is not ${resp.name.first}.
+  - Any of ${resp.name.first}'s children or any minor children under their care whose other parent or legal guardian is not you.
+  
+  In other words, you cannot request child custody and visitation orders over any minor child to whom you and ${resp.name.first} are not both a parent (biological or adoptive) or legal guardian using U Do It Legal. 
+  
+  ${prog_disclose(step_children_explanation)}
+fields:
+  - Are you and ${ resp.name.first } the parents (together) of a child or children under 18 years old?: children.there_are_any
+    datatype: yesnoradio
+  - How many of your children with ${resp.name.first} are under 18?: children.target_number
+    datatype: integer
+    max: 10
+    show if: children.there_are_any
+  
+  - note: "#####Your Relationship to the Child or Children"
+    show if: children.there_are_any
+  - Are you the child(ren)'s parent (biological or adoptive)?: pet_parentalrelationship_parent
+    datatype: yesnoradio
+    show if: children.there_are_any
+  - Are you the child(ren)'s legal guardian?: pet_parentalrelationship_legal_guardian
+    datatype: yesnoradio
+    show if: 
+      variable: pet_parentalrelationship_parent
+      is: False
+  - note: "As a reminder, U Do It Legal can only help you request custody and visitation orders for children who meet the criteria listed above."
+    show if:
+      variable: pet_parentalrelationship_legal_guardian
+      is: False
+  - You indicated that you are neither the child(ren)'s parent nor legal guardian. What is your relationship to the child(ren)?: pet_parentalrelationship_other
+    show if:
+      variable: pet_parentalrelationship_legal_guardian
+      is: False
+  
+  - note: "#####${resp.name.first}'s Relationship to the Child or Children"
+    show if: children.there_are_any
+  - Is ${resp.name} the child(ren)'s parent (biological or adoptive)?: resp_parentalrelationship_parent
+    datatype: yesnoradio
+    show if: children.there_are_any
+  - Is ${resp.name} the child(ren)'s legal guardian?: resp_parentalrelationship_legal_guardian
+    datatype: yesnoradio
+    show if: 
+      variable: resp_parentalrelationship_parent
+      is: False
+  - note: "As a reminder, U Do It Legal can only help you request custody and visitation orders for children who meet the criteria listed above."
+    show if:
+      variable: resp_parentalrelationship_legal_guardian
+      is: False
+  - You indicated that ${resp.name} is neither the child(ren)'s parent nor legal guardian. What is ${resp.name.first}'s relationship to the children?: resp_parentalrelationship_other
+    show if:
+      variable: resp_parentalrelationship_legal_guardian
+      is: False
+---
+question: |
+  **Your Children**
+subquestion: |
+  % if children.target_number == 1:
+  Tell us about your child.
+  % elif children.target_number >= 2 and i == 0:
+  Tell us about your **oldest** child first.
+  % else:
+  You told us 
+  about **${comma_and_list([child.name.first for child in children.complete_elements()])}**. 
+  Tell us about your **${ordinal(i)}** oldest child. 
+  % endif
+fields:
+  - First name: children[i].name.first
+  - Middle name: children[i].name.middle
+    required: false
+  - Last name: children[i].name.last
+  - Suffix: children[i].name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+  - Birthdate: children[i].birthdate
+    datatype: date
+    min: ${ today().minus(years=18) }
+    validation messages:
+      min: |
+        Ensure that each child listed is a minor (i.e. under the age of 18). If necessary, please return to the previous page and ensure the number of children you entered only represents the number of MINOR children you and ${resp} share.
+---
+question: |
+  Filing Good Cause Reports
+subquestion: |
+  ${card_start("WARNING: If You Flee Your Home with the Children:", color="warning")}
+  If you have fled, or if you plan on fleeing, your home with the children without ${resp.name.first}'s written consent or a child custody order permitting you to do so, read the information below to ensure that you are not charged with or arrested for child abduction.
+  ${card_end()}
+  
+  ${prog_disclose(ca_pen_code_278_7)}
+  ${prog_disclose(ca_pen_code_278_7_explanation)}
+continue button field: good_cause_report
+---
+template: ca_pen_code_278_7
+subject: |
+  California Penal Code section 278.7
+content: |
+  [California Penal Code Section 278.7](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=278.7.&lawCode=PEN) States:
+  
+  278.7. Exception; belief of bodily injury or emotional harm; report by person taking or concealing child; confidentiality
+  
+  - (a) Section 278.5 does not apply to a person with a right to custody of a child who, with a good faith and reasonable belief that the child, if left with the other person, will suffer immediate bodily injury or emotional harm, takes, entices away, keeps, withholds, or conceals that child.
+  - (b) Section 278.5 does not apply to a person with a right to custody of a child who has been a victim of domestic violence who, with a good faith and reasonable belief that the child, if left with the other person, will suffer immediate bodily injury or emotional harm, takes, entices away, keeps, withholds, or conceals that child. “Emotional harm” includes having a parent who has committed domestic violence against the parent who is taking, enticing away, keeping, withholding, or concealing the child.
+  - (c) The person who takes, entices away, keeps, withholds, or conceals a child shall do all of the following: (1) Within a reasonable time from the taking, enticing away, keeping, withholding, or concealing, make a report to the office of the district attorney of the county where the child resided before the action. The report shall include the name of the person, the current address and telephone number of the child and the person, and the reasons the child was taken, enticed away, kept, withheld, or concealed. (2) Within a reasonable time from the taking, enticing away, keeping, withholding, or concealing, commence a custody proceeding in a court of competent jurisdiction consistent with the federal Parental Kidnapping Prevention Act (Section 1738A, Title 28, United States Code) or the Uniform Child Custody Jurisdiction Act (Part 3 (commencing with Section 3400) of Division 8 of the Family Code). (3) Inform the district attorney’s office of any change of address or telephone number of the person and the child.
+  - (d) For the purposes of this article, a reasonable time within which to make a report to the district attorney’s office is at least 10 days and a reasonable time to commence a custody proceeding is at least 30 days. This section shall not preclude a person from making a report to the district attorney’s office or commencing a custody proceeding earlier than those specified times.
+  - (e) The address and telephone number of the person and the child provided pursuant to this section shall remain confidential unless released pursuant to state law or by a court order that contains appropriate safeguards to ensure the safety of the person and the child.
+---
+template: ca_pen_code_278_7_explanation
+subject: |
+  What does this mean in more simple terms? 
+content: |
+  This law states that if you have a legal right to custody of a child and you believe, in good faith and with reason, that the child could face immediate physical harm or emotional distress if left with the other parent, you are allowed to take or conceal the child. This also applies to you as an alleged victim of domestic violence if you believe that leaving the child with the Other Party might lead to the child’s immediate harm or distress. Emotional harm can also mean a situation where the Other Party has committed domestic violence against you that adversely affects you emotionally, and you decide to take or hide the child.
+
+  **However, if you take or hide a child under these circumstances, you are required to do the following:**
+
+  - Report to the district attorney’s office in the county where the child lived before you took or concealed them. You should do this within a reasonable time, sharing your name, the child’s current address and phone number, and your reasons for taking or hiding the child.
+  - Start a legal process to obtain custody of the child, such as requesting custody and visitation orders through your request for domestic violence restraining orders. You should do this in a court that has jurisdiction and is in line with federal law, such as the federal Parental Kidnapping Prevention Act or the Uniform Child Custody Jurisdiction Act. This should be done within a reasonable time from when you took or hid the child.
+  - Keep the district attorney’s office updated with any changes in your address or phone number, as well as the child’s.
+
+  Under the California Penal Code section 278.7(d), a "reasonable time" to report to the district attorney's office is considered to be at least 10 days. A "reasonable time" to start a custody proceeding is at least 30 days. However, you can choose to do these things sooner.
+
+  Lastly, your address and phone number, and the child’s, that you provide during this process will stay confidential. It can only be disclosed according to state law or by a court order that has necessary safeguards to protect your and the child’s safety.
+---
+question: |
+  Other Protected People
+subquestion: |
+  If granted, these restraining orders will apply to and protect **only you** unless you request protection for additional people (such as children, roommates, partners, etc.).In other words, you have the opportunity for you to extend protection beyond yourself within this Request for DVRO. This is especially important if you have children or other family members living with you who could also be at risk. 
+  
+  By including their names and relevant information, you may ask the court to include these loved ones under the umbrella of the restraining order's protection. Doing so helps ensure that the safety measures apply to those close to you, offering them the same legal safeguard against harassment or harm. Remember, the inclusion of additional protected persons can provide a crucial shield for those who might also be vulnerable in your domestic situation.
+fields:
+  - Do you want the restraining order to protect your children, family, or someone you live with?: additionalprotectedpersons.there_are_any
+    datatype: yesnoradio
+---
+question: |
+  Additional Protected People
+fields: 
+  - How many additional people are you requesting protection for?: additionalprotectedpersons.target_number
+    datatype: integer
+    max: 10
+---
+question: |
+  Additional Protected People
+subquestion: |
+  % if additionalprotectedpersons.target_number == 1:
+  Tell us about the child, household or family member for whom you are requesting protection under this order.
+  % elif additionalprotectedpersons.target_number >= 2 and i == 0:
+  Tell us about the **first** child, household or family member for whom you are requesting protection under this order.
+  % else:
+  You told us about **${comma_and_list([additionalprotectedpersons.name.first for additionalprotectedpersons in additionalprotectedpersons.complete_elements()])}**. 
+  Now tell us about the **${ordinal(i)}** child, household or family member for whom you are requesting protection under this order. 
+  % endif
+
+fields:
+  - First name: additionalprotectedpersons[i].name.first
+  - Middle name (if applicable): additionalprotectedpersons[i].name.middle
+    required: false
+  - Last name: additionalprotectedpersons[i].name.last
+  - Suffix (if applicable): additionalprotectedpersons[i].name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+  
+  - Age: additionalprotectedpersons[i].age
+  
+  - Relationship to you: additionalprotectedpersons[i].relationship
+    help: "Daughter, Grandfather, etc."
+  
+  - Lives with you?: additionalprotectedpersons[i].liveswithyou
+    datatype: yesnoradio
+---
+question: |
+  **Describe the Abuse:** Additional Protected People
+fields:
+  - Please explain why ${ additionalprotectedpersons } need an order of protection from ${ resp }: additionalprotectedpersons_explanation
+    input type: area 
+---
+depends on:
+  - has_other_restraining_order
+code: |
+  prior_restrainingorder1.enabled=has_other_restraining_order
+---
+question: |
+  Other Restraining/Protective Orders Involving ${ resp.name.first }
+fields: 
+  - Are there any restraining orders or protectice orders **currently in place between you and ${resp.name.first}** OR **that have expired in the last six months** (For example, did the police give you a restraining order that lasts a few days? Do you have one from the criminal court?): other_restraining_order
+    datatype: yesnoradio
+  - Date of the order: other_restraining_order1_date
+    datatype: date
+    show if: other_restraining_order
+  - Date it expires: other_restraining_order1_expiration_date
+    datatype: date
+    show if: other_restraining_order
+    min: ${ today().minus(months=6) }
+---
+question: |
+  Upload a Copy of the Restraining/Protective Order Involving ${ resp.name.first }
+fields: 
+  - Are you able to upload a copy of the order?: has_other_restraining_order
+    datatype: yesnoradio
+  - Upload a copy of the order: prior_restrainingorder1.file
+    datatype: file
+    show if: has_other_restraining_order
+---
+depends on:
+  - has_another_restraining_order
+code: |
+  prior_restrainingorder2.enabled=has_another_restraining_order
+---
+question: |
+  Other Restraining/Protective Orders Involving ${ resp.name.first }
+fields: 
+  - Are there any *other* restraining or protective orders **currently in place between you and ${resp.name.first}** OR **that have expired in the last six months**?: another_restraining_order
+    datatype: yesnoradio
+  - Date of the other order: other_restraining_order2_date
+    datatype: date
+    show if: another_restraining_order
+  - Date it expires: other_restraining_order2_expiration_date
+    datatype: date
+    show if: another_restraining_order
+    min: ${ today().minus(months=6) }
+  
+---
+question: |
+  Upload a Copy of the Other Restraining/Protective Order Involving ${ resp.name.first }
+fields: 
+  - Are you able to upload a copy of the order?: has_another_restraining_order
+    datatype: yesnoradio
+  - Upload a copy of the order: prior_restrainingorder2.file
+    datatype: file
+    show if: has_another_restraining_order
+---
+question: |
+  Other Court Cases with ${ resp.name.first }
+subquestion: |
+  % if additionalprotectedpersons.there_are_any:
+  Have you or ${ comma_and_list(additionalprotectedpersons) } been involved in any other court case with ${ resp.name.first }?
+  % else:
+  Have you been involved in any other court case with ${ resp.name.first }?
+  % endif
+  
+  Other court cases may include:
+  
+  - Custody (Parentage/Paternity) 
+  - Divorce, Legal Separation, or Nullity
+  - Juvenile (Child Welfare or Juvenile Justice):
+  - Guardianship
+  - Criminal
+fields: 
+  - no label: othercourtcases
+    datatype: yesnoradio
+---
+question: |
+  Other Court Cases with ${ resp.name.first }
+subquestion: |
+  % if additionalprotectedpersons.there_are_any:
+  Check each case type that you or ${ comma_and_list(additionalprotectedpersons) } have been involved in with ${ resp.name.first }.
+  % else:
+  Check each case type that you have been involved in with ${ resp.name.first }.
+  % endif
+fields: 
+  - Child Custody (Parentage or Paternity): prior_parentage
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_parentage_info
+    show if: prior_parentage
+    help: "Example: East Los Angeles, CA / 2023 / Case Number: 23ELPT12345"
+  - Divorce, Nullity, or Legal Separation: prior_divorce
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_divorce_info
+    show if: prior_divorce
+    help: "Example: Hollywood, CA / 2021 / Case Number: 21HWFL12345"
+  - Juvenile (Child Welfare or Juvenile Justice): prior_juvenile
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_juvenile_info
+    show if: prior_juvenile
+    help: "Example: Santa Monica, CA / 2022 / Case Number: 22CCJP12345A"
+  - Guardianship: prior_guardianship
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_guardianship_info
+    show if: prior_guardianship
+    help: "Example: El Monte, CA / 2020 / Case Number: 20EMFL12345"
+  - Criminal: prior_criminal
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_criminal_info
+    show if: prior_criminal
+    help: "Example: Pasadena, CA / 2023 / Case Number: 23PDCM12345"
+  - Other: prior_other
+    datatype: yesno
+  - First, specify the type of case. Then, if you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_other_info
+    show if: prior_other
+    help: "Example: Child Support / Norwalk, CA / 2020 / 20NWCS12345"
+
+validation code: |
+  if prior_parentage is False and prior_divorce is False and prior_juvenile is False and prior_guardianship is False and prior_criminal is False and prior_other is False:
+    validation_error("You must check at least one case type")
+---
+template: court_order_explanation
+subject: |
+  What is a Court Order?
+content: |
+  A court order is a legally binding document issued by a judge or court that instructs a person or entity to do or not do something.
+---
+template: order_violation_explanation
+subject: |
+  What happens if ${resp.name.first} violates a court order?
+content: |
+    Court orders are legally binding, and if ${resp.name.first} violates the terms of the order, he or she can face legal consequences such as fines, jail time, or both. You can also request that the court modify or extend the restraining order if you continue to feel threatened or harassed by ${resp.name.first}.
+---
+question: |
+  **Requesting Orders**
+subquestion: |
+  The next section will explain the different types of orders that you can ask the court for. It is up to you to decide which orders you want to request. 
+  
+  ${prog_disclose(court_order_explanation)}
+
+  For each order you request, the judge may deny the order, grant the order in part, or grant the order in full (if the judge finds that there is sufficient evidence to support the issuance of an order).
+  
+  ${prog_disclose(order_violation_explanation)}
+  
+  It's important to note that court orders are serious legal documents, and it's essential to understand the terms and requirements of the order thoroughly. Make sure you read the explanations on each page before requesting (or not requesting) an order. 
+continue button field: orders_explanation
+---
+question: |
+  **Requesting Orders:** Order Not To Abuse
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If requested and granted, an order to not abuse prevents ${ resp.name.first }  from acting on behaviors directed at you or any other people protected under this order. If the judge grants this type of order, the court will forbid ${ resp.name.first } from doing any of the abusive behaviors listed below:
+  
+  - Harass, attack, strike, threaten, assault (sexually or otherwise), hit, follow, stalk, molest, destroy personal property, keep under surveillance, impersonate (on the internet, electronically, or otherwise), block movements, annoy by phone or other electronic means (including repeated contact), or disturb the peace of you or any other people protected under this order
+fields: 
+  - Would you like to request an order to not abuse?: order_to_not_abuse
+    datatype: yesnoradio
+---
+question: |
+  **Requesting Orders:** No-Contact Order
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If requested and granted, a no-contact order prohibits ${resp.name.first} from contacting you in any way, either directly or indirectly (i.e., through other people), and including, but not limited to, by phone call, text, email, or other electronic means. 
+fields:   
+  - Would you like to request that the court order ${ resp.name.first } not to contact you (or any additional protected people) in any way?: no_contact
+    datatype: yesnoradio
+---
+question: |
+  **Requesting Orders:** Stay-Away Orders
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If requested and granted, a stay-away order can prevent ${ resp.name.first } from coming within a certain number of yards from each person and location you indicate below.
+fields: 
+  - Would you like to request a stay-away order?: stay_away_order
+    datatype: yesnoradio
+  - note: "**Check each person and location from which you would like ${ resp.name.first } to stay away:**"
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - You: stay_away_order_me
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False 
+  - Your home: stay_away_order_my_home
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Your job or workplace: stay_away_order_my_job
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Your car/vehicle: stay_away_order_my_vehicle
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Your school (*if applicable*): stay_away_order_my_school
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Each additional protected person (*if applicable*): stay_away_order_additional_protected_persons
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Your child(ren)'s school or childcare (*if applicable*): stay_away_order_childrens_school
+    datatype: yesnowide
+    show if: stay_away_order
+  - Other: stay_away_order_other
+    datatype: yesnowide
+    hide if: 
+      variable: stay_away_order
+      is: False
+  - Please specify the address of the other location you would like to include in your request for stay-away orders: stay_away_order_other_place
+    required: false
+    show if: stay_away_order_other
+  - Would you like to request that ${resp.name.first} be ordered to stay away 100 yards (300 feet) away from each person and location selected above?: stay_away_order_100
+    datatype: yesnoradio
+    show if: stay_away_order
+  - Number of yards they must stay away from each person and location selected above: stay_away_order_distance
+    datatype: number
+    help: "Example: 50"
+    show if: 
+      variable: stay_away_order_100
+      is: False
+  
+  - note: "#####Your and ${resp.name.first}'s Living Situation"
+  - Do you and ${resp.name.first} live together or live close to each other?: live_together_or_close
+    datatype: yesnoradio
+  - Do you and ${resp.name.first} live together?: live_together
+    datatype: yesnoradio
+    show if: live_together_or_close
+  - Do you and ${resp.name.first} live in the same building, but not in the same home?: same_building
+    datatype: yesnoradio
+    show if: 
+      variable: live_together
+      is: False
+  - Do you and ${resp.name.first} live in the same neighborhood?: same_neighborhood
+    datatype: yesnoradio
+    show if: 
+      variable: same_building
+      is: False 
+  - You indicated that you and ${resp.name.first} do not live in the same building or neighborhood. Do you and ${resp.name.first} live close to one another?: live_close_other
+    datatype: yesnoradio
+    show if: 
+      variable: same_neighborhood 
+      is: False 
+  - Briefly explain: live_close_other_explain
+    show if: live_close_other
+    
+  - note: "#####Your and ${resp.name.first}'s Workplace and School"
+  - Do you and ${resp.name.first} have the same workplace or go to the same school?: same_workplace_or_school
+    datatype: yesnoradio
+  - Do you and ${resp.name.first} work together?: same_workplace
+    datatype: yesnoradio
+    show if: same_workplace_or_school
+  - Specify (Name of Company): same_workplace_specify
+    show if: same_workplace
+    max: 40
+  - Do you and ${resp.name.first} go to the same school?: same_school
+    datatype: yesnoradio
+    show if: same_workplace_or_school
+  - Specify (Name of School): same_school_specify
+    show if: same_school
+    max: 40
+  - Other Situation (if applicable): same_workplace_or_school_other
+    datatype: yesnoradio
+    show if: same_workplace_or_school
+    required: False
+  - Other (please explain): same_workplace_or_school_other_explain
+    show if: same_workplace_or_school_other
+---
+template: move_out_explanation
+subject: |
+  Can I make a move-out request if I already moved out?
+Content: |
+  Yes. If you moved out of the shared home to escape the abuse before seeking a TRO, you can still ask for a move-out order in order to move back in safely.
+---
+template: move_out_eligibility_explanation
+subject: |
+  What do I need to show the court to receive a move-out order?
+content: |      
+  (1) You have a “right under color of the law” to use the home;
+    
+  (2) ${resp.name.first} has assaulted or threatened to assault you, your child, or dependent adult; and
+    
+  (3) You, your child, or a dependent adult will be physically or emotionally harmed if ${resp.name.first} continues to live in the home.
+     
+  **For more information about move-out orders, including an explanation of "right under the color of the law" above, please read the Family Violence Appellate Project's helpful [Move-Out Order Tip Sheet](https://content.govdelivery.com/attachments/CALACOUNTY/2021/10/06/file_attachments/1959474/Move%20Out%20Order%20Tip%20Sheet%20-%20updated%202021.pdf).**
+---
+template: rent_mortgage_move_out_explanation
+subject: |
+  Can the court order ${resp.name.first} to pay the rent or mortgage?
+content: |
+  If you are seeking a restraining order and need ${resp.name.first} to pay the rent or mortgage, you can ask the court to order them to do so, even if he or she is also ordered to leave the shared home. You can ask the court to order ${resp.name.first} to pay some or all of the rent or mortgage later in this interview on the page labelled, "Requesting Orders: Pay Debts (Bills) Owed for Property." You will need to explain why it is urgent that ${resp.name.first} pays, such as if they are the only source of income and you will face eviction if the payments are not made.
+
+  During your hearing, you can further explain to the court why ${resp.name.first} should pay the rent or mortgage. The court will consider all relevant factors and may issue an order requiring ${resp.name.first} to pay the rent or mortgage.
+---
+question: |
+  **Requesting Orders:** Order to Move Out
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If requested and granted, a move-out order would require ${resp.name.first} to move out of your shared home. A court can grant a move-out order as part of a temporary restraining order (TRO) or a long-term order (DVRO/ROAH).
+    
+  ${prog_disclose(move_out_eligibility_explanation)}
+  
+  ${prog_disclose(move_out_explanation)}
+  
+  ${prog_disclose(rent_mortgage_move_out_explanation)}
+fields: 
+  - You previously indicated that you and ${resp.name.first} currently live together. Would you like to request a move-out order?: move_out_order
+    datatype: yesnoradio
+  - If granted, the judge will order ${resp.name.first} to move out of the home located at (specify address): move_out_address
+    show if: move_out_order
+  - note: "Explain why you have the right to live at this address (check all that apply):"
+    show if: move_out_order
+  - I own the home: move_out_home
+    datatype: yesno
+    show if: move_out_order
+  - My name is on the lease: move_out_lease
+    datatype: yesno
+    show if: move_out_order
+  - I live at this address with my child(ren): move_out_children
+    datatype: yesno
+    show if: move_out_order
+  - I have lived at this address for _ years and _ months: move_out_duration
+    datatype: yesno
+    show if: move_out_order
+  - Specify years: move_out_duration_years
+    show if: move_out_duration
+  - Specify months: move_out_duration_months
+    show if: move_out_duration
+  - I pay for some or all the rent or mortgage: move_out_rent
+    datatype: yesno
+    show if: move_out_order
+  - Other: move_out_other
+    datatype: yesno
+    show if: move_out_order
+  - Other (specify): move_out_other_specify
+    show if: move_out_other
+---
+question: |
+  Firearms (Guns), Firearms Parts, or Ammunition
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  In your Request for Domestic Violence Restraining Order case, an important consideration is the firearms restrictions that may be imposed. These restrictions can have a significant impact on the individual who is restrained. If a restraining order is issued, ${resp.name.first} might be required to surrender any guns he or she owns to the police or sell them to a licensed gun dealer. Furthermore, ${resp.name.first} may be prohibited from purchasing any new firearms while the order is in effect. 
+  
+  These measures are in place to enhance your safety, particularly if the individual from which you are seeking protection has access to guns. It's essential to be aware of these potential implications as you navigate your case.
+  
+  ${card_start("Tell us about any Firearms, Firearm Parts, or Ammunition:",color="info")}
+  
+  A firearm includes a handgun, rifle, shotgun, and assault weapon. A firearm part means a receiver, frame, or unfinished receiver or unfinished frame. Ammunition includes bullets, shells, cartridges, and clips.
+  ${card_end()}
+fields:
+  - Does ${ resp.name.first } have any **firearms or firearms parts**?: firearms.there_are_any
+    datatype: yesnomaybe
+  - Does ${ resp.name.first } have any **ammunition**?: ammunition.there_are_any
+    datatype: yesnomaybe
+---
+question: |
+  Firearms (Guns) and Firearms Parts
+subquestion: |
+  **As a reminder:** A firearm (gun) includes a handgun, rifle, shotgun, and assault weapon. A firearm part means a receiver, frame, or unfinished receiver or unfinished frame.
+fields:
+  - Describe the ${ordinal(i)} type of firearm (gun) or firearm part: firearms[i].name.text
+  - How many or what amount?: firearms[i].amount
+  - Location, if known: firearms[i].location
+    help: |
+      If you do not know the firearm or firearm part's location, you may write 'Unknown'
+list collect:
+  enable: not firearms.has_been_gathered()
+  is final: True
+  allow delete: True
+  add another label: Add more
+  label: |
+    #####Firearm/Firearm Part ${ i+1 }.
+--- 
+question: |
+  Ammunition
+subquestion: |
+  **As a reminder:** Ammunition includes bullets, shells, cartridges, and clips.
+fields:
+  - Describe the ${ordinal(i)} type of ammunition: ammunition[i].name.text
+  - How many or what amount?: ammunition[i].amount
+  - Location, if known: ammunition[i].location
+    help: |
+      If you do not know the firearm or firearm part's location, you may write 'Unknown'
+list collect:
+  enable: not ammunition.has_been_gathered()
+  is final: True
+  allow delete: True
+  add another label: Add more
+  label: |
+    #####Ammunition ${ i+1 }.
+---
+code: |
+  combined_firearms = firearms.extend(ammunition)
+---
+question: |
+  **Requesting Orders:** Record Unlawful Communications
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  In the state of California, it is illegal to record someone without their consent. Would you like to request that the judge allow you to to record calls or communications ${resp.name.first} makes to you (or anyone else protected under this order), when those calls or communications violate this restraining order?
+fields:
+  In other words, would you like to request the ability to record ${ resp.name.first }, without having to ask permission beforehand, in the event that he or she violates the restraining order by contacting you?: record_unlawful_communications
+  datatype: yesnoradio
+---
+question: |
+  **Requesting Orders:** Protect Animals
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  To request protection for a pet or animal, you may ask the court to grant you sole possession, care, and control over your pet(s) or animal(s). You may ask the court to protect your animals, your children’s animals, or ${resp.name.first}'s animals.
+fields: 
+  - Do you have any pets or animals that you would like to protect under this order?: animals.there_are_any
+    datatype: yesnoradio
+  - How many animals are you seeking protection for?: animals.target_number
+    datatype: integer
+    show if: animals.there_are_any
+---
+question: |
+  **Requesting Orders:** Care of Animals
+subquestion: |
+  % if animals.target_number == 1:
+  Tell us about the animal or pet you'd like protected.
+  % elif animals.target_number >= 2 and i == 0:
+  Tell us about the **first** animal or pet you'd like protected.
+  % else:
+  You told us about **${comma_and_list([animals.name.text for animals in animals.complete_elements()])}**. 
+  Now tell us about the **${ordinal(i)}** animal or pet you'd like protected.
+  % endif
+fields: 
+  - Name (or other way to ID animal): animals[i].name.text
+  - Type of animal: animals[i].type
+  - Breed: animals[i].breed
+    required: false
+  - Color: animals[i].color
+---
+question: |
+  **Requesting Orders:** Care of Animals
+fields: 
+  - Would you like to ask the court to order ${ resp.name.first } to **not** take, sell, transfer, encumber, conceal, molest, attack,  strike, threaten, harm, or otherwise dispose of any animal protected under the order?: animals_no_harm
+    datatype: yesnoradio
+  - Would you like to ask the court to order ${resp.name.first} to stay away from the animals?: animals_stay_away
+    datatype: yesnoradio
+  - Would you like to request that ${resp.name.first} be ordered to stay 100 yards (300 feet) away from each protected animal?: animals_100
+    datatype: yesnoradio
+    show if: animals_stay_away
+  - Provide the number of yards you want ${ resp.name.first } to stay away from each protected animal: animals_distance
+    datatype: integer
+    show if: 
+      variable: animals_100
+      is: False
+    help: "Example: 50"
+  - note: "You need sole possession, control, and care of the animals because: (check all that apply)"
+  - ${resp.name.first} abuses the animals: animal_explanation_resp_abuse
+    datatype: yesno
+  - I purchased these animals: animal_explanation_pet_own
+    datatype: yesno
+  - I take care of these animals: animal_explanation_pet_care
+    datatype: yesno
+  - Other: animal_explanation_other
+    datatype: yesno
+  - Other (specify): animal_explanation_other_specify
+    show if: animal_explanation_other
+    help: "Example: Respondent has threatened to harm them to try and control me."
+validation code: |
+  if not animals_no_harm and not animals_stay_away:
+    validation_error("You must select 'Yes' to at least one of the following protective orders before proceeding to the next page. If you no longer wish to request orders to protect animals, please return to the prior pages and select 'No' when asked if you'd like to request orders to protect animals.")
+---
+question: |
+  **Requesting Orders:** Property Control 
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Property control is another key factor in Domestic Violence Restraining Order cases. If the court grants this type of order, it gives you temporary control over certain property that you and ${resp.name.first} own or rent. For instance, you may be granted exclusive control over a vehicle, a home, a smartphone, or other shared assets, regardless of who the property is technically registered to. These temporary orders can provide you with necessary stability, ensuring you have a place to live or a means of transportation while your case is ongoing. It's vital to understand this aspect of restraining orders as you work through your case.
+  
+  If you request a property control order, the court can grant you temporary possession of things that you and ${ resp.name.first } own together (*such as a cell phone, car, computer, etc.*). 
+fields: 
+  - Would you like to request property control orders?: property_control
+    datatype: yesnoradio
+  - Please describe the property over which you would like the court to grant you sole temporary use, possession, and control: property_control_description
+    input type: area
+    show if: property_control
+    help: "Example: I would like to respectfully request control over our shared 2015 Kia Sorento (plate number ABC123)."
+  - Explain why the court should grant **only you** temporary use, possession, and control of the property described above: property_control_explain
+    datatype: area
+    show if: property_control
+    help: "Example: If I cannot access this car, I would have to take 3 different buses to work. I also wouldn't be able to pick up my child from school. However, Respondent could easily use the Metro to commute to and from his work if he couldn't use the car."
+---
+question: |
+  **Requesting Orders:** Pay Debts (Bills) Owed for Property 
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  In Domestic Violence Restraining Order cases, there is a provision known as "Pay Debts (Bills) Owed for Property." This provision allows the court to order ${resp.name.first} to pay certain debts related to property that you both own or rent, such as mortgage payments, utility bills, or other shared financial obligations. However, it's important to note that if you, as the protected party, do not agree to the debt, the judge has the discretion to make special decisions (findings) regarding the payment of those debts. This means that the judge can consider your position and make a determination on the responsibility for payment that is fair and reasonable based on the circumstances of your case. It's crucial to be aware of this aspect of the restraining order process as it can have implications for your financial well-being.
+  
+  If you want ${resp.name.first} to pay any debts owed for property, you may list them and explain why. The amount can be for the entire bill or only a portion. Some examples include rent, mortgage, car payment, etc.
+fields:
+  - Are there are any debts for which you would like ${ resp.name.first } to pay/continue paying until the hearing?: debtpayment.there_are_any
+    datatype: yesnoradio
+---
+question: |
+  **Requesting Orders:** Pay Debts (Bills) Owed for Property 
+subquestion: |
+  Provide the following information for the debt(s) that you want the court to order ${ resp.name.first } to pay/continue to pay. The amount can be for the entire bill or only a portion.   
+  
+  ${card_start("Debts Made Without Your Permission", color="info")}
+  Special decision (finding) by the judge: If you did not agree to one or more of the debts listed above, you can ask the judge to decide (find) that the debt was made without your permission and resulted from ${resp.name.first}'s abuse. This may help you defend against the debt if you are sued in another case.
+  ${card_end()}
+fields:
+  - Describe the ${ordinal(i)} debt: debtpayment[i].name.text
+    help: "Examples: Rent, Mortgage, Car Payment, Credit Card Payment"
+  - To whom is the debt paid/owed?: debtpayment[i].pay_to
+    help: "Examples: Capital One, Karen Smith, Wells Fargo"
+  - How much is owed for each payment?: debtpayment[i].amount
+    datatype: currency
+  - When is the payment due: debtpayment[i].due_date
+    help: "Example: 1st of every month"
+  - Do you want the judge to make this special decision (finding) for this debt?: debtpayment[i].special_decision
+    datatype: yesnoradio
+  - Do you know how ${resp.name.first} made the debt?: debtpayment[i].special_decision_how
+    datatype: yesnoradio
+    show if: debtpayment[i].special_decision
+list collect:
+  enable: not debtpayment.has_been_gathered()
+  is final: True
+  allow delete: True
+  add another label: Add Another Debt
+  label: |
+    #####Debt/Bill ${ i+1 }.
+---
+question: |
+  Are there any more debts?
+yesno: debtpayment.there_is_another
+---
+question: |
+  **Requesting Orders:** Pay Debts (Bills) Owed for Property 
+fields: 
+  - Explain why you want ${resp.name.first} to pay each debt described on the previous page(s).: debtpayment_explain
+    input type: area
+---
+question: |
+  **Requesting Orders:** Pay Debts (Bills) Owed for Property 
+fields: 
+  - note: "You indicated that you did not agree to at least one debt described on the previous page(s), and that you are asking the judge to decide (find) that at least one debt was made without your permission and resulted from ${resp.name.first}'s abuse." 
+  - Explain how ${resp.name.first} made the debt or debts.: debtpayment_explanation
+    input type: area
+---
+question: |
+  **Requesting Orders:** Transfer of Wireless Phone Accounts  
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If ${resp.name.first} holds the rights to your or your child's cell phone account, you can ask the judge to order that your wireless service provider transfer the ownership of these accounts to you. Note, this means you will be financially responsible for these accounts. 
+  
+  If you want to have control over a mobile device, like a cell phone, please go back and make this request on the previous page, labelled "Requesting Orders: Property Control"
+fields: 
+  - Would you like to ask the judge to order the wireless service provider to transfer you the billing responsibility and rights for any wireless accounts you or your children use that currently belong to ${resp.name.first}?: mobile_devices
+    datatype: yesnoradio
+  - Specify the phone number for the first account over which you are requesting ownership (including the area code): mobile_devices_first_number
+    help: "###-###-####"
+    show if: mobile_devices
+  - Is this your number or the number of a child in your care?: mobile_devices_first_ownership
+    choices:
+      - My number: mobile_devices_first_ownership_pet
+      - Number of a child in my care: mobile_devices_first_ownership_child
+    show if: mobile_devices
+  - Is there another account over which you'd like to request ownership?: mobile_devices_second
+    datatype: yesnoradio
+    show if: mobile_devices
+  - Specify the phone number for the second account over which you are requesting ownership (including the area code): mobile_devices_second_number
+    help: "###-###-####"
+    show if: mobile_devices_second
+  - Is this your number or the number of a child in your care?: mobile_devices_second_ownership
+    choices:
+      - My number: mobile_devices_second_ownership_pet
+      - Number of a child in my care: mobile_devices_second_ownership_child
+    show if: mobile_devices_second
+  - note: |
+      ${card_start("Rights to Other Mobile Devices and Wireless Phone Accounts", color="info")}
+        If there are additional accounts that you would like ${resp.name.first} to transfer to you, you may request them in the section "Other Orders"
+      ${card_end()}
+---
+question: |
+  **Requesting Orders:** Health and Other Insurance
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  % if children.there_are_any and children.target_number == 1:
+  Would you like to I ask the court to order that ${ resp.name.first } be prohibited from making any changes to any insurance or other coverage for you, ${resp.name.first}, or your child, including not being allowed to cancel, cash, borrow against, transfer, dispose of, or change the beneficiaries for the insurance?
+  % elif children.there_are_any and children.target_number >= 2:
+  Would you like to ask the court to order that ${ resp.name.first } be prohibited from making any changes to any insurance or other coverage for you, ${resp.name.first}, or your children, including not being allowed to cancel, cash, borrow against, transfer, dispose of, or change the beneficiaries for the insurance?
+  % else:
+  Would you like to ask the court to order that ${ resp.name.first } be prohibited from making any changes to any insurance or other coverage for you or  ${resp.name.first}, including not being allowed to cancel, cash, borrow against, transfer, dispose of, or change the beneficiaries of any insurance?
+  % endif
+fields:
+  - no label: insurance
+    datatype: yesnoradio
+---
+template: permanent_expense_payment
+subject: |
+  What happens if expense payment orders are issued?
+content: |
+  If the court orders ${resp.name.first} to reimburse you or the owed party for expenses resulting from the abuse, the court will set a specific deadline for payment. If ${resp.name.first} fails to pay the debt by the deadline, you may need to pursue alternative methods for collecting the debt, such as obtaining a Writ of Execution to garnish wages or placing a lien on relevant assets. These collection procedures are best handled by a reputable collections attorney or agency, as U Do It Legal does not have the expertise or resources to assist with debt collection matters at this time.
+---
+question: |
+  **Requesting Orders:** Pay Expenses Caused by Abuse
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  If you had to pay for any costs or services that were **caused directly** by ${resp.name.first}'s abuse (such as damaged property, medical care, counseling, temporary housing, etc.), you can request that the court order ${resp.name.first} to pay you back for those costs and services. Note that you must bring proof of these amounts to your court date.
+  
+  There are no limits on the amount of expenses for which you may request reimbursement, so long as you can prove to the court that you incurred these costs directly as a result of ${resp.name.first}'s abuse. 
+  
+  ${prog_disclose(permanent_expense_payment)}
+fields:
+  - Would you like to request an order for the reimbursement of any costs and services you have incurred as a result of ${ resp.name.first }'s abuse?: payexpenses.there_are_any
+    datatype: yesnoradio
+---
+question: |
+  **Requesting Orders:** Pay Expenses Caused by Abuse 
+subquestion: |
+  Provide the following information for the each reimbursement that you are requesting from ${ resp.name.first }.
+fields:
+  - What is this reimbursement for?: payexpenses[i].name.text
+    help: "Examples: damaged property, medical care, counseling, etc."
+  - To whom is this reimbursement owed? (*If you are requesting that ${ resp.name.first } reimburse you directly, you may write your full name here*): payexpenses[i].to
+  - Provide the amount to be reimbursed: payexpenses[i].amount
+    datatype: currency
+list collect:
+  enable: not payexpenses.has_been_gathered()
+  is final: True
+  allow delete: True
+  add another label: Add more
+  label: |
+    #####Expense ${ i+1 }.
+---
+template: batterer_intervention_explanation
+subject: |
+  More information on Batterer Intervention Programs
+content: |
+  Batterer intervention programs (BIPs) are programs designed to help individuals who have been abusive or violent in their relationships to change their behavior and learn to interact non-violently with their partners. 
+
+  BIPs typically involve group therapy sessions that focus on teaching participants how to identify and change the attitudes and behaviors that contribute to violence and abuse. These programs may also include education about the dynamics of power and control in relationships, as well as skills training to help participants communicate more effectively and resolve conflicts peacefully.
+
+  Some BIPs may also include individual therapy sessions or other forms of support, such as substance abuse treatment or anger management. The length and frequency of BIP sessions can vary, but they typically involve weekly or biweekly sessions over the course of several months or longer.
+
+  It is important to note that while BIPs can be helpful in some cases, they are not a guarantee that ${resp.name.first} will stop being abusive. It is important for individuals who have experienced domestic violence to also seek out support and safety for themselves, and to have a plan in place in case the abuser does not change their behavior.
+---
+template: batterer_intervention_video
+subject: |
+  BIP Group Session Example (Video)
+content: |
+  To get an inside look at a group session conducted through one of these programs, you can watch [this video](https://www.youtube.com/watch?v=AGCmvL0iXc8&t=1s) in which convicted abusers reflect on the beliefs and attitudes that underlie the behavior that led them to commit domestic abuse.
+---
+question: |
+  **Requesting Orders:** Batterer Intervention Program 
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Batterer Intervention Programs (BIPs) are court-ordered programs designed for perpetrators of domestic violence. These programs may consist of educational classes, treatment groups, evaluations, individual counseling, and case management. 
+  
+  If you request that ${resp.name.first} be ordered to attend a BIP, he or she will have to pay for and attend weekly classes in a 52-week batterer intervention program that teaches accountability, abuse effects, and gender roles to help stop abuse. If ordered to complete the program, ${resp.name.first} would have to show proof to the judge that he or she enrolled in the program. 
+  
+  ${prog_disclose(batterer_intervention_explanation)}
+  ${prog_disclose(batterer_intervention_video)}
+fields:
+  - Would you like to ask the court to order ${ resp.name.first } to go to a 52-week batterer intervention program and show proof of completion to the court?: batterer_intervention
+    datatype: yesnoradio
+---
+template: extend_good_cause
+subject: |
+  What constitutes "good cause" in a request to extend my deadline to give notice? 
+content: |
+  For the court to grant your request to extend the deadline to give ${resp.name.first} notice of the restraining order, you must provide evidence that persuades the judge that if ${resp.name.first} is given more notice than requested (for example, being served 5 days before the hearing as opposed to 2 days before the hearing), that such additional time substantially increases the likelihood that ${resp.name.first} will physically harm or otherwise harass the protected party (you), directly or indirectly, through means such as text messages, calls, voicemails, emails, or other forms of written, verbal, or digital communication. 
+---
+question: |
+  **Requesting Orders:** Extend My Deadline to Give ${resp.name.first} Notice of the Restraining Order
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Usually, the judge will give you about two weeks to give notice, or to "serve" ${resp.name.first}. If you need more time to serve (i.e., have someone give a copy of your restraining order to ${resp.name.first}), the judge may be able to give you a few extra days. 
+  
+  In other words, you can ask the court to shorten the time between service and your hearing, so long as you can show the judge that there is good cause (a good enough reason) to do so.
+  
+  ${prog_disclose(extend_good_cause)}
+
+  ${card_start("Note:", color="info")}
+  If you are granted a Temporary Restraining Order (aka a TRO, which lasts until the hearing), **law enforcement cannot enforce the order until ${ resp.name.first } is served with** (given a copy of) **the order.** 
+  ${card_end()}
+  
+  ${card_start("Also Note:", color="secondary")}
+  After you have completed your court forms through this interview, we provide you with both a video and written explanations of the service process in your "Next Steps" interview. If you want to learn more information about service in the meantime, please see the Judicial Council of California's helpful [Info Sheet](https://www.courts.ca.gov/documents/dv200info.pdf), "What is Proof of Personal Service?"
+  ${card_end()}
+fields: 
+  - Would you like to ask the court to extend your deadline to give notice to (serve) ${resp.name.first} with your request for a domestic violence restraining order?: time_for_service
+    datatype: yesnoradio
+  - I ask the judge to give me more time to serve ${resp.name.first} because (explain): time_for_service_explanation
+    input type: area
+    rows: 2
+    show if: time_for_service
+---
+question: |
+  **Requesting Orders:** Property Restraint
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Because you indicated that you and ${ resp.name.first } are currently married (or registered domestic partners), you may request a property restraint order. These orders are intended to protect your property by prohibiting ${resp.name.first}, the Other Party, from disposing, damaging, or transferring it without the court's permission. 
+  
+  The property can include real estate, vehicles, bank accounts, or other assets. By obtaining a Property Restraint Order, you can ensure that your property remains secure and intact during the legal proceedings. It's important to provide the necessary information and evidence to support your request for such an order to increase the likelihood of its issuance by the court. Remember, these orders are designed to safeguard your property and maintain your financial stability during this challenging time.
+  
+  Additionally, by requesting a property restraint order, you are asking the judge to order ${ resp.name.first } to notify you of any new or big expenses and to explain them to the court. 
+
+  ${prog_disclose(permanent_property_restraint)}
+fields:
+  - Would you like to ask the court for a property restraint order?: property_restraint 
+    datatype: yesnoradio
+---
+template: permanent_property_restraint
+subject: |
+  Property Restraint Orders After the Hearing
+content: |
+  When temporary property restraint orders have been granted in a TRO, the court will carefully consider the circumstances and evidence presented by both parties at a hearing. Note that the extension of property restraint orders may be subject to divorce proceedings, particularly if there are ongoing marital dissolution proceedings (or dissolution proceedings for a registered domestic partnership). In such cases, the court will assess various factors to determine the characterization of each piece of property, including whether it is community, separate, or quasi-community property, as well as its source, value, and other relevant considerations.
+
+  During the hearing, both parties will have the opportunity to present evidence and arguments regarding the property in question. This may involve providing documentation, such as financial records, bank statements, titles, or other relevant evidence, to support their claims about the nature and ownership of the assets. The court will carefully review this evidence and consider any relevant legal principles and guidelines when making a decision.
+---
+template: support_calculator_disclaimer
+subject: "Support Calculator Disclaimer"
+content: |
+  The materials on the Legal Calculators website are provided "as is". Legal Calculators makes no warranties, expressed or implied, and disclaims and negates all other warranties, including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights. Further, Legal Calculators does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its Internet website or otherwise relating to such materials or on any sites linked to this site.
+  
+  This calculator has not been approved by the State of California and is for estimation purposes only. No guarantee is made regarding its accuracy. We do not advise you to rely solely on this program in calculating support and do not accept any liability from your use of the program. Additionally, this calculator does not constitute legal advice and is limited to estimation of spousal support based on limited input. You should consult a qualified attorney to obtain accurate legal advice regarding your specific spousal support rights and/or obligations. Only support calculations computed by certified software programs are admissible in court. This calculator is not certified or admissible for court use.
+---
+template: what_is_ss_explanation
+subject: |
+  What is Spousal Support?
+content: |
+  Spousal Support (also known as alimony) is a court ordered payment from one spouse to the other to help cover the other's monthly expenses. In California, when it is between married persons, support is called spousal support. It's called domestic partner support between registered domestic partners. A spouse may request and receive “permanent” support orders during a hearing, which are synonymous with long-term support orders. This is because limitations on support may apply and support amounts can be changed if the parties’ financial circumstances change.
+---
+template: ss_determinations_explanation
+subject: |
+  How is Spousal Support Determined?
+content: |
+  When determining if a spouse spouse should pay support, and in what amount, the court tries to determine the extent to which each spouse's earning capacity (potential to earn income) is sufficient to maintain the marital standard of living (i.e., the lifestyle and spending habits maintained during the marriage). The court considers the following factors:
+  
+  - The supported spouse's marketable skills and qualifications, as well as the time and expenses of any further education or training needed to enter the job market
+  - The length of unemployment that the supported spouse incurred in order to fulfill domestic responsibilities and its effect on his or her employment prospects  
+  - The supporting spouse's ability to make payments (based on the paying spouse's earning capacity, earned and unearned income, assets, and standard of living income)
+  - The length of the marriage
+  - The custodial arrangements of any dependents (such as minor children or adult children with disabilities) 
+  - Both parties’ assets and debts
+  - Both parties’ age and health 
+  
+  For more information, please review [Fam Code, Section 4320](https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=FAM&division=9.&title=&part=3.&chapter=2.&article=).
+---
+template: ss_calculator
+subject: |
+  Helpful Spousal Support Calculator
+content: |
+  Each county's Superior Court uses a specified guideline for determining spousal support determinations. You can calculate the estimated guideline amount of support in your case by inputting your and ${resp.name.first}'s financial circumstances and applicable county using the [California Maintenance (Alimony) Calculator](https://calculators.law/calculators/maintenance/california). After inputting your and ${resp.name.first}'s information, the suggested amount of support will be bolded and listed next to "Maintenance Payment." 
+  
+  ${prog_disclose(support_calculator_disclaimer)}
+---
+question: |
+  **Requesting Orders:** Spousal Support 
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Because you indicated that you and ${ resp.name.first } are currently married (or registered domestic partners), you may request spousal support orders. 
+  
+  ${prog_disclose(what_is_ss_explanation)}
+  
+  ${prog_disclose(ss_determinations_explanation)}
+  
+  ${prog_disclose(ss_calculator)}
+  
+  ${card_start("To put it simply:", color="info")}
+  Judges order support based on needs and ability to pay. The judge decides the amount by looking at: 1) The needs of spouse with less money, and 2) The spouse with more money's ability to pay. They’ll look at how much one spouse needs to meet their expenses and whether the other spouse makes enough to meet that need.
+  ${card_end()}
+  
+continue button field: ss_info1
+---
+question: |
+  **Requesting Orders:** Spousal Support 
+subquestion: |
+  % if children.there_are_any:
+  As a reminder, you may request and receive support orders to financially support you and your children after the hearing on your Request for Domestic Violence Restraining Order. 
+  % else:
+  As a reminder, you may request and receive support orders to financially support yourself after the hearing on your Request for Domestic Violence Restraining Order. 
+  % endif
+fields: 
+  - Would you like to ask the judge to order ${resp.name.first} to give you financial assistance (aka, spousal support)?: spousal_support
+    datatype: yesnoradio
+  - note: |
+      ${card_start("Important Note:", color="info")}
+      After completing this interview, **you must complete our Income and Expense Declaration interview**. The court cannot make support determinations without understanding your and ${resp.name.first}'s financial situations. This interview prepares form FL-150, which asks for information regarding your and ${resp.name.first}'s income, education, taxes, household expenses, employment, etc. 
+      ${card_end()}
+    show if: spousal_support
+---
+question: |
+  **Requesting Orders:** Child Support
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  We encourage parents to read through this information regardless of whether they are requesting child support orders.
+  
+  ${prog_disclose(cs_definition)}
+  
+  ${prog_disclose(cs_factors_explanation)}
+  
+  ${prog_disclose(cs_request_options)}
+continue button field: cs_info1
+---
+template: cs_definition
+subject: |
+  What is Child Support?
+content: |
+  Child support is the amount of money that a court orders a parent or both parents to pay every month to help pay for the support of a child (or children) and the child’s living expenses.
+---
+template: cs_factors_explanation
+subject: |
+  What factors do the court consider when ordering child support?
+content: |  
+  In California Domestic Violence Restraining Order (DVRO) cases, the amount of child support that can be ordered is determined based on multiple factors. These factors generally include:
+    
+    - custody and visitation terms (i.e., where do the children live and which parents make parenting decisions), 
+    - each parent's income level, 
+    - each parent's ability to earn, 
+    - each parent's assets and debts, 
+    - the number of children involved, and 
+    - the child or children's expenses and needs. 
+    
+    The goal of child support in DVROs is to uphold the child's post-DVRO standard of living and to protect their best interests. 
+  
+  If the noncustodial parent (i.e., the parent that the children do not live with) has a high income and the ability to earn, the court may order them to pay child support to the lesser-earning custodial parent. The court must determine the best course of action to protect the children's best interests if a noncustodial parent cannot afford child support for multiple children.
+--- 
+template: cs_option1
+subject: |
+  **Option 1:** Ask for Child Support through a Family Law Case (such as through this Request for Domestic Violence Restraining Order)
+content: |  
+  Child support can be ordered during a hearing in a family law case, such as during the hearing on your request for a "permanent" restraining order (DVRO). "Permanent" support orders are synonymous with long-term support orders, as a child support order can be changed by a new order or a stipulation approved by the court. Either parent has the right to ask for a review of the child support order if there is a change in circumstances of either person.
+---
+template: cs_option2
+subject: |
+  **Option 2:** Ask for Child Support through a case filed by your Local Child Support Agency (LCSA)
+content: |  
+  - (a) If you or ${resp.name.first} have been getting public assistance, such as  Temporary Assistance for Needy Families (TANF), the LCSA automatically files a child support case against the noncustodial parent.  The case also includes as a party the custodial parent that is receiving public assistance.
+  - (b) Either parent can ask the LCSA to provide child support services, which will then start a child support case.
+  - (c) If a child is in foster care, the LCSA may start a child support case against one or both parents.
+  - (d) Either parent can ask the LCSA to take over enforcement of a child support order in a family law case (like a divorce, parentage, or DVRO case). 
+  
+  For more information on the LCSA child support process, please visit the California Court website's page, [Asking for a Child Support Order](https://www.courts.ca.gov/1194.htm#acc11469), and click the tab labelled "Starting a case with the local child support agency"
+---
+template: cs_request_options
+subject: |
+  The two primary ways to request a child support order in California
+content: |
+  ${prog_disclose(cs_option1)}
+  
+  ${prog_disclose(cs_option2)}
+---
+depends on:
+  - has_child_support_previousorder
+code: |
+  previous_childsupport_order.enabled=has_child_support_previousorder
+---
+question: |
+  **Requesting Orders:** Child Support
+fields: 
+  - Do you now receive, or have applied for, TANF, Welfare, CalWORKS, or Medi-Cal?: receive_public_assistance
+    datatype: yesnoradio
+  - Do you have a child support order that is currently in effect?: child_support_previousorder
+    datatype: yesnoradio
+  - Would you like to request a child support order (or change an existing child support order)?: child_support
+    datatype: yesnoradio
+  - note: |
+      ${card_start("Important Note:", color="info")}
+      After completing this interview, **you must complete our Income and Expense Declaration interview**. The court cannot make support determinations without understanding your and ${resp.name.first}'s financial circumstances. This interview prepares form FL-150, which asks for information regarding your and ${resp.name.first}'s income, education, taxes, household expenses, employment, etc. 
+      ${card_end()}
+    show if: child_support
+---
+question: |
+  Upload a Copy of the Child Support Order that is Currently in Effect
+fields: 
+  - Are you able to upload a copy of the child support order that is currently in effect?: has_child_support_previousorder
+    datatype: yesnoradio
+  - Upload it now: previous_childsupport_order.file
+    datatype: file 
+    show if: has_child_support_previousorder
+---
+question: |
+  **Requesting Orders:** Child Custody and Visitation
+subquestion: |
+  The next page contains general information regarding child custody and visitation orders and how to request them in California. 
+  
+  We encourage parents to read through this information regardless of whether they are requesting custody and visitation orders.
+continue button field: cc_intro
+---
+question: |
+  **Requesting Orders:** Child Custody and Visitation
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  Separated parents need to agree between themselves, or have a court decide and order, how and when each parent will spend time with their children (this is physical custody and visitation), and how decisions will be made for their children (this is legal custody). This is the essence of child custody and visitation. The following pages provide an overview of child custody and visitation, and the possible orders that can be requested. At a basic level:
+
+  - **Child Custody** refers to the rights and responsibilities between parents for taking care of their children.
+  - **Visitation** (aka parenting time) refers to how and when each parent will spend time with the children.
+  
+  Sometimes parents can agree on custody and visitation, also referred frequently in the courts as a “parenting plan.” Other times parents need the court to decide on the specific custody and visitation orders because they cannot agree on these orders. 
+  
+  **Helpful Resources**
+  
+  For an overview of the child custody and visitation process, please read the [Child Custody Information Sheet](https://www.courts.ca.gov/documents/fl314info.pdf).
+  
+  We also highly encourage you to review the California Court System's [Families Change Website](https://www.familieschange.ca.gov/), which offers a [free course](https://pas.familieschange.ca.gov/en/course/25-parenting-plan) that helps parents, teens, and children deal with a family break up. You will find links to services that can help you and other types of resources.
+  
+continue button field: cc_info1
+---
+question: |
+  Child Custody and Visitation
+subquestion: |
+  #####Types of child custody and visitation orders you can request include:
+  
+  - Child custody
+  - Stopping ${resp.name.first} from accessing your child's school or medical information
+  - No visits with your children
+  - Supervised (monitored) visits with your children
+  - Unsupervised (unmonitored) visits with your children
+fields: 
+  - Would you like to ask the court to make (or change) a child custody and visitation order?: requesting_custody_and_visitation
+    datatype: yesnoradio
+  - note: |
+      ${card_start("Important Note:", color="info")}
+      After completing this interview, **you must complete our Child Custody and Visitation interview**. This interview explains Child Custody and Visitation orders in depth and helps you complete the Request for Child Custody and Visitation Orders (form DV-105) and any applicable attachments. 
+      ${card_end()}
+    show if: requesting_custody_and_visitation
+---
+template: child_abduction_explanation_child
+subject: |
+  Types of Child Abduction Prevention Orders
+content: |
+  These orders can include various terms and conditions to help protect children from being taken, such as:
+
+  - Restrictions on ${resp.name.first}'s visitation or custody rights.
+  - Requirements for supervised visitation.
+  - Prohibitions on ${resp.name.first} removing ${children.item(0).name} from the state or country without your consent or the court's permission.
+  - Orders for ${resp.name.first}'s to surrender passports or other travel documents belonging to ${children.item(0).name}.
+  - Instructions for law enforcement to help prevent ${children.item(0).name} from being taken and to assist in their return if abduction occurs.
+---
+template: child_abduction_explanation_children
+subject: |
+  Types of Child Abduction Prevention Orders
+content: |
+  These orders can include various terms and conditions to help protect children from being taken, such as:
+
+  - Restrictions on ${resp.name.first}'s visitation or custody rights.
+  - Requirements for supervised visitation.
+  - Prohibitions on ${resp.name.first} removing the children from the state or country without your consent or the court's permission.
+  - Orders for ${resp.name.first}'s to surrender passports or other travel documents belonging to the children.
+  - Instructions for law enforcement to help prevent the children from being taken and to assist in their return if abduction occurs.
+---
+question: | 
+  **Requesting Orders:** Child Abduction Prevention
+subquestion: |
+  % if children.target_number == 1:
+  Child abduction prevention orders are legal orders issued by the court to protect children from being taken away or kept away from one of their parents without permission. These orders may help protect you and your children if you are worried that ${resp.name.first} might try to abduct your child.
+  
+  ${prog_disclose(child_abduction_explanation_child)}
+
+  Remember, the court's main concern is the safety and well-being of the child.
+  % elif children.target_number >= 2:
+  Child abduction prevention orders are legal orders issued by the court to protect children from being taken away or kept away from one of their parents without permission. These orders may help protect you and your children if you are worried that ${resp.name.first} might try to abduct your children.
+  
+  ${prog_disclose(child_abduction_explanation_children)}
+
+  Remember, the court's main concern is the safety and well-being of the children.
+  % endif
+fields: 
+  - Do you believe that ${resp.name.first} might abduct (kidnap) your children and hide their location from you, and would you like to request child abduction prevention orders?: child_abduction_risk
+    datatype: yesnoradio
+  - note: |
+      ${card_start("Important Note:", color="info")}
+      After completing this interview, **you must complete our Child Custody and Visitation interview**. This interview explains Child Custody and Visitation orders in depth and helps you complete the Request for Child Custody and Visitation Orders (form DV-105), the Request for Child abduction Prevention Orders (form DV-108), and any applicable attachments. 
+      ${card_end()}
+    show if: child_abduction_risk 
+---
+question: |
+  **Requesting Orders:** Attorney's Fees and Costs
+subquestion: |
+  @ KELLY, Insert Ryan's order video
+fields: 
+  - Have you incurred any lawyer's fees and costs in this case?: attorneys_fees
+    datatype: yesnoradio
+  - Would you like to ask the court to order ${resp.name.first} to pay for some or all of your lawyer's fees and costs?: requesting_attorneys_fees
+    datatype: yesnoradio
+    show if: attorneys_fees
+---
+question: |
+  **Requesting Orders:** Request to Keep Minor's Information confidential from the Public
+subquestion: |
+  @ KELLY, Insert Ryan's order video 
+
+  When you file papers with the court, thosde papers become "public." This means that anyone may ask the court to see the information you put on your papers. Also, ${resp.name.first} will see all the information on your court papers, because you will have to have these papers personally served (delivered) to him or her. 
+  
+  However, you may ask the court to make some of the information about a child in the case private (confidential from the public) by completing Interview Part 3.3, Request to Keep Minor's Information Confidential from the Public. 
+  
+  If information relating to the minor is made confidential by the court, the public will not have access to this information through public court records. However, note that ${resp.name.first} must be given the information that is necessary to comply with the restraining order and to respond to the restraining order request. Also, the court may give permission to release confidential information in this case to other people like the minor's childcare provider or school, or anyone who needs the information to protect the minor's best interest or to prevent abuse. 
+continue button field: minors_confidentiality
+---
+question: |
+  **Requesting Orders:** Other Orders
+subquestion: |
+  @ KELLY, Insert Ryan's order video
+fields: 
+  - Would you like to request any additional orders?: other_orders
+    datatype: yesnoradio
+  - Please write them here: other_orders_explain
+    input type: area
+    required: false 
+    show if: other_orders
+---
+question: |
+  Declaration of Abuse
+subquestion: |
+  The following section will ask you to explain how ${resp.name.first} has been abusive. The judge will use this information to decide your request. Give information on any incident that you believe was abusive. Listed below are some examples of what "abuse" means under the law:
+
+  - made repeated unwanted contact with you 
+  - harassed you
+  - tracked, controlled, or blocked your movements 
+  - hit, kicked, pushed, or bit you
+  - kept you from getting food or basic needs 
+  - injured you or tried to
+  - isolated you from friends, family, or other support 
+  - threatened to hurt or kill you
+  - made threats based on actual or suspected immigration status 
+  - sexually abused you
+  - made you do something by force, threat, or intimidation 
+  - abused a pet or animal
+  - stopped you from accessing or earning money 
+  - destroyed your property
+  - tried to control/interfere with your contraception, birth control, pregnancy, or access to health information
+  - choked or strangled you
+  - abused your children
+
+  **Note that this is not a complete list of all examples of abuse.** 
+continue button field: abuse_description_info1
+---
+question: |
+  Declaration of Abuse Instructions
+subquestion: |
+  #####READ THESE INSTRUCTIONS BEFORE PROCEEDING
+  
+  **Refering To/Attaching Evidence**
+
+  On the next few pages, you will have the opportunity to describe the three most recent incidents of abuse. If you've encountered additional incidents or patterns of abuse, you will have the option to write an extra declaration to describe these additional incidents and behaviors.
+
+  Afterwards, you will have the opportunity to upload evidence to support your declaration, such as screenshots, photos, bills, or receipts. 
+  
+  To keep things organized for the judge who will review your court forms, **you must label each piece of evidence as Exhibit A, B, C, and so on, in your descriptions of ${resp.name.first}'s abuse.** Then, ensure that you upload the corresponding evidence on the following pages. 
+  
+  Review the forms we generate for you at the end of this interview to ensure that the exhibit letter (e.g. "Exhibit A") you used to refer to each piece of evidence corresponds with how your exhibit pages are organized and attached to your Request for Domestic Violence Restraining Order form (form DV-100).
+continue button field: abuse_description_info2
+---
+template: declaration_instructions
+subject: |
+  **READ THESE INSTRUCTIONS BEFORE PROCEEDING: Refering To/Attaching Evidence**
+content: |
+  On the next few pages, you will have the opportunity to describe the three most recent incidents of abuse. If you've encountered additional incidents or patterns of abuse, you will have the option to write an extra declaration to describe these additional incidents and behaviors.
+
+  Afterwards, you will have the opportunity to upload evidence to support your declaration, such as screenshots, photos, bills, or receipts. 
+  
+  To keep things organized for the judge who will review your court forms, **you must label each piece of evidence as Exhibit A, B, C, and so on, in your descriptions of ${resp.name.first}'s abuse.** Then, ensure that you upload the corresponding evidence on the following pages. 
+  
+  Review the forms we generate for you at the end of this interview to ensure that the exhibit letter (e.g. "Exhibit A") you used to refer to each piece of evidence corresponds with how your exhibit pages are organized and attached to your Request for Domestic Violence Restraining Order form (form DV-100).
+---
+question: |
+  Declaration of Abuse
+subquestion: |
+  The following pages will ask you to describe specific instances of ${ resp.name.first }'s abuse.
+    
+  ${prog_disclose(declaration_instructions)}
+fields:
+  - note: |
+      #####Most Recent Incident of Abuse
+  - When was the most recent instance of ${ resp.name.first }'s abuse towards you or your children? (give an estimate if you do not know the exact date): mostrecentabuse_date
+  - Did anyone else hear or see what happened on this day?: mostrecentabuse_who
+    datatype: yesnomaybe
+  - Provide their names: mostrecentabuse_who_specify
+    show if: mostrecentabuse_who
+  - Did ${resp.name.first} use or threaten to use a gun or other weapon?: mostrecentabuse_weapon  
+    datatype: yesnoradio
+  - Briefly describe gun or weapon: mostrecentabuse_weapon_describe
+    show if: mostrecentabuse_weapon
+  - Did ${resp.name.first} cause you any emotional or physical harm?: mostrecentabuse_injuries
+    datatype: yesnoradio
+  - Briefly describe harm/injuries: mostrecentabuse_injuries_describe
+    show if: mostrecentabuse_injuries
+  - Did the police come?: mostrecentabuse_police
+    datatype: yesnomaybe
+  - note: |
+      ${card_start("When Writing Your Declaration of Abuse Below:", color="info")}
+      It is customary to refer to ${resp} as "Respondent" (instead of using his or her full name) in your declarations of abuse. Remember, the judge does not know you or ${resp.name.first}, and referring to ${resp.name.first} as "Respondent" helps the judge understand who is who, especially if your declarations mention multiple names. 
+      ${card_end()}
+  - note: |
+      ${card_start("Note on Referring to Exhibits/Evidence:", color="secondary")}
+      Remember to refer to any evidence you uploaded by it's exhibit name. For example: "...see Exhibit A, Screenshots of Threatening Texts"
+      ${card_end()}
+  - Give more details about how ${resp.name.first} was abusive on this day. Details can include what was said, done, or sent to you (e.g., text messages, emails, or pictures), how often something happened, etc.: mostrecentabuse_description
+    input type: area
+  - note: |
+      ${prog_disclose(abuse_examples_explanation)}
+  - How often has ${resp.name.first} abused you like this?: mostrecentabuse_frequency
+    choices:
+      - Just this once: mostrecentabuse_frequency_once
+      - 2-5 times: mostrecentabuse_frequency_twice
+      - Weekly: mostrecentabuse_frequency_weekly
+      - Other: mostrecentabuse_frequency_other
+  - Other (specify): mostrecentabuse_frequency_other_specify
+    show if:
+      variable: mostrecentabuse_frequency
+      is: mostrecentabuse_frequency_other
+  - Give dates or estimates of when it happened, if known: mostrecentabuse_frequency_dates
+---      
+template: abuse_examples_explanation
+subject: |
+  Some examples of what "abuse" means under the law:
+content: |
+  Listed below are some examples of what "abuse" means under the law:
+
+  - made repeated unwanted contact with you 
+  - harassed you
+  - tracked, controlled, or blocked your movements 
+  - hit, kicked, pushed, or bit you
+  - kept you from getting food or basic needs 
+  - injured you or tried to
+  - isolated you from friends, family, or other support 
+  - threatened to hurt or kill you
+  - made threats based on actual or suspected immigration status 
+  - sexually abused you
+  - made you do something by force, threat, or intimidation 
+  - abused a pet or animal
+  - stopped you from accessing or earning money 
+  - destroyed your property
+  - tried to control/interfere with your contraception, birth control, pregnancy, or access to health information
+  - choked or strangled you
+  - abused your children
+
+  **Note that this is not a complete list of all examples of abuse.** 
+---
+question: |
+  Declaration of Abuse (Continued)
+subquestion: |
+  ${prog_disclose(declaration_instructions)}
+fields:
+  - note: |
+      #####Other Abuse
+  - Has ${resp.name.first} abused you in a different way from the abuse you described on the previous page?: otherabuse
+    datatype: yesnoradio
+  - Date of abuse (give an estimate if you dont know the exact date): otherabuse_date
+    show if:  otherabuse
+  - Did anyone else hear or see what happened on this day?: otherabuse_who
+    datatype: yesnomaybe
+    show if:  otherabuse
+  - Provide their names: otherabuse_who_specify
+    show if: otherabuse_who
+  - Did ${resp.name.first} use or threaten to use a gun or other weapon?: otherabuse_weapon  
+    datatype: yesnoradio
+    show if:  otherabuse
+  - Briefly describe gun or weapon: otherabuse_weapon_describe
+    show if: otherabuse_weapon
+  - Did ${resp.name.first} cause you any emotional or physical harm?: otherabuse_injuries
+    datatype: yesnoradio
+    show if:  otherabuse
+  - Briefly describe harm/injuries: otherabuse_injuries_describe
+    show if: otherabuse_injuries
+  - Did the police come?: otherabuse_police
+    datatype: yesnomaybe
+    show if:  otherabuse
+  - note: |
+      ${card_start("When Writing Your Declaration of Abuse Below:", color="info")}
+      It is customary to refer to ${resp} as "Respondent" (instead of using his or her full name) in your declarations of abuse. Remember, the judge does not know you or ${resp.name.first}, and referring to ${resp.name.first} as "Respondent" helps the judge understand who is who, especially if your declarations mention multiple names. 
+      ${card_end()}
+    show if:  otherabuse
+  - note: |
+      ${card_start("Note on Referring to Exhibits/Evidence:", color="secondary")}
+      Remember to refer to any evidence you uploaded by it's exhibit name. For example: "...see Exhibit A, Screenshots of Threatening Texts"
+      ${card_end()}
+    show if:  otherabuse
+  - Give more details about how ${resp.name.first} was abusive on this day. Details can include what was said, done, or sent to you (e.g., text messages, emails, or pictures), how often something happened, etc.: otherabuse_description
+    input type: area
+    show if:  otherabuse
+  - note: "${prog_disclose(abuse_examples_explanation)}"
+    show if:  otherabuse
+  - How often has ${resp.name.first} abused you like this?: otherabuse_frequency
+    choices:
+      - Just this once: otherabuse_frequency_once
+      - 2-5 times: otherabuse_frequency_twice
+      - Weekly: otherabuse_frequency_weekly
+      - Other: otherabuse_frequency_other
+    show if:  otherabuse
+  - Other (specify): otherabuse_frequency_other_specify
+    show if:
+      variable: otherabuse_frequency
+      is: otherabuse_frequency_other
+  - Give dates or estimates of when it happened, if known: otherabuse_frequency_dates
+    show if:  otherabuse
+---  
+question: |
+  Declaration of Abuse (Continued)
+subquestion: |
+  ${prog_disclose(declaration_instructions)}
+fields:
+  - note: |
+      #####Other Abuse (continued)
+  - Has ${resp.name.first} abused you in a different way from the abuse you described on the previous pages?: anotherabuse
+    datatype: yesnoradio
+  - Date of abuse (give an estimate if you dont know the exact date): anotherabuse_date
+    show if:  anotherabuse
+  - Did anyone else hear or see what happened on this day?: anotherabuse_who
+    datatype: yesnomaybe
+    show if:  anotherabuse
+  - Provide their names: anotherabuse_who_specify
+    show if: anotherabuse_who
+  - Did ${resp.name.first} use or threaten to use a gun or other weapon?: anotherabuse_weapon  
+    datatype: yesnoradio
+    show if:  anotherabuse
+  - Briefly describe gun or weapon: anotherabuse_weapon_describe
+    show if: anotherabuse_weapon
+  - Did ${resp.name.first} cause you any emotional or physical harm?: anotherabuse_injuries
+    datatype: yesnoradio
+    show if:  anotherabuse
+  - Briefly describe harm/injuries: anotherabuse_injuries_describe
+    show if: anotherabuse_injuries
+  - Did the police come?: anotherabuse_police
+    datatype: yesnomaybe
+    show if:  anotherabuse
+  - note: |
+      ${card_start("When Writing Your Declaration of Abuse Below:", color="info")}
+      It is customary to refer to ${resp} as "Respondent" (instead of using his or her full name) in your declarations of abuse. Remember, the judge does not know you or ${resp.name.first}, and referring to ${resp.name.first} as "Respondent" helps the judge understand who is who, especially if your declarations mention multiple names. 
+      ${card_end()}
+    show if:  anotherabuse
+  - note: |
+      ${card_start("Note on Referring to Exhibits/Evidence:", color="secondary")}
+      Remember to refer to any evidence you uploaded by it's exhibit name. For example: "...see Exhibit A, Screenshots of Threatening Texts"
+      ${card_end()}
+    show if:  anotherabuse
+  - Give more details about how ${resp.name.first} was abusive on this day. Details can include what was said, done, or sent to you (e.g., text messages, emails, or pictures), how often something happened, etc.: anotherabuse_description
+    input type: area
+    show if:  anotherabuse
+  - note: "${prog_disclose(abuse_examples_explanation)}"
+    show if:  anotherabuse
+  - How often has ${resp.name.first} abused you like this?: anotherabuse_frequency
+    choices:
+      - Just this once: anotherabuse_frequency_once
+      - 2-5 times: anotherabuse_frequency_twice
+      - Weekly: anotherabuse_frequency_weekly
+      - Other: anotherabuse_frequency_other
+    show if:  anotherabuse
+  - Other (specify): anotherabuse_frequency_other_specify
+    show if:
+      variable: anotherabuse_frequency
+      is: anotherabuse_frequency_other
+  - Give dates or estimates of when it happened, if known: anotherabuse_frequency_dates
+    show if:  anotherabuse
+---
+question: |
+  Declaration of Abuse (Continued)
+subquestion: |
+  #####Other Instances of Abuse (not described on previous pages)
+  
+  ${prog_disclose(declaration_instructions)}
+fields:
+  - Do you need more space to describe other instances or patterns of ${resp.name.first}'s abuse?: more_abuse
+    datatype: yesnoradio
+  - note: |
+      ${card_start("When Writing Your Declaration of Abuse Below:", color="info")}
+      It is customary to refer to ${resp} as "Respondent" (instead of using his or her full name) in your declarations of abuse. Remember, the judge does not know you or ${resp.name.first}, and referring to ${resp.name.first} as "Respondent" helps the judge understand who is who, especially if your declarations mention multiple names. 
+      ${card_end()}
+    show if: more_abuse
+  - note: |
+      ${card_start("Note on Referring to Exhibits/Evidence:", color="secondary")}
+      Remember to refer to any evidence you uploaded by it's exhibit name. For example: "...see Exhibit A, Screenshots of Threatening Texts"
+      ${card_end()}
+    show if: more_abuse
+  - In reverse chronological order (most recent to least recent), describe each additional instance of abuse from before the incident until the aftermath. It may be helpful to quantify any repeated types of abuse (in other words, indicate how often the types of abuse you described occurred). Whatever you write below will prepare our an attachment to your Request for Domestic Violence Restraining Order (form DV-100).: declaration_of_abuse
+    input type: area
+    show if: more_abuse
+---
+mandatory: True
+code: |
+  if not relationship_now_married_or_dp:
+    spousal_support is False
+  if not children.there_are_any:
+    child_support is False
+---
+mandatory: true
+event: download_forms
+question: |
+  Your forms are ready to download.
+subquestion: |
+  Thank you. Your completed forms are ready to download and deliver.
+  
+  ${prog_disclose(review_your_forms)}
+  ${prog_disclose(edit_if_needed)}
+  ${prog_disclose(sign_the_forms)}
+  ${prog_disclose(next_steps_interview)}
+  
+  ${prog_disclose(next_interview)}
+  
+  ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download Completed DV-100 and Attachments", icon='download') } 
+  
+  ${ action_button_html(al_user_bundle2.as_pdf().url_for(), label="Download Proposed DV-110", icon='download') } 
+  ${prog_disclose(proposed_form_disclaimer)}
+  
+  ${ al_user_bundle.send_button_html() }
+---
+template: review_your_forms
+subject: |
+  **Step 1:** Review Your Forms 
+content: |
+  **Review Your Forms:** Examine the form(s) generated below. Clicking the 'Download' button will either open your completed forms as an editable PDF in a new tab or save them directly to your device. Alternatively, you can choose to email the forms to yourself using the 'Send' button.
+---
+template: edit_if_needed
+subject: |
+  **Step 2:** Edit If Needed
+content: |
+  **Edit if Needed:** If any corrections are necessary, feel free to edit the forms directly in your browser, using a PDF editor of your choice, or by printing them out and making changes with a pen in blue or black ink. Remember, it's okay to cross out or use white-out for corrections, but ensure the forms are still clean and easy to read.
+---
+template: sign_the_forms
+subject: |
+  **Step 3:** Sign the Forms
+content: |
+  **Sign the Forms:** Carefully review each page and provide your signature on any sections that require it. If additional documents are attached to the completed court forms, write in the number of pages attached on any sections that require it.
+---
+template: next_steps_interview
+subject: |
+  **Step 4:** Next Steps
+content: |
+  **Next Steps:** Once you're satisfied with your forms, head back to your membership homepage to continue with the next relevant interview.
+---
+template: next_interview
+subject: |
+  **Which Interview Do I Complete Next?**
+content: |
+  - Complete interview **Part 3.1: Financial Information for Support** if you are requesting child support, spousal support, or lawyers's fees and costs orders
+  - Complete interview **Part 3.2: Child Custody, Visitation, and Support** if you and ${resp.name.first} have minor children together
+  - Complete interview **Part 3.3: Request to Keep Minor's Information Confidential** if you'd like to ask the court to keep information about your minor child(ren) confidential from the public or ${resp.name.first}
+  - Complete interview **Part 4: Next Steps** once you are finished with each applicable interview in Part 3. If you are not requesting any child support, spousal support, child custody and visitation, or lawyer's fees and costs orders, skip straight to this interview. 
+  - Complete interview **Part 4.1: Request to Reschedule Hearing** before the scheduled hearing (the hearing will be scheduled when you file all your court forms with the court clerk) if you need to request that the court postpone/reschedule the hearing for good cause.
+---
+template: proposed_form_disclaimer
+subject: |
+  Disclaimer on Preparation of Proposed Order Forms
+content: |
+  **As a reminder:** We do not complete this form on your behalf. The official court order can only be prepared and issued by the judge/judicial officer assigned to your case. The judge/judicial officer will specify on this form which orders are granted or denied, any additional orders being made, and will sign the order form. However, you may download the proposed order that you would like the judge to issue below, which you can give to the court clerk alongside your DV-100. This proposed order helps streamline the process for the court in completing the form accurately.
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+  Get a copy of the documents in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  % if len(x) > 1:
+  Your ${ x.title } document is ready
+  % else:
+  Your "${ x.title }" documents are ready
+  % endif
+content: |
+  Thank you for using U Do It Legal!
+
+  Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### Attachment objects
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[DV_100_attachment, original_dvro_petition, prior_restrainingorder1, prior_restrainingorder2, previous_childsupport_order, exhibit_attachment], title="Forms to download and deliver to court", filename="Completed_DVRO_Forms.pdf")
+  - al_user_bundle2: ALDocumentBundle.using(elements=[DV_110_attachment], title="Forms to download and deliver to court", filename="Completed_DVRO_Forms.pdf")
+---
+objects:
+  - DV_100_attachment: ALDocument.using(filename="DV_100", title="DV-100, Request for Domestic Violence Restraining Order", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+  - original_dvro_petition: ALDocumentUpload.using(
+          title="Original Request for Domestic Violence Restraining Order Petition",
+          filename="original_dvro_petiton",
+        )
+  - prior_restrainingorder1: ALDocumentUpload.using(
+          title="Other Restraining/Protective Order Involving Respondent",
+          filename="prior_restrainingorder1",
+        )
+  - prior_restrainingorder2: ALDocumentUpload.using(
+          title="Second Other Restraining/Protective Order Involving Respondent",
+          filename="prior_restrainingorder2",
+        )
+  - previous_childsupport_order: ALDocumentUpload.using(
+          title="Child Support Order Currently In Effect",
+          filename="previous_childsupport_order",
+        )
+  - DV_110_attachment: ALDocument.using(filename="DV_110", title="DV-110, Temporary Restraining Order", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+  - exhibit_attachment: ALExhibitDocument.using(
+          title="Declaration of Abuse Exhibits",
+          filename="exhibit_attachment",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=True,
+        )
+---
+#### DV-100 Attachment Code
+attachment:
+  variable name: DV_100_attachment.addendum
+  docx template file: DV_100_Attachment.docx
+---
+code: |
+  DV_100_attachment.overflow_fields['names_of_children'].overflow_trigger = 32
+  DV_100_attachment.overflow_fields['names_of_children'].label = "3a. Relationship to Respondent, Our Children Together"
+  DV_100_attachment.overflow_fields['prior_parentage_info'].overflow_trigger = 50
+  DV_100_attachment.overflow_fields['prior_parentage_info'].label = "4b. Other Custody Case with Respondent"
+  DV_100_attachment.overflow_fields['prior_divorce_info'].overflow_trigger = 50
+  DV_100_attachment.overflow_fields['prior_divorce_info'].label = "4b. Other Divorce Case with Respondent"
+  DV_100_attachment.overflow_fields['prior_juvenile_info'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['prior_juvenile_info'].label = "4b. Other Juvenile Case with Respondent"
+  DV_100_attachment.overflow_fields['prior_guardianship_info'].overflow_trigger = 45
+  DV_100_attachment.overflow_fields['prior_guardianship_info'].label = "4b. Other Guardianship Case with Respondent"
+  DV_100_attachment.overflow_fields['prior_criminal_info'].overflow_trigger = 50
+  DV_100_attachment.overflow_fields['prior_criminal_info'].label = "4b. Other Criminal Case with Respondent"
+  DV_100_attachment.overflow_fields['prior_other_info'].overflow_trigger = 50
+  DV_100_attachment.overflow_fields['prior_other_info'].label = "4b. Other Case with Respondent"
+  DV_100_attachment.overflow_fields['mostrecentabuse_who_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['mostrecentabuse_who_specify'].label = "5b. Most Recent Abuse, Witnesses"
+  DV_100_attachment.overflow_fields['mostrecentabuse_weapon_describe'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['mostrecentabuse_weapon_describe'].label = "5c. Most Recent Abuse, Weapon"
+  DV_100_attachment.overflow_fields['mostrecentabuse_injuries_describe'].overflow_trigger = 45
+  DV_100_attachment.overflow_fields['mostrecentabuse_injuries_describe'].label = "5d. Most Recent Abuse, Harm"
+  DV_100_attachment.overflow_fields['mostrecentabuse_description'].overflow_trigger = 650
+  DV_100_attachment.overflow_fields['mostrecentabuse_description'].label = "5f. Most Recent Abuse, Description of Abuse" 
+  DV_100_attachment.overflow_fields['mostrecentabuse_frequency_other_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['mostrecentabuse_frequency_other_specify'].label = "5g. Most Recent Abuse, Frequency of Abuse (Other)"
+  DV_100_attachment.overflow_fields['mostrecentabuse_frequency_dates'].overflow_trigger = 145
+  DV_100_attachment.overflow_fields['mostrecentabuse_frequency_dates'].label = "5g. Most Recent Abuse, Dates or Estimates of Abuse"
+  DV_100_attachment.overflow_fields['otherabuse_who_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['otherabuse_who_specify'].label = "6b. Different Abuse, Witnesses"
+  DV_100_attachment.overflow_fields['otherabuse_weapon_describe'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['otherabuse_weapon_describe'].label = "6c. Different Abuse, Weapon"
+  DV_100_attachment.overflow_fields['otherabuse_injuries_describe'].overflow_trigger = 100
+  DV_100_attachment.overflow_fields['otherabuse_injuries_describe'].label = "6d. Different Abuse, Harm"
+  DV_100_attachment.overflow_fields['otherabuse_description'].overflow_trigger = 1150
+  DV_100_attachment.overflow_fields['otherabuse_description'].label = "6f. Different Abuse, Description of Abuse"
+  DV_100_attachment.overflow_fields['otherabuse_frequency_other_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['otherabuse_frequency_other_specify'].label = "6g. Different Abuse, Frequency of Abuse (Other)"
+  DV_100_attachment.overflow_fields['otherabuse_frequency_dates'].overflow_trigger = 145
+  DV_100_attachment.overflow_fields['otherabuse_frequency_dates'].label = "6g. Different Abuse, Dates or Estimates of Abuse"
+  DV_100_attachment.overflow_fields['anotherabuse_who_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['anotherabuse_who_specify'].label = "7b. Other Abuse, Witnesses"
+  DV_100_attachment.overflow_fields['anotherabuse_weapon_describe'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['anotherabuse_weapon_describe'].label = "7c. Other Abuse, Weapon"
+  DV_100_attachment.overflow_fields['anotherabuse_injuries_describe'].overflow_trigger = 100
+  DV_100_attachment.overflow_fields['anotherabuse_injuries_describe'].label = "7d. Other Abuse, Harm"
+  DV_100_attachment.overflow_fields['anotherabuse_description'].overflow_trigger = 1075
+  DV_100_attachment.overflow_fields['anotherabuse_description'].label = "7f. Other Abuse, Description of Abuse"
+  DV_100_attachment.overflow_fields['anotherabuse_frequency_other_specify'].overflow_trigger = 30
+  DV_100_attachment.overflow_fields['anotherabuse_frequency_other_specify'].label = "7g. Other Abuse, Frequency of Abuse (Other)"
+  DV_100_attachment.overflow_fields['anotherabuse_frequency_dates'].overflow_trigger = 145
+  DV_100_attachment.overflow_fields['anotherabuse_frequency_dates'].label = "7g. Other Abuse, Dates or Estimates of Abuse"
+  DV_100_attachment.overflow_fields['additionalprotectedpersons'].overflow_trigger = 4
+  DV_100_attachment.overflow_fields['additionalprotectedpersons'].label = "8. Other Protected People"
+  DV_100_attachment.overflow_fields['additionalprotectedpersons_explanation'].overflow_trigger = 1150
+  DV_100_attachment.overflow_fields['additionalprotectedpersons_explanation'].label = "8b(2). Other Protected People Need Protection Because"
+  DV_100_attachment.overflow_fields['firearms'].overflow_trigger = 6
+  DV_100_attachment.overflow_fields['firearms'].label = "9. Respondent's Firearms, Firearm Parts, and/or Ammunition"
+  DV_100_attachment.overflow_fields['ammunition'].overflow_trigger = 6
+  DV_100_attachment.overflow_fields['ammunition'].label = "9. Respondent's Firearms, Firearm Parts, and/or Ammunition"
+  DV_100_attachment.overflow_fields['stay_away_order_other_place'].overflow_trigger = 20
+  DV_100_attachment.overflow_fields['stay_away_order_other_place'].label = "12a. Stay-Away Order: Other Place Respondent Must Stay Away From (explain)"
+  DV_100_attachment.overflow_fields['live_close_other_explain'].overflow_trigger = 40
+  DV_100_attachment.overflow_fields['live_close_other_explain'].label = "12c. Respondent and I Live Together or Close to One Another: Other (explain)"
+  DV_100_attachment.overflow_fields['same_workplace_or_school_other_explain'].overflow_trigger = 40
+  DV_100_attachment.overflow_fields['same_workplace_or_school_other_explain'].label = "12d. Respondent and I have the same Workplace or School: Other (explain)"
+  DV_100_attachment.overflow_fields['move_out_other_specify'].overflow_trigger = 20
+  DV_100_attachment.overflow_fields['move_out_other_specify'].label = "13b. Order to Move-Out: I have the right to live at this address because: Other (explain)"
+  DV_100_attachment.overflow_fields['other_orders_explain'].overflow_trigger = 775
+  DV_100_attachment.overflow_fields['other_orders_explain'].label = "14. Other Orders"
+  DV_100_attachment.overflow_fields['animals'].overflow_trigger = 4
+  DV_100_attachment.overflow_fields['animals'].label = "16a. Protect Animals, Animals (specify)"
+  DV_100_attachment.overflow_fields['animal_explanation_other_specify'].overflow_trigger = 20
+  DV_100_attachment.overflow_fields['animal_explanation_other_specify'].label = "16b(3). Give me sole possession, care, and control of the animals because: Other (explain)"
+  DV_100_attachment.overflow_fields['property_control_description'].overflow_trigger = 175
+  DV_100_attachment.overflow_fields['property_control_description'].label = "17a. Control of Property: Specify Property"
+  DV_100_attachment.overflow_fields['property_control_explain'].overflow_trigger = 360
+  DV_100_attachment.overflow_fields['property_control_explain'].label = "17b. Control of Property (explain)"
+  DV_100_attachment.overflow_fields['time_for_service_explanation'].overflow_trigger = 90
+  DV_100_attachment.overflow_fields['time_for_service_explanation'].label = "21. Extend My Deadline to Give Notice to Respondent"
+  DV_100_attachment.overflow_fields['debtpayment'].overflow_trigger = 3
+  DV_100_attachment.overflow_fields['debtpayment'].label = "22. Pay Debts (Bills) Owed for Property (specify debts)"
+  DV_100_attachment.overflow_fields['debtpayment_explain'].overflow_trigger = 400
+  DV_100_attachment.overflow_fields['debtpayment_explain'].label = "22. Pay Debts (Bills) Owed for Property (explain)"
+  DV_100_attachment.overflow_fields['debtpayment_explanation'].overflow_trigger = 250
+  DV_100_attachment.overflow_fields['debtpayment_explanation'].label = "22. Pay Debts (Bills) Owed for Property: Special decision finding (explain)"
+  DV_100_attachment.overflow_fields['payexpenses'].overflow_trigger = 3
+  DV_100_attachment.overflow_fields['payexpenses'].label = "23. Pay Expenses Caused by Abuse"
+  DV_100_attachment.overflow_fields.gathered = True  
+---
+attachment:
+    variable name: DV_100_attachment[i]
+    name: DV-100, Request for Domestic Violence Restraining Order
+    filename: DV_100_attachment
+    skip undefined: True
+    pdf template file: 2023_DV_100.pdf
+    fields: 
+      - court_address_county: "${court_county}"
+      - pet.name: "${pet.name}"
+      - court_name: "${court_name}"
+      - pet.age: "${pet.age_in_years()}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_street_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - case_number: "${case_number}"
+      - pet.address.street: "${pet.address.street} ${pet.address.unit}"
+      - pet.address.city: "${pet.address.city}"
+      - pet.address.state: "${pet.address.state}"
+      - pet.address.zip: "${pet.address.zip}"
+      - pet.phone: "${pet.phone}"
+      - pet.fax: "${ }"
+      - pet.email: "${pet.email}"
+      - Name: "In Pro Per"
+      - resp.name: "${resp.name}"
+      - resp.age: "${resp.age}"
+      - resp.birthdate: "${resp.birthdate}"
+      - resp_male: |
+          ${(resp.sex == 'resp.sex_male')}
+      - resp_female: |
+          ${(resp.sex == 'resp.sex_female')}
+      - resp_nonbinary: |
+          ${(resp.sex == 'resp.sex_nonbinary')}
+      - resp.race: "${resp.race}"
+      - case_number2: "${case_number}"
+      - relationship_children_together: "${children_together}"
+      - "names_of_children": ${ DV_100_attachment.safe_value('names_of_children') }
+      - relationship_now_married_or_dp: "${relationship_now_married_or_dp}"
+      - relationship_was_married_or_dp: "${relationship_was_married_or_dp}"
+      - relationship_dating_or_dated: "${relationship_dating_or_dated}"
+      - relationship_engaged: "${relationship_engaged}"
+      - relationship_related: "${relationship_parent or relationship_child or relationship_childs_spouse or relationship_sibling or relationship_grandparent or relationship_grandchild}"
+      - relationship_related_sibling: "${relationship_sibling}"
+      - relationship_related_parent: "${relationship_parent}"
+      - relationship_related_grandparent: "${relationship_grandparent}"
+      - relationship_related_child: "${relationship_child}"
+      - relationship_related_childs_spouse: "${relationship_childs_spouse}"
+      - relationship_related_grandchild: "${relationship_grandchild}"
+      - live_together: "${relationship_now_live_together or relationship_were_living_together}"
+      - live_together_no: "${not relationship_were_living_together_household}"
+      - live_together_yes: "${relationship_were_living_together_household}"
+      - other_restrainingorders_no: "${not other_restraining_order}"
+      - other_restrainingorders_yes: "${other_restraining_order}"
+      - restrainingorder1_date: "${other_restraining_order1_date}"
+      - restrainingorder1_expires: "${other_restraining_order1_expiration_date}"
+      - restrainingorder2_date: "${other_restraining_order2_date}"
+      - restrainingorder2_expires: "${other_restraining_order2_expiration_date}"
+      - other_court_cases_no: "${not othercourtcases}"
+      - other_court_cases_yes: "${othercourtcases}"
+      - other_custody: "${prior_parentage}"
+      - "other_custody_info": ${ DV_100_attachment.safe_value('prior_parentage_info') }
+      - other_divorce: "${prior_divorce}"
+      - "other_divorce_info": ${ DV_100_attachment.safe_value('prior_divorce_info') }
+      - other_juvenile: "${prior_juvenile}"
+      - "other_juvenile_info": ${ DV_100_attachment.safe_value('prior_juvenile_info') }
+      - other_guardianship: "${prior_guardianship}"
+      - "otherguardianship_info": ${ DV_100_attachment.safe_value('prior_guardianship_info') }
+      - other_criminal: "${prior_criminal}"
+      - "other_criminal_info": ${ DV_100_attachment.safe_value('prior_criminal_info') }
+      - other_case_other: "${prior_other}"
+      - "other_case_info": ${ DV_100_attachment.safe_value('prior_other_info') }
+      - case_number3: "${case_number}"
+      - mostrecentabuse_date: "${mostrecentabuse_date}"
+      - mostrecentabuse_who_yes: "${mostrecentabuse_who}"
+      - mostrecentabuse_who_idk: "${mostrecentabuse_who is None}"
+      - mostrecentabuse_who_no: "${mostrecentabuse_who is False}"
+      - "mostrecentabuse_who_specify": ${ DV_100_attachment.safe_value('mostrecentabuse_who_specify')}
+      - mostrecentabuse_weapon_no: "${not mostrecentabuse_weapon}"
+      - mostrecentabuse_weapon_yes: "${mostrecentabuse_weapon}"
+      - "mostrecentabuse_weapon_describe": ${ DV_100_attachment.safe_value('mostrecentabuse_weapon_describe')}
+      - mostrecentabuse_harm_no: "${not mostrecentabuse_injuries}"
+      - mostrecentabuse_harm_yes: "${mostrecentabuse_injuries}"
+      - "mostrecentabuse_harm_describe": ${ DV_100_attachment.safe_value('mostrecentabuse_injuries_describe')}
+      - mostrecentabuse_police_idk: "${ mostrecentabuse_police is None}"
+      - mostrecentabuse_police_no: "${mostrecentabuse_police is False}"
+      - mostrecentabuse_police_yes: "${ mostrecentabuse_police}"
+      - "mostrecentabuse_explanation": ${ DV_100_attachment.safe_value('mostrecentabuse_description') }
+      - mostrecentabuse_frequency_once: "${mostrecentabuse_frequency == 'mostrecentabuse_frequency_once'}"
+      - mostrecentabuse_frequency_twice: "${mostrecentabuse_frequency == 'mostrecentabuse_frequency_twice'}"
+      - mostrecentabuse_frequency_weekly: "${mostrecentabuse_frequency == 'mostrecentabuse_frequency_weekly'}"
+      - mostrecentabuse_frequency_other: "${mostrecentabuse_frequency == 'mostrecentabuse_frequency_other'}"
+      - "mostrecentabuse_frequency_other_specify": ${ DV_100_attachment.safe_value('mostrecentabuse_frequency_other_specify')}
+      - "mostrecentabuse_frequency_dates": ${DV_100_attachment.safe_value('mostrecentabuse_frequency_dates')}
+      - case_number4: "${case_number}"
+      - otherabuse_date: "${otherabuse_date}"
+      - otherabuse_who_yes: "${otherabuse_who}"
+      - otherabuse_who_idk: "${otherabuse and otherabuse_who is None}"
+      - otherabuse_who_no: "${otherabuse and otherabuse_who is False}"
+      - "otherabuse_who_specify": ${DV_100_attachment.safe_value('otherabuse_who_specify')}
+      - otherabuse_harm_yes: "${otherabuse_injuries}"
+      - otherabuse_harm_no: "${otherabuse and not otherabuse_injuries}"
+      - "otherabuse_weapon_describe": ${ DV_100_attachment.safe_value('otherabuse_weapon_describe')}
+      - otherabuse_weapon_yes: "${otherabuse_weapon}"
+      - otherabuse_weapon_no: "${otherabuse and not otherabuse_weapon}"
+      - "otherabuse_harm_describe": ${DV_100_attachment.safe_value('otherabuse_injuries_describe')}
+      - otherabuse_police_idk: "${otherabuse and otherabuse_police is None}"
+      - otherabuse_police_no: "${otherabuse and otherabuse_police is False}"
+      - otherabuse_police_yes: "${otherabuse_police}"
+      - "otherabuse_explanation": ${DV_100_attachment.safe_value('otherabuse_description')}
+      - otherabuse_frequency_once: "${otherabuse_frequency == 'otherabuse_frequency_once'}"
+      - otherabuse_frequency_twice: "${otherabuse_frequency == 'otherabuse_frequency_twice'}"
+      - otherabuse_frequency_weekly: "${otherabuse_frequency == 'otherabuse_frequency_weekly'}"
+      - otherabuse_frequency_other: "${otherabuse_frequency == 'otherabuse_frequency_other'}"
+      - "otherabuse_frequency_other_specify": ${DV_100_attachment.safe_value('otherabuse_frequency_other_specify')}
+      - "otherabuse_frequency_dates": ${DV_100_attachment.safe_value('otherabuse_frequency_dates')}
+      - case_number5: "${case_number}"
+      - anotherabuse_date: "${anotherabuse_date}"
+      - anotherabuse_who_yes: "${anotherabuse_who}"
+      - anotherabuse_who_no: "${anotherabuse and anotherabuse_who is False}"
+      - anotherabuse_who_idk: "${anotherabuse and anotherabuse_who is None}"
+      - "anotherabuse_who_specify": ${DV_100_attachment.safe_value('anotherabuse_who_specify')}
+      - anotherabuse_weapons_yes: "${anotherabuse_weapon}"
+      - anotherabuse_weapons_no: "${anotherabuse and not anotherabuse_weapon}"
+      - "anotherabuse_weapons_describe": ${DV_100_attachment.safe_value('anotherabuse_weapon_describe')}
+      - anotherabuse_harm_no: "${anotherabuse and not anotherabuse_injuries}"
+      - anotherabuse_harm_yes: "${anotherabuse_injuries}"
+      - "anotherabuse_harm_describe": ${DV_100_attachment.safe_value('anotherabuse_injuries_describe')}
+      - anotherabuse_police_yes: "${anotherabuse_police}"
+      - anotherabuse_police_idk: "${anotherabuse and anotherabuse_police is None}"
+      - anotherabuse_police_no: "${anotherabuse and anotherabuse_police is False}"
+      - "anotherabuse_explanation": ${DV_100_attachment.safe_value('anotherabuse_description')}
+      - anotherabuse_frequency_once: "${anotherabuse_frequency == 'anotherabuse_frequency_once'}"
+      - anotherabuse_frequency_twice: "${anotherabuse_frequency == 'anotherabuse_frequency_twice'}"
+      - anotherabuse_frequency_weekly: "${anotherabuse_frequency == 'anotherabuse_frequency_weekly'}"
+      - anotherabuse_frequency_other: "${anotherabuse_frequency == 'anotherabuse_frequency_other'}"
+      - "anotherabuse_frequency_other_specify": ${DV_100_attachment.safe_value('anotherabuse_frequency_other_specify')}
+      - "anotherabuse_frequency_dates": ${DV_100_attachment.safe_value('otherabuse_frequency_dates')}
+      - more_abuse: "${more_abuse}"
+      - case_number6: "${case_number}"
+      - other_protected_persons_no: "${not additionalprotectedpersons.there_are_any}"
+      - other_protected_persons_yes: "${additionalprotectedpersons.there_are_any}"
+      - other_protected_person1_doesnt_live_with: |
+          % if additionalprotectedpersons.there_are_any:
+          ${not additionalprotectedpersons.item(0).liveswithyou}
+          % endif
+      - other_protected_person1_name: "${additionalprotectedpersons.item(0).name}"
+      - other_protected_person1_lives_with: "${additionalprotectedpersons.item(0).liveswithyou}"
+      - other_protected_person1_age: "${additionalprotectedpersons.item(0).age}"
+      - other_protected_person1_relstionship: "${additionalprotectedpersons.item(0).relationship}"
+      - other_protected_person2_doesnt_live_with: |
+          % if additionalprotectedpersons.target_number >= 2:
+          ${not additionalprotectedpersons.item(1).liveswithyou}
+          % endif
+      - other_protected_person2_lives_with: "${additionalprotectedpersons.item(1).liveswithyou}"
+      - other_protected_person2_name: "${additionalprotectedpersons.item(1).name}"
+      - other_protected_person2_age: "${additionalprotectedpersons.item(1).age}"
+      - other_protected_person2_relationship: "${additionalprotectedpersons.item(1).relationship}"
+      - other_protected_person3_doesnt_live_with: |
+          % if additionalprotectedpersons.target_number >= 3:
+          ${not additionalprotectedpersons.item(2).liveswithyou}
+          % endif
+      - other_protected_person3_lives_with: "${additionalprotectedpersons.item(2).liveswithyou}"
+      - other_protected_person3_name: "${additionalprotectedpersons.item(2).name}"
+      - other_protected_person3_relationship: "${additionalprotectedpersons.item(2).relationship}"
+      - other_protected_person3_age: "${additionalprotectedpersons.item(2).age}"
+      - other_protected_person4_doesnt_live_with: |
+          % if additionalprotectedpersons.target_number >= 4:
+          ${not additionalprotectedpersons.item(3).liveswithyou}
+          % endif
+      - other_protected_person4_lives_with: "${additionalprotectedpersons.item(3).liveswithyou}"
+      - other_protected_person4_name: "${additionalprotectedpersons.item(3).name}"
+      - other_protected_person4_age: "${additionalprotectedpersons.item(3).age}"
+      - other_protected_person4_relationship: "${additionalprotectedpersons.item(3).relationship}"
+      - more_than_4_other_protected_persons: "${additionalprotectedpersons.target_number > 4}"
+      - "other_protected_persons_need_protection_explain": ${DV_100_attachment.safe_value('additionalprotectedpersons_explanation')}
+      - resp_has_firearms_idk: "${firearms.there_are_any is None}"
+      - resp_has_firearms_no: "${firearms.there_are_any is False}"
+      - resp_has_firearms_yes: "${firearms.there_are_any}"
+      - resp_has_firearms_idk: "${firearms.there_are_any is None}"
+      - resp_has_firearms_no: "${not firearms.there_are_any}"
+      - resp_has_firearms_yes: "${firearms.there_are_any}"
+      - firearm1_amount: "${firearms.item(0).amount}"
+      - firearm1_location: "${firearms.item(0).location}"
+      - firearm1_describe: "${firearms.item(0).name.text}"
+      - firearm2_amount: "${firearms.item(1).amount}"
+      - firearm2_location: "${firearms.item(1).location}"
+      - firearm2_describe: "${firearms.item(1).name.text}"
+      - firearm3_amount: "${firearms.item(2).amount}"
+      - firearm3_location: "${firearms.item(2).location}"
+      - firearm3_describe: "${firearms.item(2).name.text}"
+      - firearm4_amount: "${firearms.item(3).amount}"
+      - firearm4_location: "${firearms.item(3).location}"
+      - firearm4_describe: "${firearms.item(3).name.text}"
+      - firearm5_amount: "${firearms.item(4).amount}"
+      - firearm5_location: "${firearms.item(4).location}"
+      - firearm5_describe: "${firearms.item(4).name.text}"
+      - firearm6_amount: "${firearms.item(5).amount}"
+      - firearm6_location: "${firearms.item(5).location}"
+      - firearm6_describe: "${firearms.item(5).name.text}"
+      - case_number7: "${case_number}"
+      - no_abuse: "${order_to_not_abuse}"
+      - no_contact: "${no_contact}"
+      - stay_away: "${stay_away_order}"
+      - stay_away_me: "${stay_away_order_me}"
+      - stay_away_my_vehicle: "${stay_away_order_my_vehicle}"
+      - stay_away_childrens_school: "${stay_away_order_childrens_school}"
+      - stay_away_my_school: "${stay_away_order_my_school}"
+      - stay_away_my_home: "${stay_away_order_my_home}"
+      - stay_away_other: "${stay_away_order_other}"
+      - stay_away_my_job: "${stay_away_order_my_job}"
+      - stay_away_other_protected_persons: "${stay_away_order_additional_protected_persons}"
+      - "stay_away_other_explain": ${DV_100_attachment.safe_value('stay_away_order_other_place')}
+      - stay_away_distance_other: "${stay_away_order and not stay_away_order_100}"
+      - stay_away_100_yards: "${stay_away_order_100}"
+      - stay_away_distance_other_number: "${stay_away_order_distance}"
+      - live_together_no2: "${not live_together_or_close}"
+      - live_together_yes2: "${live_together_or_close}"
+      - live_together2: "${relationship_were_living_together_household}"
+      - same_building: "${same_building}"
+      - same_neighborhood: "${same_neighborhood}"
+      - live_together_other: "${live_close_other}"
+      - "live_together_other_explain": ${DV_100_attachment.safe_value('live_close_other_explain')}
+      - same_workplace_no: "${not same_workplace_or_school}"
+      - same_workplace_yes: "${same_workplace_or_school}"
+      - work_together: "${same_workplace}"
+      - work_together_company: "${same_workplace_specify}"
+      - same_school: "${same_school}"
+      - same_school_specify: "${same_school_specify}"
+      - same_workplace_other: "${same_workplace_or_school_other}"
+      - "same_workplace_other_explain": ${DV_100_attachment.safe_value('same_workplace_or_school_other_explain')}
+      - case_number8: "${case_number}"
+      - move_out: "${move_out_order}"
+      - move_out_address: "${move_out_address}"
+      - lived_at_address_years: "${move_out_duration_years}"
+      - lived_at_address_months: "${move_out_duration_months}"
+      - lived_at_address: "${move_out_duration}"
+      - owns_home: "${move_out_home}"
+      - name_on_lease: "${move_out_lease}"
+      - pays_rent: "${move_out_rent}"
+      - children_at_address: "${move_out_children}"
+      - move_out_other: "${move_out_other}"
+      - "move_out_other_explain": ${DV_100_attachment.safe_value('move_out_other_specify')}
+      - other_orders: "${other_orders}"
+      - "other_orders_describe": ${DV_100_attachment.safe_value('other_orders_explain')}
+      - custody_visitation: "${requesting_custody_and_visitation}"
+      - case_number9: "${case_number}"
+      - protect_animals: "${animals.there_are_any}"
+      - animal1_name: "${animals.item(0).name.text}"
+      - animal1_type: "${animals.item(0).type}"
+      - animal1_breed: "${animals.item(0).breed}"
+      - animal1_color: "${animals.item(0).color}"
+      - animal2_name: "${animals.item(1).name.text}"
+      - animal2_type: "${animals.item(1).type}"
+      - animal2_breed: "${animals.item(1).breed}"
+      - animal2_color: "${animals.item(1).color}"
+      - animal3_name: "${animals.item(2).name.text}"
+      - animal3_type: "${animals.item(2).type}"
+      - animal3_breed: "${animals.item(2).breed}"
+      - animal3_color: "${animals.item(2).color}"
+      - animal4_name: "${animals.item(3).name}"
+      - animal4_type: "${animals.item(3).type}"
+      - animal4_breed: "${animals.item(3).breed}"
+      - animal4_color: "${animals.item(3).color}"
+      - animal_stay_away: "${animals_stay_away}"
+      - animal_stay_away_other: "${animals_stay_away and not animals_100}"
+      - animal_stay_away_100: "${animals_100}"
+      - animal_stay_away_other_specify: "${animals_distance}"
+      - animals_dont_take: "${animals_no_harm}"
+      - animals_sole_possession: "${animals.there_are_any}"
+      - resp_animal_abuse: "${animal_explanation_resp_abuse}"
+      - pet_cares_for_animals: "${animal_explanation_pet_care}"
+      - pet_own_animals: "${animal_explanation_pet_own}"
+      - animals_possession_other: "${animal_explanation_other}"
+      - "animals_possession_other_explain": ${DV_100_attachment.safe_value('animal_explanation_other_specify')}
+      - property_control: "${property_control}"
+      - "property_control_describe": ${DV_100_attachment.safe_value('property_control_description')}
+      - "property_control_explain": ${DV_100_attachment.safe_value('property_control_explain')}
+      - insurance: "${insurance}"
+      - record_communications: "${record_unlawful_communications}"
+      - case_number10: "${case_number}"
+      - property_restraint: "${property_restraint}"
+      - deadline_to_give_notice: "${time_for_service}"
+      - "deadline_to_give_notice_explain": ${DV_100_attachment.safe_value('time_for_service_explanation')}
+      - debtpayment: "${debtpayment.there_are_any}"
+      - bill1_pay_to: "${debtpayment.item(0).pay_to}"
+      - bill1_for: "${debtpayment.item(0).name.text}"
+      - bill1_amount: "${debtpayment.item(0).amount}"
+      - bill1_due_date: "${debtpayment.item(0).due_date}"
+      - bill2_pay_to: "${debtpayment.item(1).pay_to}"
+      - bill2_for: "${debtpayment.item(1).name.text}"
+      - bill2_amount: "${debtpayment.item(1).amount}"
+      - bill2_due_date: "${debtpayment.item(1).due_date}"
+      - bill3_pay_to: "${debtpayment.item(2).pay_to}"
+      - bill3_for: "${debtpayment.item(2).name.text}"
+      - bill3_amount: "${debtpayment.item(2).amount}"
+      - bill3_due_date: "${debtpayment.item(2).due_date}"
+      - "pay_bills_explain": ${DV_100_attachment.safe_value('debtpayment_explain')}
+      - specialdecision_yes: "${any(item.special_decision == True for item in debtpayment)}"
+      - specialdecision_no: "${debtpayment.there_are_any and not any(item.special_decision == True for item in debtpayment)}"
+      - specialdecision_debt1: "${debtpayment.item(0).special_decision is True}"
+      - specialdecision_debt2: "${debtpayment.item(1).special_decision is True}"
+      - specialdecision_debt3: "${debtpayment.item(2).special_decision is True}"
+      - specialdecision_know_yes: "${any(item.special_decision_how == True for item in debtpayment)}"
+      - specialdecision_know_no: "${not any(item.special_decision_how == True for item in debtpayment)}"
+      - "specialdecision_how_explain": ${DV_100_attachment.safe_value('debtpayment_explanation')}
+      - case_number11: "${case_number}"
+      - expenses: "${payexpenses.there_are_any}"
+      - expenses1_pay_to: "${payexpenses.item(0).to}"
+      - expenses1_for: "${payexpenses.item(0).name.text}"
+      - expenses1_amount: "${payexpenses.item(0).amount}"
+      - expenses2_pay_to: "${payexpenses.item(1).to}"
+      - expenses2_for: "${payexpenses.item(1).name.text}"
+      - expenses2_amount: "${payexpenses.item(1).amount}"
+      - expenses3_pay_to: "${payexpenses.item(2).to}"
+      - expenses3_for: "${payexpenses.item(2).name.text}"
+      - expenses3_amount: "${payexpenses.item(2).amount}"
+      - child_support: "${child_support or receive_public_assistance}"
+      - child_support_no: "${child_support}"
+      - child_support_change: "${child_support_previousorder and child_support}"
+      - public_assistance: "${receive_public_assistance}"
+      - spousal_support: "${spousal_support}"
+      - attorneys_fees: "${requesting_attorneys_fees}"
+      - batterer_intervention: "${batterer_intervention}"
+      - wireless_accounts: "${mobile_devices}"
+      - wirelessaccount1_my_number: "${mobile_devices_first_ownership == 'mobile_devices_first_ownership_pet'}"
+      - wirelessaccount1_childs_number: "${mobile_devices_first_ownership == 'mobile_devices_first_ownership_child'}"
+      - wirelessaccount1_number: "${mobile_devices_first_number}"
+      - wirelessaccount2_my_number: "${mobile_devices_second_ownership == 'mobile_devices_second_ownership_pet'}"
+      - wirelessaccount2_childs_number: "${mobile_devices_second_ownership == 'mobile_devices_second_ownership_child'}"
+      - wirelessaccount2_number: "${mobile_devices_second_number}"
+      - case_number12: "${case_number}"
+      - additional_pages: "${ }"
+      - date: "${signature_date}"
+      - pet.name2: "${pet.name}"
+---
+#### DV-109 attachment Code
+attachment:
+    variable name: DV_109_attachment[i]
+    name: DV-109, Notice of Court Hearing
+    filename: DV-109
+    skip undefined: true
+    pdf template file: 2023_DV_109.pdf
+    fields:
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - case_number: "${case_number}"
+      - case_number2: "${case_number}"
+      - case_number3: "${case_number}"
+      - court_name: "${court_name}"
+      - court_address_county: "${court_county}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_state_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+---
+#### DV-110 Attachment Code
+attachment:
+  variable name: DV_110_attachment.addendum
+  docx template file: DV_110_Attachment.docx
+---
+code: |
+  DV_110_attachment.overflow_fields['additionalprotectedpersons'].overflow_trigger = 4
+  DV_110_attachment.overflow_fields['additionalprotectedpersons'].label = "4. Other Protected People"
+  DV_110_attachment.overflow_fields['firearms'].overflow_trigger = 4
+  DV_110_attachment.overflow_fields['firearms'].label = "6. Respondent's Firearms/Firearm Parts"
+  DV_110_attachment.overflow_fields['ammunition'].overflow_trigger = 4
+  DV_110_attachment.overflow_fields['ammunition'].label = "6. Respondent's Ammunition"
+  DV_110_attachment.overflow_fields['stay_away_order_other_place'].overflow_trigger = 75
+  DV_110_attachment.overflow_fields['stay_away_order_other_place'].label = "11a. Stay-Away Order, Other (explain)"
+  DV_110_attachment.overflow_fields['other_orders_explain'].overflow_trigger = 475
+  DV_110_attachment.overflow_fields['other_orders_explain'].label = "13. Other Orders"
+  DV_110_attachment.overflow_fields['animals'].overflow_trigger = 4
+  DV_110_attachment.overflow_fields['animals'].label = "15. Protect Animals"
+  DV_110_attachment.overflow_fields['property_control_description'].overflow_trigger = 280
+  DV_110_attachment.overflow_fields['property_control_description'].label = "16. Control of Property"
+  DV_110_attachment.overflow_fields['debtpayment'].overflow_trigger = 3
+  DV_110_attachment.overflow_fields['debtpayment'].label = "20. Pay Debts Owed for Property"
+  DV_110_attachment.overflow_fields.gathered = True 
+---
+attachment:
+    variable name: DV_110_attachment[i]
+    name: DV-110, Temporary Restraining Order
+    filename: DV-110
+    skip undefined: true
+    pdf template file: 2023_DV_110.pdf
+    fields:
+      - amended_order: "${}"
+      - original_order: Yes
+      - amended_order_date: "${}"
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - resp_nonbinary: |
+          ${(resp.sex == 'resp.sex_nonbinary')}
+      - resp_male: |
+          ${(resp.sex == 'resp.sex_male')}
+      - resp_female: |
+          ${(resp.sex == 'resp.sex_female')}
+      - court_address_county: "${court_county}"
+      - resp.age: "${resp.age}"
+      - court_name: "${court_name}"
+      - resp.birthdate: "${resp.birthdate}"
+      - resp.height: "${resp.height}"
+      - resp.weight: "${resp.weight}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - resp.hair_color: "${resp.hair_color}"
+      - resp.eye_color: "${resp.eye_color}"
+      - court_city_state_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - resp.race: "${resp.race}"
+      - resp_relationship: "${relationship_specify}"
+      - resp.address.street: "${resp.address.street} ${resp.address.unit}"
+      - case_number: "${case_number}"
+      - resp.address.city: "${resp.address.city}"
+      - resp.address.state: "${resp.address.state}"
+      - resp.zip: "${resp.address.zip}"
+      - additionalprotectedpersons: "${additionalprotectedpersons.there_are_any}"
+      - additionalprotectedperson1_name: "${additionalprotectedpersons.item(0).name}"
+      - additionalprotectedperson1_relationship: "${additionalprotectedpersons.item(0).relationship}"
+      - additionalprotectedperson1_age: "${additionalprotectedpersons.item(0).age_in_years()}"
+      - additionalprotectedperson2_name: "${additionalprotectedpersons.item(1).name}"
+      - additionalprotectedperson2_relationship: "${additionalprotectedpersons.item(1).relationship}"
+      - additionalprotectedperson2_age: "${additionalprotectedpersons.item(1).age_in_years()}"
+      - additionalprotectedperson3_name: "${additionalprotectedpersons.item(2).name}"
+      - additionalprotectedperson3_relationship: "${additionalprotectedpersons.item(2).relationship}"
+      - additionalprotectedperson3_age: "${additionalprotectedpersons.item(2).age_in_years()}"
+      - additionalprotectedperson4_age: "${additionalprotectedpersons.item(3).age_in_years()}"
+      - additionalprotectedperson4_name: "${additionalprotectedpersons.item(3).name}"
+      - additionalprotectedperson4_relationship: "${additionalprotectedpersons.item(3).relationship}"
+      - other_protected_people: "${additionalprotectedpersons.target_number > 4}"
+      - case_number2: "${case_number}"
+      - firearm1: "${firearms.item(0).name.text}"
+      - firearm1_location: "${firearms.item(0).location}"
+      - firearm2: "${firearms.item(1).name.text}"
+      - firearm2_location: "${firearms.item(1).location}"
+      - firearm3: "${firearms.item(2).name.text}"
+      - firearm3_location: "${firearms.item(2).location}"
+      - firearm4: "${firearms.item(3).name.text}"
+      - firearm4_location: "${firearms.item(3).location}"
+      - ammo1: "${ammunition.item(0).name.text}"
+      - ammo1_amount: "${ammunition.item(0).amount}"
+      - ammo1_location: "${ammunition.item(0).location}"
+      - ammo2: "${ammunition.item(1).name.text}"
+      - ammo2_amount: "${ammunition.item(1).amount}"
+      - ammo2_location: "${ammunition.item(1).location}"
+      - ammo3: "${ammunition.item(2).name.text}"
+      - ammo3_amount: "${ammunition.item(2).amount}"
+      - ammo3_location: "${ammunition.item(2).location}"
+      - ammo4: "${ammunition.item(3).name.text}"
+      - ammo4_amount: "${ammunition.item(3).amount}"
+      - ammo4_location: "${ammunition.item(3).location}"
+      - case_number3: "${case_number}"
+      - case_number4: "${case_number}"
+      - "stay_away_other_specify": ${ DV_110_attachment.safe_value('stay_away_order_other_place') }
+      - move_out_address: "${move_out_address}"
+      - "other_orders": ${ DV_110_attachment.safe_value('other_orders_explain') }
+      - case_number5: "${case_number}"
+      - animal1_breed: "${animals.item(0).breed}"
+      - animal1_color: "${animals.item(0).color}"
+      - animal1_type: "${animals.item(0).type}"
+      - animal1: "${animals.item(0).name.text}"
+      - animal2: "${animals.item(1).name.text}"
+      - animal2_type: "${animals.item(1).type}"
+      - animal2_breed: "${animals.item(1).breed}"
+      - animal2_color: "${animals.item(1).color}"
+      - animal3: "${animals.item(2).name.text}"
+      - animal3_type: "${animals.item(2).type}"
+      - animal3_breed: "${animals.item(2).breed}"
+      - animal3_color: "${animals.item(2).color}"
+      - animal4: "${animals.item(3).name.text}"
+      - animal4_type: "${animals.item(3).type}"
+      - animal4_breed: "${animals.item(3).breed}"
+      - animal4_color: "${animals.item(3).color}"
+      - "property_control": ${ DV_110_attachment.safe_value('property_control_description') }
+      - case_number6: "${case_number}"
+      - debt1_to: "${debtpayment.item(0).pay_to}"
+      - debt1_for: "${debtpayment.item(0).name.text}"
+      - debt1_amount: "${debtpayment.item(0).amount}"
+      - debt1_duedate: "${debtpayment.item(0).due_date}"
+      - debt2_to: "${debtpayment.item(1).pay_to}"
+      - debt2_for: "${debtpayment.item(1).name.text}"
+      - debt2_amount: "${debtpayment.item(1).amount}"
+      - debt2_duedate: "${debtpayment.item(1).due_date}"
+      - debt3_to: "${debtpayment.item(2).pay_to}"
+      - debt3_for: "${debtpayment.item(2).name.text}"
+      - debt3_amount: "${debtpayment.item(2).amount}"
+      - debt3_duedate: "${debtpayment.item(2).due_date}"
+      - pages_attached: "${}"
+      - case_number7: "${case_number}"
+      - case_number8: "${case_number}"
+      - case_number9: "${case_number}"
+      - DV140: "${requesting_custody_and_visitation or child_abduction_risk}"
+      - DV145: "${child_abduction_risk}"
+      - attached_pages: "${requesting_custody_and_visitation or child_abduction_risk}"
+---
+generic object: ALExhibitList
+mandatory: True
+code: |
+  x.enabled = x.exhibits.has_exhibits
+---
+template: other_evidence_examples
+subject: |
+  Commonly Accepted Examples of Evidence of Abuse
+content: |
+  Other evidence of abuse may include, but is not limited to: 
+  
+  - Screenshots or recordings/transcripts of abusive voicemails or voice messages, text messages, notes, letters, private messages, emails, comments (online or on social media), or other correspondence from ${resp.name.first} (directly or indirectly, such as through friends or family)
+  - Medical bills or records of treatment received for injuries (physical or psychological) resulting from Brandon’s abuse (towards yourself, other protected parties, your children, or pets)
+  - Photos of injuries or other damage caused by ${resp.name.first}'s abuse
+  - Receipts for the cost of repair or replacement of property damaged by ${resp.name.first}’s abuse
+  - Police reports (Under Family Code section 6288, victims of domestic violence, sexual assault, stalking, human trafficking, and elder abuse are entitled to free copies of all incident reports)
+  - Bank statements with charges, screenshots of payment apps (such as PayPal, CashApp, Venmo or Zelle, credit card bills, and loan statements detailing ${resp.name.first}'s financial abuse
+  - Parent-teacher conference notes or counselor's/therapists's notes 
+---
+generic object: ALExhibitList
+id: any exhibits
+question: |
+   Upload Evidence of Abuse
+subquestion: |  
+  **Attaching Evidence to Your Declarations**
+
+  Now that you've described incidents of ${resp.name.first}'s abuse in your declarations, it's time to attach the supporting evidence you referred to. As a reminder, you labeled each piece of evidence as Exhibit A, B, C, and so on, within your descriptions. If you did not label your evidence this way, please go back to edit your responses accordingly or ensure that you make the appropriate changes to the court forms generated at the end of this interview. 
+
+  On this page, you can upload the corresponding evidence files to match your descriptions. Make sure each exhibit letter (e.g., "Exhibit A") on the evidence matches the reference in your declarations. This organization will help ensure clarity for the judge who reviews your court forms.
+  
+  **As a reminder: What can I use as evidence?**
+  
+  Evidence can include witness testimonial (a verbal account of events by one or more witnesses that you bring with you to court) and documents.
+  
+  Some examples of evidence include proof of text messages, emails, pictures of injuries or damaged property, copies of a police report, etc. If you have recordings (video or audio), do not upload them on the following pages, but check in with your local Self-Help Center or your court's Family Law Facilitator before your court date to confirm how your county handles these types of evidence. Sometimes judges may require a transcript for a recording. A transcript is a written version of the recording that shows exactly what was said.
+  
+  For more information on how to document and gather evidence of ${resp.name.first}'s abuse, please review [the Hotline's "Documenting abuse" resource page](https://www.thehotline.org/resources/documenting-abuse/).
+  
+  ${prog_disclose(other_evidence_examples)}
+fields:
+  - Do you have any evidence that you can upload copies of in support of your declaration of abuse? (pictures and documents only): x.has_exhibits
+    datatype: yesnoradio
+  - note: |
+      **Okay**. You will have a chance to upload multiple documents containing evidence of ${resp.name.first}'s abuse. 
+      You can also add additional pages to this document. For example, if you are uploading multiple different pictures of the same incident or pattern of abuse, you may upload them one picture at a time.
+    show if: x.has_exhibits
+  - note: |      
+      Note that the title you use for each document will appear on a table of contents organizing your attachments on the following pages. 
+    show if: x.has_exhibits
+  - First piece of evidence title: x[0].title
+    maxlength: 60 # longer might break TOC
+    show if: x.has_exhibits    
+  - Upload the first document or picture of your first piece of evidence (Exhibit A): x[0].pages
+    show if: x.has_exhibits    
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x.has_exhibits:
+    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[0].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+    x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+code: |
+  x.there_are_any = x.has_exhibits
+---
+generic object: ALExhibitList
+id: exhibit i
+question: |
+  Upload the ${ capitalize(ordinal(i)) } Piece of Evidence of Abuse
+subquestion: |
+  You will have a chance to upload additional pages for this document later. 
+fields:
+  - Document title: x[i].title
+    maxlength: 60 # longer might break TOC
+  - Upload the ${ordinal[i]} exhibit: x[i].pages
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages)
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+  if defined('x[i].pages'):    
+    x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i has additional pages
+question: |
+  Upload Evidence of Abuse
+subquestion: |
+  Does "**${ x[i] }**" have any additional pages or pictures?
+  
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+  ${ prog_disclose(x[i].in_progress_template )}
+  
+field: x[i].pages.there_is_another
+buttons:
+  - Finished adding pages: False
+  - Add another page: True
+---
+generic object: ALExhibitList
+template: x[i].in_progress_template
+subject: |
+  Preview "${ x[i].title }" so far
+content: |
+  Use the buttons to rearrange the pages.
+  
+  ${ x[i].rearrange_pages_table }
+---
+generic object: ALExhibitList
+id: exhibit additional page
+question: |
+  Upload Evidence of Abuse
+subquestion: |
+  Upload the ${ ordinal(j) } part of your ${ x[i].title } document
+fields:
+  - Upload a PDF, Word, or image file: x[i].pages[j]
+    datatype: file
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages[j])
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+  x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
+---
+generic object: ALExhibitList
+id: another exhibit
+question: |
+  Upload Evidence of Abuse
+subquestion: |
+  **Attaching Evidence to Your Declarations**
+
+  Now that you've described incidents of ${resp.name.first}'s abuse in your declarations, it's time to attach the supporting evidence you referred to. As a reminder, you labeled each piece of evidence as Exhibit A, B, C, and so on, within your descriptions. If you did not label your evidence this way, please go back to edit your responses accordingly or ensure that you make the appropriate changes to the court forms generated at the end of this interview. 
+
+  On this page, you can upload the corresponding evidence files to match your descriptions. Make sure each exhibit letter (e.g., "Exhibit A") on the evidence matches the reference in your declarations. This organization will help ensure clarity for the judge who reviews your court forms.
+  
+  **As a reminder: What can I use as evidence?**
+  
+  Evidence can include witness testimonial (a verbal account of events by one or more witnesses that you bring with you to court) and documents.
+  
+  Some examples of evidence include proof of text messages, emails, pictures of injuries or damaged property, copies of a police report, etc. If you have recordings (video or audio), do not upload them on the following pages, but check in with your local Self-Help Center or your court's Family Law Facilitator before your court date to confirm how your county handles these types of evidence. Sometimes judges may require a transcript for a recording. A transcript is a written version of the recording that shows exactly what was said.
+  
+  For more information on how to document and gather evidence of ${resp.name.first}'s abuse, please review [the Hotline's "Documenting abuse" resource page](https://www.thehotline.org/resources/documenting-abuse/).
+  
+  ${prog_disclose(other_evidence_examples)}
+  
+  **You have ${ x.number_gathered() } piece(s) of evidence so far. Do you have another that you want to upload?**
+  
+  ${ prog_disclose(x.in_progress_exhibits) }
+field: x.there_is_another
+buttons:
+  - Finished adding evidence: False
+  - Add more evidence: True
+---
+generic object: ALExhibitList
+template: x.in_progress_exhibits
+subject: |
+  Preview your evidence of abuse so far
+content: |
+  ${ x.rearrange_exhibits_table }
+---
+generic object: ALExhibitList
+table: x.rearrange_exhibits_table
+rows: x
+allow reordering: True
+delete buttons: True
+columns:
+  - ${ al_exhibit_title_label }: |
+      row_item.title
+  - ${ al_exhibit_preview_label }: |
+      row_item.pages.show(width="50%")
+  - ${ al_exhibit_total_pages_label }: |
+      row_item.pages.num_pages()
+edit:
+  - rearrange_pages
+---
+generic object: ALExhibit
+table: x.rearrange_pages_table
+rows: x.pages
+allow reordering: True
+delete buttons: True
+columns: 
+  - ${ al_exhibit_preview_label }: |
+      row_item.show(width="50%")
+---  
+template: al_exhibit_preview_label
+content: |
+  Thumbnail
+---
+template: al_exhibit_title_label
+content: |
+  Title
+---
+template: al_exhibit_total_pages_label
+content: |
+  Total pages
+---
+generic object: ALExhibitList
+question: |
+  Review Your Uploaded Evidence of Abuse
+subquestion: |
+  % if x.auto_label:
+  Each document will be labeled in the order below, starting at 
+  ${ x.auto_labeler(0) }, and continuing with ${ x.auto_labeler(1) } and so on.
+  
+  % endif
+  ${ x.rearrange_exhibits_table }
+  ${ x.add_action() }
+continue button field: x.rearrange_exhibits
+---
+generic object: ALExhibit
+question: |
+  Review the Order of Your Uploaded Proof of Income Documents
+subquestion: |
+  ${ x.rearrange_pages_table }
+  ${ x.pages.add_action() }
+continue button field: x.rearrange_pages
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  docx template file: sksr_exhibit_cover.docx
+  field code:
+    exhibit_label: raw(x.label)
+---
+generic object: ALExhibitDocument
+attachment:
+  variable name: x.table_of_contents
+  docx template file: attachment_table_of_contents.docx
+  field code:
+    exhibits: raw(x.exhibits)
+    include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)
+---
+generic object: ALDocumentBundle
+code: |
+  x.there_is_another = False

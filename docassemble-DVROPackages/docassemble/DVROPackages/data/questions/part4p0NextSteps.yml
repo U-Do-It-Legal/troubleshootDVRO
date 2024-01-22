@@ -1,0 +1,1863 @@
+metadata:
+  title: |
+    Request for DVRO: Part 4.0, Next Steps
+  short title: |
+    Next Steps 
+  description: |
+    An interview guiding self-representing DVRO Petitioners through their next steps in the Request for Domestic Violence Restraining Order case process, including form preparation, filing, service, hearing preparation, and more. 
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      revision_date: 2023-06-27
+      require privileges: [dvro-p1, admin]
+    - exit url: https://www.udoitlegal.com/
+  required privileges for listing: [dvro-p1, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+  counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - pet: Individual
+  - resp: Individual
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+	- case_info: Case Information
+  - form_preparation: Preparing Your Court Documents for Filing
+  - court_filing: Filing Your Court Documents
+  - service_of_forms: Serving Your Court Documents on the Other Party
+  - hearing_preparation: Preparing for Your Hearing
+  - during_the_hearing: What to Expect During the Hearing
+  - after_hearing_next_steps: Your Next Steps After the Hearing
+  - conclusion: Conclusion
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  safety_warning
+  interview_part
+  purpose1
+  
+  nav.set_section('case_info')
+  pet.name.first
+  requesting_childsupport
+  
+  nav.set_section('form_preparation')
+  form_prep_step1
+  form_prep_step2
+  form_prep_step3
+  form_prep_step4
+  form_prep_step5
+  
+  nav.set_section('court_filing')
+  filing_step1
+  filing_step2
+  filing_step3
+  filing_step4
+  filing_step5
+  
+  tro_issuance1
+  tro_issuance2
+  tro_outcome1
+  tro_outcome2
+  tro_outcome3
+    
+  nav.set_section('service_of_forms')
+  service1
+  service2
+  service_step1
+  service_step2
+  service_step3
+  resp_not_served
+  
+  nav.set_section('hearing_preparation')
+  hearing_prep_intro
+  before_the_hearing
+  requesting_interpreter
+  if requesting_interpreter:
+    pet.address.street
+  if requesting_disabilityaccommodations:
+    pet.address.street2
+  hearing_prep_evidence
+  hearing_prep_documents1
+  hearing_prep_documents2
+  court_attire
+  
+  nav.set_section('during_the_hearing')
+  missing_the_hearing
+  courthouse_arrival
+  court_rules
+  speaking_in_court
+  answering_questions
+  hearing_postponed
+  
+  nav.set_section('after_hearing_next_steps')
+  formal_notice
+  dvro_outcome
+  dvro_granted1
+  dvro_granted2
+  dvro_denied
+  
+  nav.set_section('conclusion')
+  after_hearing_next_steps
+  enforcement1
+  enforcement2
+  enforcement3
+  filing_date
+---
+question: |
+  Welcome to U Do It Legal's **Request for Domestic Violence Restraining Order, Part 4: DVRO Next Steps** 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+  
+  We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place. 
+continue button field: safety_warning
+---
+template: template_explanation
+subject: |
+  Click here to expand this Info Box.
+content: |
+  Like the info cards above, these info boxes contain helpful information. These boxes are designed to condense pages that have a lot of text. 
+  
+  Simply click on an info box to expand and access additional information, and click again to collapse it and conserve space on the page.
+---
+template: part1
+subject: |
+  **Part 1, Introduction**
+content: |
+  This interview covers:
+  
+  - Your Request for Domestic Violence Restraining Order Roadmap
+  - Safety Planning
+---
+template: part2
+subject: |
+  **Part 2, Case Information**
+content: |
+  This interview prepares the following forms for you:
+  
+  - California Law Enforcement Telecommunications System Information Form (form CLETS-001)
+  - Notice of Hearing (form DV-109)
+---
+template: part3
+subject: |
+  **Part 3, Requesting Restraining Orders**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request for Domestic Violence Restraining Order (form DV-100)
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Temporary Restraining Order (form DV-110)
+---
+template: part3_1
+subject: |
+  **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Income and Expense Declaration (form FL-150)
+---
+template: part3_2
+subject: |
+  **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request for Child Custody and Visitation Orders (form DV-105)
+  - Request for Child Abduction Prevention Orders (form DV-108) *if requesting orders to prevent your child from being kidnapped by the other party**
+  
+  This interview also prepares the following proposed order forms for court completion:
+  
+  - Child Custody and Visitation Order (form DV-140)
+  - Child Abduction PReventions Orders (form DV-145) *if applicable**
+  - Supervised Visitation and Exchange Order (form DV-150) *if applicable**
+---
+template: part3_3
+subject: |
+  **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the other party**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request to Keep Minor's Information Confidential (form DV-160)
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Order on Request to Keep Minor's Information Confidential (form DV-165)
+---
+template: part4
+subject: |
+  **Part 4, Next Steps** 
+content: |
+  This interview covers instructions for Filing, Service, Hearing Preparation, and more. 
+  
+  It also generates written instructions in a PDF that you can download or email to yourself at the end of the interview. 
+---
+template: part4_1
+subject: |
+  **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing (form DV-115)
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing (form DV-116)
+---
+template: part5
+subject: |
+  **Part 5, Restraining Order After Hearing and Renewal** 
+content: |
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Restraining Order After Hearing (form DV-130)
+  - Child Custody and Visitation Order (form DV-140) *If child custody and visitation orders are issued**
+  - Child Abduction Prevention Order (Form DV-145) *If child abduction prevention orders are issued**
+  - Order on Request to Keep Minor's Information Confidential (Form DV-160) *If orders to keep minor's information confidential are issued**
+  - Child Support Information and Order Attachment (Form FL-342) *If child support orders are issued**
+  - Spousal, Domestic Partner, or Family Support Order Attachment (Form FL-343) *If spousal, partner, or family support orders are issued**
+---
+question: |
+  **Interview 1:** Request for Domestic Violence Restraining Order Roadmap and Safety Planning
+subquestion: |
+  Our website will guide you through and assist you with the preparation of all court forms required for your Domestic Violence Restraining Order (DVRO) case from start to finish. This interview is **Part 4** of 5:
+  
+  ${prog_disclose(part1)}
+  
+  ${prog_disclose(part2)}
+  
+  ${prog_disclose(part3)}
+    
+  ${prog_disclose(part3_1)}
+  
+  ${prog_disclose(part3_2)}
+  
+  ${prog_disclose(part3_3)}
+  
+  ${card_start("You are here:", color="light")}
+  ${prog_disclose(part4)}
+  ${card_end()}
+  
+  ${prog_disclose(part4_1)}
+  
+  ${prog_disclose(part5)}
+continue button field: interview_part
+---
+question: |
+  **Next Steps:** This Interview's Purpose
+subquestion: |
+  This interview assists you in navigating the next stages of the court process following the completion of your initial Request for Domestic Violence Restraining Order forms. Here, we provide you a guide on how to: prepare your forms for filing; file your forms with the court; serve the required court forms; preparing for your hearing, and more.
+
+  Additionally, we will provide you with a comprehensive "Next Steps" checklist summarizing the important information covered in this interview.
+
+  We're here to support you every step of the way.
+continue button field: purpose1
+---
+question: |
+  Case Information 
+subquestion: |
+  Provide the following information about your case. Make sure that this information matches the information on your other court forms. 
+fields: 
+  - note: |
+      #####**Your Name**
+  - First name: pet.name.first
+  - Middle name (if applicable): pet.name.middle
+    required: False
+  - Last name: pet.name.last
+  - Suffix (if applicable): pet.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+  
+  - note: |
+      #####**Other Party's Name**
+  - First name: resp.name.first
+  - Middle name: resp.name.middle
+    required: False
+  - Last name: resp.name.last
+  - Suffix (if applicable): resp.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+  
+  - note: |
+      #####**Your Court and Case**
+  - Court Name: court_name
+  - Court Address Line 1 (Street): court_address1
+  - Court Address Line 2 (City, State, and Zip): court_address2
+  - Court County: court_county
+    code: counties_list
+  - Case Number (if assigned): case_number
+    required: False
+---
+question: |
+  Indicate the Orders You're Requesting in Your Request for DVRO (form DV-100)
+subquestion: |
+  Please review each order you have requested in your completed Request for Domestic Violence Restraining Order (form DV-100) and check each applicable box below identifying the orders you are requesting. Make sure that the checked boxes correspond to the orders checked on your DV-100 form. Please note that the list of orders below is not an exhaustive list of orders that you can request in a DVRO proceeding, and may not include all of the orders you have requested. The orders checked in the list below will determine the specific forms that will be included on your personalized Next Steps Checklist, which you can download at the end of this interview.
+  
+  For an overview of each of the identified orders listed below, click on the help button to the right of each order, which will also identify the corresponding item number on the DV-100 form (or applicable attachment). Check all that apply:
+fields: 
+  - Child Support: requesting_childsupport
+    datatype: yesno
+    help: |
+      **Item 24 on DV-100.** Child support is the amount of money that a court orders a parent or both parents to pay every month to help pay for the support of the child (or children) and the child’s living expenses.
+  - Spousal (or Partner) Support: requesting_spousalsupport
+    datatype: yesno
+    help: |
+      **Item 25 on DV-100.** Spousal Support (aka, Partner Support or Alimony) is a regular payment from one spouse to another. A spouse may request and receive **temporary** support orders (to support his or her expenses during the case), which can later be replaced by **permanent** support orders upon the determination of a judge at the hearing.
+  - Child Custody and Visitation: requesting_custody
+    datatype: yesno
+    help: |
+      **Item 15 on DV-100.** Child Custody refers to the rights and responsibilities between parents for taking care of their children. Visitation (aka parenting time) refers to how and when each parent will spend time with the children.
+  - Supervised Visitation: requesting_supervisedvisitation
+    datatype: yesno
+    help: |
+      **Item 11 on DV-105, Request for Child Custody and Visitation Orders.** Supervised Visitation is most often ordered when a parent, in this case the other party, is determined to present a risk to the children’s safety or well-being, warranting the presence of a third party to supervise visits with the other parent. This third party can be a friend, relative, or a professional monitor.
+  - Child Abduction Prevention Orders: requesting_childabduction
+    datatype: yesno 
+    help: |
+      **Item 8 on DV-105, Request for Order to Prevent Child Abduction.** Child Abduction Prevention orders are designed to protect children from being wrongfully taken or retained by a parent or guardian and can include restrictions on visitation, traveling with the children, and more. 
+  - Keep Minor's Information Confidential from the Public: requesting_confidentiality
+    datatype: yesno
+    help: |
+      **Check this box if you completed interview Part 3.3/form DV-160, the Request to Keep Minor's Information Confidential from the Public.** The Request to Keep Minor's Information Confidential from the Public orders ensure that certain information about minors is not included in the public court record, safeguarding their privacy and security. This means that specific details related to minors, such as their names, addresses, and other identifying information, are not accessible to the general public. 
+  - Debt (Bill) Payment: requesting_debtpayment
+    datatype: yesno
+    help: |
+      **Item 22 on DV-100.** Under Debt Payment orders, the court can order ${resp.name.first} to pay certain debts related to property that you both own or rent, such as mortgage payments, utility bills, or other shared financial obligations.
+  - Payment (Reimbursement) of Expenses Caused by ${resp.name.first}'s Abuse: requesting_reimbursement
+    datatype: yesno
+    help: |
+      **Item 23 on DV-100.** Under Pay Expenses Caused by the Abuse orders, if you had to pay for any costs or services that were caused directly by ${resp.name.first}'s abuse (such as damaged property, medical care, counseling, temporary housing, etc.), the court can order ${resp.name.first} to pay you back for those costs and services. 
+  - Property Control: requesting_propertycontrol
+    datatype: yesno
+    help: |
+      **Item 17 on DV-100.** Property Control orders can give you temporary control over certain property that you and ${resp.name.first} own or rent. For instance, you may be granted exclusive control over a vehicle, a home, a smartphone, or other shared assets, regardless of who the property is technically registered to.
+  - Property Restraint: requesting_propertyrestraint
+    datatype: yesno
+    help: |
+      **Item 20 on DV-100.** Note, you can only request Property Restraint orders if you and ${resp.name} are currently married or registered domestic partners. Property Restraint orders protect your property by prohibiting ${resp.name.first}, from disposing, damaging, or transferring it without the court's permission. 
+  - Transfer of Wireless Phone Account(s): requesting_wirelesstransfer
+    datatype: yesno
+    help: |
+      **Item 28 on DV-100.** If ${resp.name.first} holds the rights to your or your child's cell phone account, the judge can order that your wireless service provider transfer the ownership of these accounts to you. Note, this means you will be financially responsible for these accounts. 
+---
+template: court_hours_explanation
+subject: |
+  What if the court is closed when I want to file? 
+content: |
+   The court is only typically open on weekdays between 8:30 AM and 4:30 PM (though ${court_name}'s hours may vary). If the court is closed and you need a restraining order immediately, take your court forms/documents to your local police station. They can help you apply for a restraining order right away. 
+   
+   The Probation department may find out if ${resp.name.first} has a criminal history. They will also find out if ${resp.name.first}  has any other restraining orders. They will give this information to the judge.
+---
+question: |
+  Preparing Your Court Documents for Filing
+subquestion: |
+  **Step 1. Review each of your forms, one more time.** 
+  
+  Make sure everything is correct.
+  
+  Make corrections, if necessary. You can edit your forms digitally, or directly on the form itself. Note, any text on your forms must be typewritten or hand printed in blue or black ink.
+continue button field: form_prep_step1
+---
+question: |
+  Preparing Your Court Documents for Filing
+subquestion: |
+  **Step 2. Print, date, and sign your forms**
+  
+  If everything is correct, print your forms. Sign each form where your signature is required. Use blue or black ink only. 
+  
+  If a form asks for your signature "under penalty of perjury," this means that when you sign the form, you are affirming that what is on the form is true and correct to the best of your knowledge. 
+  
+  If a form has attachments, write where requested the number of pages attached in the space provided. 
+  
+  ${prog_disclose(printing_options)}
+continue button field: form_prep_step2
+---
+template: printing_options
+subject: |
+  What if I don't have a printer/copier?
+content: |
+  If you do not have access to a personal printer or copy machine, here are a few options you may use to print your court documents: 
+  
+  **Local Courthouse:** Visit your local courthouse and check if they have a law library or self-help center. Many courthouses provide public access to computers and printers, allowing you to print your court forms securely. Additionally, these facilities often have staff available who can assist you in preparing and making copies of your forms for filing.
+
+  **Public Libraries:** Public libraries often offer computer workstations and printing services. Check with your local library to see if they provide access to computers and printers for public use. Ensure that you follow their privacy guidelines and take necessary precautions to protect your sensitive information.
+
+  **Community Centers:** Some community centers or nonprofit organizations may offer computer and printing facilities for public use. Reach out to these centers in your area to inquire about their available resources and any associated costs.
+
+  **Print Shops and Copy Centers:** Commercial print shops and copy centers are an option for printing court forms. Some examples of commercial print shops around California are FedEx Office, the UPS Store, Office Depot/OfficeMax, Staples, and local printing companies. However, exercise caution when using these services, as they are not specifically designed for handling sensitive legal documents. Before using a print shop or copy center, ensure that they can maintain the confidentiality and privacy of your information. 
+
+  **Friends, Family, or Trusted Contacts:** If you have friends, family members, or trusted contacts who have access to a printer, you can ask for their assistance in printing your court forms. Make sure to only share your documents with individuals you trust and consider taking precautions to protect your privacy.
+---
+question: |
+  Preparing Your Court Documents for Filing
+subquestion: |
+  **Step 3. Check Court Filing Requirements**
+  
+  Any individual who files court forms and other documents with the court is required to comply with the rules governing filing. While U Do It Legal strives to provide accurate and up-to-date information  that relate to its various services, as to the final preparation and filing of your court forms/documents, we highly recommend and consider it essential for you to review the California Rules of Court, specifically Rules 2.100-2.119, and visit the California Court website's [Basics of Court forms](https://www.courts.ca.gov/selfhelp-forms.htm) page. Pay special attention to the section titled "Tips for Filling Out Judicial Council Forms" to ensure that your completed forms adhere to the latest court standards for filing. Note that per Rule 2.100(c), papers that are submitted or filed electronically must meet the requirements in [Rule 2.256(b)](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_256).
+  
+  Your attentiveness in reviewing and verifying that your court forms/documents comply comply with the latest court standards is essential. 
+  
+  ${prog_disclose(form_format_law)}
+  ${prog_disclose(summary_rule_2100)}
+continue button field: form_prep_step3
+---
+template: summary_rule_2100
+subject: |
+  Summary of Rules 2.100-2.119
+content: |
+  California Judicial Council forms and their attachments must abide by the following requirements:
+  
+  Last Updated: 
+  
+    - Prepared on white or unbleached paper – 8 1/2 by 11 inches
+    - Prepared and printed (if filing in-person) on one-sided paper – only one side of each page may be used
+    - Text written in 12 pt font (Courier, Times New Roman, Arial or equivalent (Handwritten papers are OK – but write legibly)
+    - All forms must be typewritten or printed in blue or black ink. (See California Rules of Court, Rules 2.100-2.119)
+    - Line spacing – One and one-half or double-spaced 
+    - Margins – at least 1 inch from the left edge and ½ inch from right edge
+    - Page Numbers – pages must be numbered consecutively on the bottom
+    - Binding – Original and copies must be firmly bound (e.g. stapled) AND the Original must be 2-hole punched at the top.
+    
+  Again, we highly recommend that you review California Rules of Court, Rules 2.100-2.119.
+---
+template: form_format_law
+subject: |
+  Links to Applicable Law: California Rules of Court, Rules 2.100-2.119
+content: |
+  - [Rule 2.100. Form and format of papers presented for filing in the trial courts](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_100)
+  - [Rule 2.102. One-sided paper](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_102)
+  - [Rule 2.103. Size, quality, and color of papers](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_103)
+  - [Rule 2.104. Font size; printing](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_104)
+  - [Rule 2.105. Font style](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_105)
+  - [Rule 2.106. Font color](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_106)
+  - [Rule 2.107. Margins](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_107)
+  - [Rule 2.108. Spacing and numbering of lines](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_108)
+  - [Rule 2.109. Page numbering](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_109)
+  - [Rule 2.110. Footer](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_110)
+  - [Rule 2.111. Format of first page](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_111)
+  - [Rule 2.112. Separate causes of action, counts, and defenses](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_112)
+  - [Rule 2.113. Binding](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_113)
+  - [Rule 2.114. Exhibits](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_114)
+  - [Rule 2.115. Hole punching](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_115)
+  - [Rule 2.116. Changes on face of paper](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_116)
+  - [Rule 2.117. Conformed copies of papers](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_117)
+  - [Rule 2.118. Acceptance of papers for filing](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_118)
+  - [Rule 2.119. Exceptions for forms](https://www.courts.ca.gov/cms/rules/index.cfm?title=two&linkid=rule2_119)
+---
+question: |
+  Preparing Your Court Documents for Filing
+subquestion: |
+  **Step 4. Make copies of your forms**
+  
+  Make at least 2 copies of your completed and signed court forms. To be clear, you'll need 3 sets in total:
+  
+  - The original court documents with your signatures (in blue or black ink)
+  - At Least 2 copies of the original court documents. The court will keep the original forms and return the 2, file-stamped copies to you
+  
+  ${prog_disclose(printing_options)}
+continue button field: form_prep_step4
+---
+question: |
+  Preparing Your Court Documents for Filing
+subquestion: |
+  **Step 5. Optionally, Contact Your Local Court's Clerk's Office for Local Filing Requirements**
+  
+  Optionally, telephone the ${court_name}'s clerk to find out if there are any local forms that this particular court requires you prepare, and how the clerk wants you to submit your forms to the court for filing. Most California courts will have you file your court forms in person (in the courthouse), but some may have you file them electronically (online). 
+  
+  Click [here][insert filing requirements list] to see a list of filing requirements we've compiled for each county, but check with the court where you are filing your court forms/documents for the most up-to-date information regarding its filing requirements. 
+continue button field: form_prep_step5
+---
+question: |
+  Filing Your Completed Court Documents
+subquestion: |
+  #####Filing Your Forms in the Courthouse
+
+  **Step 1. Locating the Clerk's Office:** 
+  
+  Once you arrive at the courthouse, the Clerk's Office is usually located on the ground floor. However, courthouses vary in design, so if it's not immediately evident, look for signs or directories that might guide you. The Clerk's Office is where most legal documents are filed and processed. Note that some court’s may have multiple clerk offices that are dedicated to a particular area of law, e.g., Family Law, Probate, General Civil.
+continue button field: filing_step1
+---
+question: |
+  Filing Your Completed Court Documents
+subquestion: | 
+  **Step 2. Ask for Help if Needed:** 
+  
+  If you're having trouble locating the Clerk's Office, don't hesitate to ask for help. Court security officers, often located at the entrance of the courthouse, can guide you. They are there to help ensure everything runs smoothly, and that includes helping visitors navigate the courthouse.
+continue button field: filing_step2
+---
+question: |
+  Filing Your Completed Court Documents
+subquestion: |
+  **Step 3. At the Clerk's Office:** 
+  
+  Once you've located the Clerk's Office, the process of filing may vary. Some offices use a ticketing system where you take a number and wait to be called to a window. Others may have you wait in line. Be prepared for either system, or another.
+continue button field: filing_step3
+---
+question: |
+  Filing Your Completed Court Documents
+subquestion: |  
+  **Step 4. Interacting with the Clerk:** 
+  
+  When it's your turn, approach the counter and let the clerk know that you're there to file papers for a Domestic Violence Restraining Order. Be polite and patient - they handle a lot of cases and are there to help you. Have your papers ready to hand over, and make sure you have all the necessary copies as stated in your instructions.
+continue button field: filing_step4
+---
+question: |
+  Filing Your Completed Court Documents
+subquestion: |
+  **Step 5. Conformed/Endorsed (Stamped) Copies:** 
+  
+  After the clerk reviews your forms, they will keep the original and return copies to you. They will "conform/endorse" these copies, by either physically stamping a copy, or by providing you a computerized court endorsement on the copy, showing your documents have been filed. Make sure you have these copies before leaving the office.
+  
+  Remember, while this is a stressful time, everyone in the courthouse is there to facilitate the court process, from the security officers to the clerks. Don't be afraid to ask for assistance or clarification if you need it.
+  
+  *If ${court_name} requires that you file your Request for DVRO court documents electronically, visit ${court_name}'s website for specific instructions.*
+  
+  ${prog_disclose(court_hours_explanation)}
+  ${prog_disclose(filing_fees_explanation)}
+  ${prog_disclose(court_interpreter_explanation)}
+continue button field: filing_step5
+---
+template: court_interpreter_explanation
+subject: |
+  What if I do not speak English well? 
+content: |
+  If you do not speak English well, ask the court clerk for an interpreter. The clerk may ask you to complete a request form if you want to have an interpreter at the hearing. If the court cannot give you an interpreter, bring an adult to interpret or you. Do not ask a witness in your case or a child involved in your case to interpret for you.
+---
+template: filing_fees_explanation
+subject: |
+  Note on Filing Fees
+content: |
+  [Family Code section 6222](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FAM&sectionNum=6222.) states, "There is no filing fee for an application, a responsive pleading, or an order to show cause that seeks to obtain, modify, or enforce a protective order or other order authorized by this division when the request for the other order is necessary to obtain or give effect to a protective order. There is no fee for a subpoena filed in connection with that application, responsive pleading, or order to show cause. There is no fee for any filings related to a petition filed pursuant to Part 4 (commencing with 6300) of this division."
+  
+  In other words, **you are not required to pay a filing fee to file your Request for Domestic Violence Restraining Order's initial court documents**, which are the same documents you have prepared in previous interviews. 
+---
+question: |
+  Next, find out if the judge issued a Temporary Restraining Order (TRO)
+subquestion: |
+  The clerk will give all your court forms/documents to the judge. The judge will read your papers and decide whether to grant the orders for which you are asking. By law, the judge must decide by the next business day, but the exact time varies from court to court.
+
+  The judge may want to ask you questions or request that you provide more information in writing in support of your request. The clerk will tell you what, if anything, the judge requests. If the judge wants to talk with you, be prepared to tell the judge why you need a restraining order. Talk about the facts contained in your court forms/documents on which you are basing your request, including any supporting documents you have submitted (e.g., police reports, pictures, texts, emails, etc.)
+  
+  ${card_start("Note:", color="info")}
+  If the judge wants to talk to you, this meeting is called an "ex-parte hearing." The term “ex-parte” indicates that you are seeking temporary emergency orders in a hearing at which ${resp.name.first} is not present. 
+  ${card_end()}
+continue button field: tro_issuance1
+---
+question: |
+  What can the judge do? 
+subquestion: |
+  **At this point, the judge can do 3 things:**
+
+  1.	**Grant all requested orders temporarily:** The judge may grant every order you requested and schedule a hearing. This order is called a Temporary Restraining Order, or TRO, and it is only good until your next hearing. The hearing is usually scheduled in 10 days. 
+  2. **Grant some requested orders temporarily:** The judge may grant only some of the orders you requested (as part of a TRO) and schedule a hearing. Note that even if some of the orders you requested were denied in the temporary restraining order, the judge may still grant them as part of a permanent restraining order after the hearing. 
+  3.	**Deny all requested orders temporarily:** The judge may decide he or she needs to hear from ${resp.name.first} before issuing any restraining orders. Again, note that the judge may still grant the orders you requested as part of a permanent restraining order after the hearing. 
+
+  The following pages provide more detailed information regarding these potential outcomes.
+continue button field: tro_issuance2
+---
+images:
+  tro_all_granted: "tro_all_granted.png"
+  tro_some_granted: "tro_some_granted.png"
+  tro_all_denied: "tro_all_denied.png"
+---
+question: |
+  Outcome 1: The Court Grants a Temporary Restraining Order
+subquestion: |
+  If the judge issues a TRO, he or she may have granted all of the orders you requested in your Request for DVRO (form DV-100). The court will indicate this under Item 4 on form DV-109, the Notice of Court Hearing:
+  
+  [FILE tro_all_granted, 100%]
+  
+  Box a(1) will be checked if the judge granted all of the orders you requested
+  
+  **If the judge decides to grant the Temporary Restraining Order, the court then:**
+
+  1.	Schedules a hearing within 10 business days.
+  2.	Orders that ${resp.name.first} be “served” with a copy of the order.
+  3.	Sends you a copy of the restraining order, probably by mail. 
+  
+  Read the Temporary Restraining Order (form DV-110) as soon as you get it. Call the court to fix any mistakes (e.g, an incorrect address is listed for you, the restrained party’s name is misspelled, etc.). You may need to go back in front of the judge to get the order corrected.
+
+  Always keep a copy of the order with you, no matter where you are or the time of day. Show this order to the police if ${resp.name.first} does something that is against the order. Keep extra copies in safe places, such as your car, your work, with your babysitter, your child's doctors, your friend's house, or your parent's house. 
+
+  The court can give you duplicate copies of the order if you lose your or another copy.
+  
+  ${prog_disclose(returning_to_court)}
+continue button field: tro_outcome1
+---
+template: returning_to_court
+subject: |
+  If I have my order, why do I have to go back to court so soon for a hearing?
+content: |
+  The hearing gives ${resp.name.first} a chance to tell the judge his or her side of the story.
+
+  You must return to court for the hearing if you want the court to keep your restraining order in effect and extend it beyond the time and date stated in the TRO. If you do not appear at the hearing, the court will dismiss the TRO at the hearing.
+---
+question: |
+  Outcome 2: The Court Grants Some of Your Requested Orders, but Denies Others
+subquestion: |
+  If the judge issues a TRO, he or she may have granted only some of the orders you requested, while denying others. The court will indicate this under Item 4 on form DV-109, the Notice of Court Hearing:
+  
+  [FILE tro_some_granted, 100%]
+  Box a(3) will be checked if the judge only granted some of the orders you requested, and the reasons he/she gave for denying some of the orders will be listed under section b. Note, the judge may still make the orders you want after your hearing. 
+  
+  **If the judge decides to grant the Temporary Restraining Order, the court then:**
+
+  1.	Schedules a hearing within 10 business days.
+  2.	Orders that ${resp.name.first} be “served” with a copy of the order.
+  3.	Sends you a copy of the restraining order, probably by mail. 
+  
+  Read the Temporary Restraining Order (form DV-110) as soon as you get it. Call the court to fix any mistakes (e.g, an incorrect address is listed for you, the restrained party’s name is misspelled, etc.). You may need to go back in front of the judge to get the order corrected.
+
+  Always keep a copy of the order with you, no matter where you are or the time of day. Show this order to the police if ${resp.name.first} does something that is against the order. Keep extra copies in safe places, such as your car, your work, with your babysitter, your child's doctors, your friend's house, or your parent's house. 
+
+  The court can give you duplicate copies of the order if you lose your or another copy.
+continue button field: tro_outcome2
+---
+question: |
+  Outcome 3: The Court Denies a Temporary Restraining Order 
+subquestion: |
+  If the judge denied all of the temporary restraining orders you requested until the court hearing, box a(2) will be checked under Item 4 on form DV-109, the Notice of Court Hearing. 
+  
+  [FILE tro_all_denied, 100%]
+  Note, the judge may still make the orders you want after hearing from both sides at the hearing. You can keep the hearing date, or you can cancel your request for orders so there is no court hearing. 
+  
+  **If you want to cancel the hearing:**
+  
+  - Use form DV-112, Waiver of Hearing on Denied Request for Temporary Restraining Order. Complete and file it with the court as soon as possible. You may still file a new request for DVRO on the same or different facts at a later time. 
+  - Do not serve any documents on/to ${resp.name}. 
+  
+  **If you want to keep the hearing date:** 
+  
+  - You must have all the documents listed in Item 6 on form DV-109 served on/to ${resp.name} by the deadline for service. 
+  - At your hearing, the judge will consider whether denial of any requested orders will jeopardize your safety and the safety of any other individuals for whom you are seeking protection. 
+  
+  You must attend the hearing if you want the judge to make permanent restraining orders regardless of the judge denying the issuance of a TRO. If you cancel or do not attend the hearing, your request for a restraining order will not be considered any further by the court. 
+continue button field: tro_outcome3
+---
+question: |
+  Next, "Serve" Your Court Forms on to ${resp.name.first}
+subquestion: |
+  #####What is Service?
+  
+  “Service” means that an independent third party (i.e., an individual other than you) must personally hand ${resp.name.first} conformed/endorsed copies of the court forms and documents you submitted and that the court ordered to be served on to ${resp.name.first}. 
+  
+  Until ${resp.name.first} has been properly “served,” your Temporary Restraining Order (TRO) is not enforceable against ${resp.name.first}, and the judge cannot make any permanent orders (i.e., grant your request for DVRO) at the scheduled hearing. 
+continue button field: service1
+---
+question: |
+  Options for Service
+subquestion: |
+  #####Server Requirements:
+  
+  The server must:
+    
+  - **Be 18 years old or older,** &
+  - **NOT be protected by any TRO that has been issued in this case,** &
+  - **NOT be a person who you are asking the court to protect under a permanent restraining order** (i.e. the server cannot be party to the case)
+  
+  #####Summary of Your Options for Service:
+  
+  - You could ask a friend or family member 18 or over to serve the papers at no cost. However, the person serving the court paperwork must not be involved in the case, and he or she will need to be at the hearing to tell the judge that he/she served the papers and how service was done. 
+  - Alternatively, you could use the local sheriff's office, which usually provides this service for free or for a small fee in DVRO cases. 
+  - If you choose to hire a professional process server, there will be a fee involved, and this cost can vary depending on the provider. The judge will decide whether he/she needs to hear from the process server regarding how service was done.
+
+  ${prog_disclose(service_sheriff)}
+  ${prog_disclose(process_service)}
+continue button field: service2
+---
+template: process_service
+subject: |
+  Process Servers
+content: |
+  You can also hire a “process server,” which is a business you hire for a fee serve/deliver court forms/documents. You do not need to hire a process server, but make sure that whoever you have serve ${resp.name.first} meets the requirements bolded above and signs the proof of service confirming how, when, and where ${resp.name.first} was served.
+  
+  The cost of hiring a process server in California can vary depending on several factors, including the location, complexity of the case, urgency of service, and the specific requirements of the task. Process servers in California typically charge a flat fee for each service attempt or a fee based on the number of documents to be served.
+
+  On average, process serving fees in California can range from $40 to $150 per service attempt. However, keep in mind that these figures are approximate and can vary significantly. Complex cases, rush services, or serving documents in remote areas may incur higher fees. It's recommended to contact several process servers in your area to get accurate quotes based on your specific needs.
+---
+template: service_sheriff
+subject: |
+  Service by Your Local Sheriff's Office
+content: |  
+  Check to see if your local sheriff will serve the other party for you. In domestic violence cases, a law enforcement officer may be able to serve your restraining order papers for you. If they do, they will do it for free or for a small fee. 
+  
+  Remember, if granted, your TRO does not go into effect (start working) until ${resp.name.first} is served with a copy. The sheriff/police should tell you when they have given ${resp.name.first} the order. Check with the sheriff/police if you do not hear from them within a day. 
+
+  The sheriff/police will also stay at your home until ${resp.name.first} leaves if the order requires ${resp.name.first} to leave your home (i.e., if the judge grants a Move-Out order).
+
+  If ${resp.name.first} needs to get personal belongings from the home, he or she can arrange to do that with the sheriff/police to return to the home when you are not present, and take only personal belongings needed, like clothes, work/personal computer, medications, and the like.
+---
+question: |
+  Steps for Service
+subquestion: |
+  #####**Step 1:** Determine by when you must serve your court forms/documents:
+  
+  You will have to serve the court forms/documents ordered by the judge for service on ${resp.name.first} by the deadline the judge indicates on your papers. This is so ${resp.name.first} is provided the required amount of time to respond to your papers and prepare for court. To find the court forms/documents ordered to be served and your deadline for service:
+  
+  - Look at your court date on page 1 of Form DV-109, the Notice of Court Hearing
+  - Look at the number of days written or checked in item 6 on page 2 of form DV-109 and also check which forms are checked under item 6, as you will need to have each of those documents served on ${resp.name.first}.
+  - Subtract the number of days in item 5 from the court date. That is your deadline to serve your papers. You can always serve before the deadline. If nothing is written in section 6, you must have your court papers served at least 5 days before your court date.
+  
+  We recommend that you write down, set a reminder, or mark this date on your calendar to ensure timely completion of service before the deadline.
+continue button field: service_step1
+---
+question: |
+  Steps for Service
+subquestion: |
+  #####**Step 2:** Serve Your Papers on ${resp.name}:
+  
+  Have someone “serve” (give/hand deliver) ${resp.name.first} a copy of the court forms/documents that the judge ordered be served on him/her. In addition to serving a copy of your completed and file-stamped court forms/documents, you must also also serve any blank court forms indicated under Item 6 of form DV-109, the Notice of Court Hearing. We have attached blank copies of these forms that you may download at the end of this interview. 
+  
+  The court forms/documents must be personally handed to ${resp.name.first}. You cannot send them by mail, or have them dropped off with someone else who you think will get them to ${resp.name.first}. If ${resp.name.first} refuses to physically accept the court forms/documents, the server/process server may place them in front her him/her (e.g., on the ground, on a table, or any other place near ${resp.name.first}), and indicate on the proof of service that ${resp.name.first} refused to accept the court forms/documents, but that those court forms/documents were left in her presence.
+  
+  ${card_start("Note on Blank Forms:", color="info")}
+  Do not file blank forms with the court. When you file your forms, the Clerk will give you back 2 "endorsed" (stamped) copies. You must attach the blank forms to the back of the copy that you are having served on/to ${resp.name.first}. Make sure your proof of service identifies that these documents were also served. 
+  ${card_end()} 
+continue button field: service_step2
+---
+question: |
+  Steps for Service
+subquestion: |
+  #####**Step 3:** File Your Proof of Service
+  
+  Have your server complete and sign the Proof of Personal Service (CLETS) (form DV-200) and give it to you so you can file it with the court. This form tells the judge and the sheriff/police that ${resp.name.first} personally received a copy of the filed court forms/documents that the court ordered served and has been notified of the scheduled hearing and all court orders issued, if any. It is very important your server prepares the Proof of Service correctly. If possible, review it or have it reviewed by someone familiar the rules on service of process before filing to make sure it was prepared properly. 
+
+  #####Instructions:
+  
+  - Have your server complete the Proof of Service (form DV-200) and return it to you. Ensure that it lists the court forms/documents served, the date and time they were served, where they were served, and the server's signature. 
+  - Review the Proof of Service to ensure it is prepared correctly, and make at least 2 copies of the completed Proof of Service (form DV-200).
+  - Then, file the original and copies with the court clerk before your hearing. The clerk will keep the original and give you back conformed/endorsed copies stamped or electronically indicated that the proof of service was received and filed by the court. **Take a copy of a conformed/endorsed Proof of Service to your hearing in case the judge does not have the Proof of Service at the hearing.**
+  - **ALWAYS keep 1 copy with you (together with your restraining order).** Put the other copies with the Temporary Restraining Order copies you have distributed. 
+  
+  ${card_start("Note:", color="info")}
+  If your server is a law enforcement officer or process server, they may use a different proof of service form. If so, make sure it lists the court forms/documents that were served, the date and time they were served, where they were served, and server's signature. Law enforcement may tell you that they will file the proof of service. Get a copy of the signed proof of service nevertheless so that you can file it with or provide to the court if necessary. 
+  ${card_end()}
+continue button field: service_step3
+---
+question: |
+  If ${resp.name} Was NOT Served
+subquestion: |
+  ${card_start("Note on Safety:", color="warning")}
+  Make sure any attempts to find ${resp.name.first} are done safely.
+  ${card_end()}
+  
+  ${resp.name.first} must be served by the hearing deadline for service indicated on your form DV-109, Notice of Court Hearing. If ${resp.name.first} was not timely served or served at all, you can ask the judge to extend the Temporary Restraining Order to a new court date on your request to give you more time to serve your court forms/documents, or to give ${resp.name.first} the lawful amount of time he/she is entitled to respond if the court forms/documents were not timely served (i.e., served by the court's deadline) 
+  
+  ${prog_disclose(continuance)}
+  ${prog_disclose(service_evasion)}
+continue button field: resp_not_served
+---
+template: continuance
+subject: |
+  How can I ask the court to postpone the hearing to give me more time to have ${resp.name.first} served? 
+content: |
+  You will need a Request to Continue Hearing (form DV-115) to ask the judge for a new court date:
+  
+  - Complete interview **Part 4.1, Request to Continue Hearing** on your UDIL Member Homepage to complete the necessary court forms. 
+  - Ask the judge to sign form DV-116, Order on Request to Continue Court Hearing, at the hearing or give it to the clerk before the hearing to give to the judge to sign.
+  - File the signed Order on Request to Continue Hearing (form DV-116) and Request to Continue Hearing (form DV-115) with the clerk 
+  - Attach these forms to your other court forms/documents that must be served on ${resp.name.first}
+  - After service has been made on ${resp.name.first}, make sure your process server completes a Proof of Personal Service (form DV-200) and gives it to you. **File your Proof of Service with the court.** 
+  - Give a cour conformed/endorsed copy of form DV-116 to your local sheriff/police department and to everyone who has a copy of your Temporary Restraining Order (if granted).
+  - **Bring copies of your file-stamped Proof of Service to your hearing**
+---
+template: service_evasion
+subject: |
+  What if the other party is avoiding (evading) service?
+content: |
+  If you are unable to have ${resp.name} personally served with the court forms/documents ordered to be served on him/her, you may request a continuance (read the info box above for more information). If you do not have enough time to request a continuance before your hearing, you may attend your hearing and tell the judge about your situation.
+  
+  A judge may allow you to serve the court forms/documents ordered for service another way. This is called alternative service. To qualify for alternative service, you must show the judge two things: 
+  
+  1. You have tried many times (usually 3 or more times) to have someone personally serve ${resp.name.first}. Some examples of ways you can try to have ${resp.name.first} personally served: 
+  
+    - Serve ${resp.name.first} at his or her home, workplace, or somewhere they go a lot
+    - Search online for where ${resp.name.first} may be located
+    - Check with ${resp.name.first}'s family or friends
+  
+  2. You believe ${resp.name.first} is avoiding (evading) service. Be ready to explain why you think ${resp.name.first} is evading service. If you have people who can help you prove this to a judge, you may bring them to your court hearing or have them write a statement that describes what they witnesses. 
+  
+  Alternative Service may involve other people having acces to your court documents. This means that strangers may be able to see your name, the fact that you want a restraining order against ${resp.name.first}, and possibly your statements regarding the abuse. You may want to talk to an advocate about your safety and privacy concerns before you consider this request. 
+  
+  Form [DV-205-INFO](https://www.courts.ca.gov/documents/dv205info.pdf) addresses these same considerations. We recommend that you take the time to review this court form. 
+  
+---
+question: |
+  Preparing for the Court Hearing
+subquestion: |
+  In this section, we'll provide you with some tips on how you can prepare for your hearing. The California courts have also created a helpful guide called, "Get Ready for the Restraining Order Court Hearing" ([form DV-520-INFO](https://www.courts.ca.gov/documents/dv520info.pdf)), which you should also read. 
+continue button field: hearing_prep_intro
+---
+template: evidence_examples
+subject: |
+  Examples of Evidence of Abuse
+content: |
+  Some examples of documents that may help your case include: 
+  
+  - Screenshots or recordings/transcripts of abusive voicemails or voice messages, text messages, notes, letters, private messages, emails, comments (online or on social media), or other correspondence from ${resp.name.first} (directly or indirectly, such as through friends or family)
+  - Medical bills or records of treatment received for injuries (physical or psychological) resulting from Brandon’s abuse (towards yourself, other protected parties, your children, or pets)
+  - Photos of injuries or other damage caused by ${resp.name.first}'s abuse
+  - Receipts for the cost of repair or replacement of property damaged by ${resp.name.first}’s abuse
+  - Police reports (Under Family Code section 6288, victims of domestic violence, sexual assault, stalking, human trafficking, and elder abuse are entitled to free copies of all incident reports)
+  - Bank statements with charges, screenshots of payment apps (such as PayPal, CashApp, Venmo or Zelle, credit card bills, and loan statements detailing ${resp.name.first}'s financial abuse
+  - Parent-teacher conference notes or counselor's/therapists' notes 
+---
+question: |
+  Documents to Bring to the Hearing
+subquestion: |
+  Bring with you to the hearing any documents that help prove the abuse. Ideally, you will have filed these documents with your court forms/documents requesting the restraining order. Bring with you 3 copies of all documents and filed court forms, including the Proof of Service, and be ready to give the other party copies of what you are going to give the judge. 
+
+  ${prog_disclose(evidence_examples)}
+  
+  It is up to the judge to determine what evidence is permissible in court (i.e., what the judge is allowed to consider). Sometimes the judge will decide he or she cannot look at or consider a piece or pieces of the evidence you bring. 
+  
+  If you have evidence that you have not filed with the court, and if you want to attend your hearing remotely (by phone or teleconference), contact your local court for information on how to share your evidence with the court and the other side (${resp.name.first} or his/her lawyer). 
+continue button field: hearing_prep_evidence
+---
+question: |
+  Documents to Bring to the Hearing
+subquestion: |
+  Familiarize yourself with the facts stated in your signed court documents and review any supporting documents or exhibits you have submitted. Understand the relevance of each document, exhibit, and supporting material/evidence, and be prepared to explain their importance to the judge in court.
+  
+  #####You Must Bring the Following Documents to Your Hearing: 
+  
+  - Every court form/document, attachment, and exhibit you filed in your Request for DVRO forms (*except the CLETS-001 form, which is confidential and not filed in the public court record**)
+  - Conformed/endorsed file-stamped copies of your Proof of Service
+  - Copies of any other court orders involving you and ${resp.name}, or any other protected people (such as other restraining/protective orders or orders from a Parentage/Paternity (Child Custody), Guardianship, Child Support, Criminal, or Divorce proceeding) 
+  - If you are granted a TRO and ${resp.name.first} violates the orders in the time leading up to your hearing, bring evidence of each violation
+  % if requesting_childsupport or requesting_spousalsupport or requesting_debtpayment or requesting_reimbursement:
+  - Copies of your pay stubs for the last two (2) months or other proof of income needed for the judge to grant any orders about money 
+  - Copies of your latest Federal Tax Return
+  % endif
+  % if requesting_propertycontrol:
+  - Financial records, bank statements, titles, or other relevant documentation to support your claims about the nature and ownership of property indicated under your request for Control of Property orders (DV-100, Item 17)
+  % endif
+  % if requesting_reimbursement:
+  - Bills, receipts, other evidence documenting the cost of services you incurred as a result of ${resp.name.first}’s abuse, as described in your request for Payment of Expenses Caused by the Abuse orders (DV-100, Item 23)
+  % endif
+continue button field: hearing_prep_documents1
+---
+template: proposed_blank_orders
+subject: |
+  I downloaded these forms from other interviews, but they are incomplete. Do I need to bring these forms to the court hearing? What do "Proposed" and "Blank" mean?
+content: |
+  As a reminder, we did not complete court order documents on your behalf. Official court orders can only be issued by the judge/judicial officer assigned to your case, who will indicate which orders are granted or denied and sign the order forms. 
+  
+  However, we assisted you by preparing proposed order forms with your case information and the specific orders you requested, and gave you the option to download (or email) these proposed order forms at the end of each applicable interview. You may bring these proposed orders to your hearing, as this helps streamline the process for the court in completing the forms accurately. 
+    
+  However, out of an abundance of caution, we also recommend bringing blank versions of these forms to your hearing (i.e. court order documents with only your personal, court, and case information prepared), as practices vary from court to court. While some courts prepare your ROAH forms for you, others may prefer for you to bring proposed orders to your hearing.  
+---
+question: |
+  Documents to Bring to the Hearing
+subquestion: |
+  #####Optionally, Bring the Following (Proposed and Blank) Restraining Order After Hearing (ROAH) Forms: 
+  
+  - DV-130: Restraining Order After Hearing
+  % if requesting_custody:
+  - DV-140: Child Custody and Visitation Order 
+  % endif
+  % if requesting_childabduction:
+  - DV-145: Order to Prevent Child Abduction
+  % endif
+  % if requesting_supervisedvisitation:
+  - DV-150: Supervised Visitation and Exchange Order
+  % endif
+  % if requesting_confidentiality: 
+  - DV-165: Order on Request to Keep Minor's Information Confidential from the Public 
+  % endif
+  % if requesting_wirelesstransfer:
+  - DV-900: Order Transferring Wireless Phone Account
+  % endif
+  % if requesting_childsupport:
+  - FL-342: Child Support Information and Order Attachment
+  % endif
+  % if requesting_spousalsupport:
+  - FL-343: Spousal, Domestic Partner, or Family Support Order Attachment 
+  % endif
+  - Any additional court order forms or attachments per the court's directions at your hearing
+
+  ${prog_disclose(proposed_blank_orders)}
+continue button field: hearing_prep_documents2
+---
+template: remote_hearing
+subject: |
+  Remote Hearing
+content: |
+  **Remote Hearing:** If you or a witness wants to attend the hearing remotely (by phone or videoconference), check your local court's website as soon as possible to see what you need to do to attend remotely, as some counties allow you to appear at your court hearing virtually for a small fee. Some courts encourage the public to take advantage of remote appearance opportunities to reduce travel time, parking costs, and potential hearing delays. 
+---
+template: child_care
+subject: |
+  Child Care
+content: |
+  **Child Care:** Find childcare and be prepared for court to take all-day. Some courts have a Child's Waiting Room, a safe place for children to wait while parents are in court, but many do not. You can check your local court's website in advance to see if this is available, but when in doubt, do not bring your child to court. 
+---
+template: support_person
+subject: |
+  Support Person
+content: |
+  **Support Person:** You can have someone attend court with you, such as a family member, friend, or DV victim's advocate from a survivor support organization. The person you bring cannot speak for you but can sit next to you when your case is called (if you attend your hearing in person). If you attend your hearing by videoconference, your support person can also attend with you.
+---
+template: tentative_decisions
+subject: |
+  Tentative Decisions
+content: |
+  **Tentative Decisions:** Check if the court has issued any tentative decisions by contacting the court clerk or reviewing the court website’s online department postings, and take note of any tentative decisions to gain insight into the judge's initial thoughts on your case.
+  
+  ${prog_disclose(tentative_decisions_explanation)}
+---
+template: tentative_decisions_explanation
+subject: |
+  What are tentative decisions?
+content: |
+  In California DVRO hearings, tentative decisions play a significant role in the court process. A tentative decision is a preliminary ruling or judgment made by the judge before the actual hearing takes place. It provides an initial indication of how the judge intends to rule in terms of granting or denying certain requests within the DVRO.
+
+  Here's how tentative decisions typically work:
+
+  - **Issued before the hearing:** Prior to the DVRO hearing, the judge may review the submitted court forms/documents, declarations, and evidence presented by both parties. Based on this review, the judge prepares a tentative decision outlining their preliminary ruling on various requests made in the DVRO.
+  - **Availability of tentative decisions:** It's important to note that not all courts issue tentative decisions. Some courts may post them online or provide them in person at the court clerk's office. It's recommended to check with the court or the assigned department to determine if tentative decisions are available.
+  - **Purpose of tentative decisions:** The purpose of a tentative decision is to inform the parties about the judge's preliminary position on the case. It allows the parties to have an understanding of the potential outcome and provides an opportunity to prepare arguments or responses accordingly, as well as discuss settlement.
+  - **Considered but not final:** Although the judge prepares a tentative decision, it is not final until the actual hearing takes place. The judge may modify their decision based on additional evidence, oral arguments, or clarifications provided during the hearing.
+  - **Opportunity to contest:** During the hearing, the parties have the opportunity to present their arguments, challenge the tentative decision, provide additional evidence, or address any issues raised in the tentative decision. This allows for a fair and balanced presentation of the case before the judge reaches a final decision.
+  - **Final decision:** Following the hearing and considering all of the information presented, the judge will render a final decision. The final decision supersedes the tentative decision and becomes the official ruling in the DVRO case.
+
+  It's crucial to review any tentative decisions, if available, before the hearing and be prepared to address the judge's preliminary ruling during the actual hearing. It's advisable to consult with an attorney who specializes in family law and domestic violence to understand the tentative decision, and how to proceed with the hearing given what is contained in the tentative decision.
+
+  Remember that each court may have its own procedures and practices regarding tentative decisions, so it's essential to familiarize yourself with the specific rules and guidelines of the court where your DVRO hearing will take place.
+---
+template: witness_testimony
+subject: |
+  Witness Testimony
+content: |
+  **Witnesses:** You can ask the judge to allow witnesses to speak at your court hearing. If you have a lot of witnesses, you may need to complete additional paperwork before your court hearing. You may call your local court's clerk or visit their website online for more information. Ensure that any witnesses who submitted declarations on your behalf will be present in court (in-person or remotely) for possible cross-examination (${resp.name.first} or his/her attorney reserve the right to ask your witnesses questions).
+  
+  ${prog_disclose(childrens_testimony)}
+---
+template: court_parking
+subject: |
+  Court Parking
+content: |
+  **Court Parking:** Check parking availability in advance and be prepared to potentially spend the entire day at the courthouse. Many courthouses in California offer free parking, but be prepared to pay for parking if necessary. 
+---
+template: custody_mediation
+subject: |
+  Child Custody Mediation
+content: |
+  **Custody Mediation:** Ensure you have attended court-mandated mediation prior to the hearing. If not, you may inquire if the family law facilitator/mediator is available on the day of your hearing.
+---
+question: |
+  Preparing for the Court Hearing
+subquestion: |
+  #####Practice Giving Your Testimony
+  
+  Make a list of the orders you want (or don’t want) and practice telling the judge what you want, and why. Because judges typically hear lots of cases each day, you may only have a few minutes to talk to the judge about your case. If you get nervous at the hearing, you may read from your list. You may also write a statement before your hearing and read it to the judge. Be prepared to answer questions that the judge may have for you.
+
+  
+  #####Make Arrangements Before Your Court Hearing
+
+  ${prog_disclose(remote_hearing)}
+  ${prog_disclose(child_care)}
+  ${prog_disclose(support_person)} 
+  ${prog_disclose(tentative_decisions)}
+  ${prog_disclose(witness_testimony)}
+  ${prog_disclose(court_parking)}
+  % if requesting_custody:
+  ${prog_disclose(custody_mediation)}
+  % endif
+continue button field: before_the_hearing
+---
+template: childrens_testimony
+subject: |
+  Can children testify at the hearing? 
+content: |
+  When it comes to children testifying in court for their parents' DVRO hearing, there are certain standard practices that are typically followed to ensure their well-being and minimize any potential harm. It's important to prioritize the child's safety and emotional well-being throughout the process.
+
+  **Evaluation by a professional:** Before allowing a child to testify, the court may require an evaluation by a child psychologist or other qualified professional. This evaluation helps assess the child's readiness to testify and determines if it is in their best interest, however, note that evaluations are dependent on the availability of the evaluator.
+
+  **Child's preference:** The court may take into consideration the child's preference and willingness to testify. However, the final decision rests with the judge, who will evaluate the child's age, maturity, and ability to provide reliable testimony.
+
+  **Child's emotional support:** The court recognizes the potential emotional impact of testifying, and special measures are often taken to provide emotional support for the child. This can include having a support person present, such as a trusted family member, therapist, or child advocate.
+
+  **Private and child-friendly setting:** Testimony from children is typically conducted in a private and child-friendly setting to ensure their comfort. This may involve using closed-circuit television or a separate room with a video feed to the courtroom, allowing the child to testify without facing the abuser directly. On the day of your hearing, the bailiff may have you and your child(ren) wait outside of the court room for further instruction. 
+
+  **Special questioning:** To minimize the child's distress, the court may use special questioning techniques, such as allowing the child to provide testimony through a child advocate or by having the judge ask questions directly in a gentle and age-appropriate manner.
+
+  **Child's best interest:** Throughout the process, the court's primary consideration is the child's best interest. The judge will carefully weigh the relevance and necessity of the child's testimony against the potential emotional and psychological impact.
+---
+question: |
+  Preparing for the Hearing: Additional Accommodations
+subquestion: |
+  **Court Interpreter:** If you need to use an interpreter, you may use form [INT-300](https://www.courts.ca.gov/documents/int300.pdf) to request an interpreter, or ask the court clerk how you can request one. You can also use this form to request an interpreter for a witness.
+  
+  **Disability Accommodation:** You may use form [MC-410](https://www.courts.ca.gov/documents/mc410.pdf) to request assistance. Contact the disability/ADA coordinator at your local court for more information. Active listening systems, computer-assisted real-time captioning, or sign language interpreter services are available if you ask at least five (5) days before the hearing. (Civil Code section 54.8) For more information, please review [form MC-410-INFO](https://www.courts.ca.gov/documents/mc410info.pdf), the court's helpful info sheet on how to request a disability accommodation for court. 
+  
+fields: 
+  - Do you or a witness in your case need an interpreter when you are in court?: requesting_interpreter
+    datatype: yesnoradio
+  - Do you have a disability and need an accommodation while you are in court?: requesting_disabilityaccommodations
+    datatype: yesnoradio
+---
+question: |
+  Requesting an Interpreter
+subquestion: |
+  Note that form INT-300, Request for Interpreter, does not need to be served on ${resp.name.first}. However, it is important to be aware that this document may become part of the public court record. This means that any member of the public may request access to this document and view the personal and contact information you have provided on it.
+  
+  #####Your Information
+fields: 
+  - Street Address: pet.address.street
+  - City: pet.address.city
+  - State: pet.address.state
+    code: states_list()
+  - Zip: pet.address.zip
+  - Phone Number: pet.phone
+  - Email Address: pet.email
+  - note: |
+      #####Interpreter's Services
+  - I need an interpreter (for myself) in the following language when I am in court (select one): pet_language
+    required: False
+    choices: 
+      - español (Spanish): pet_language_spanish
+      - Tiếng Việt (Vietnamese): pet_language_vietnamese
+      - 한국어 (Korean): pet_language_korean
+      - 普通话 (Mandarin): pet_language_mandarin
+      - 广东话 (Cantonese): pet_language_cantonese
+      - فارسی (Farsi/Persian): pet_language_farsi
+      - русский (Russian): pet_language_russian
+      - Tagalog (Tagalog): pet_language_tagalog
+      - العربیة (Arabic): pet_language_arabic
+      - ਪੰਜਾਬੀ (Punjabi): pet_language_punjabi
+      - Other: pet_language_other
+  - Other (specify): pet_language_other_specify
+    show if:
+      variable: pet_language
+      is: pet_language_other
+  - If you speak an indigenous language, include the town of origin: town_of_origin
+    required: False
+  - I have a witness who needs an interpreter: witness_interpreter
+    datatype: yesnoradio
+  - The witness needs an interpreter in (select one): witness_language
+    show if: witness_interpreter
+    choices: 
+      - The language selected above: witness_language_sameaspet
+      - Other: witness_language_other
+  - Other (specify): witness_language_other_specify
+    show if:
+      variable: witness_language
+      is: witness_language_other
+  - Is there another witness in your case that requires an interpreter for your hearing?: multiple_witnesses
+    datatype: yesnoradio
+    show if: witness_interpreter
+  - note: |
+      ${card_start("Note:", color="info")}
+      If you need to request an interpreter for multiple witnesses, review the completed INT-300, Request for Interpreter, form at the end of this interview and complete an additional INT-300 for each additional witness for whom you need an interpreter. 
+      ${card_end()}
+    show if: multiple_witnesses
+---
+question: |
+  Requesting Disability Accommodations
+subquestion: |
+  Note, the California Rules of court [Rule 1.100(c)(4)](https://www.courts.ca.gov/cms/rules/index.cfm?title=one&linkid=rule1_100) states, "The court must keep confidential all information of the applicant concerning the request for accommodation, unless confidentiality is waived in writing by the applicant or disclosure is required by law. The applicant's identity and confidential information may not be disclosed to the public or to persons other than those involved in the accommodation process. Confidential information includes all medical information pertaining to the applicant, and all oral or written communication from the applicant concerning the request for accommodation." 
+  
+  In other words, the following information will remain confidential to ${resp.name.first} and will not be filed in the public court record. 
+  
+  #####Your Information
+fields: 
+  - Street Address: pet.address.street2
+  - City: pet.address.city2
+  - State: pet.address.state2
+    code: states_list()
+  - Zip: pet.address.zip2
+  - Phone number: pet.phone2
+  - Email: pet.email2
+  - note: |
+      #####Accommodation Request
+  - What accommodation do you need at the court?: accommodation_specify
+    datatype: area
+    maxlength: 175
+  - Why do you need this accommodation to assist you in court?: accommodation_explain
+    datatype: area
+  - note: |
+      (Optional) If a caregiver, court employee, or other person helped you complete these interviews and is willing to provide more information if needed, provide their contact information below:
+  - Name: caregiver_name
+    required: False
+  - Email: caregiver_email
+    required: False
+  - Phone number: caregiver_phone
+    required: False
+---
+question: |
+  What to Expect During the Court Hearing: Court Rules and Ettiquete
+subquestion: |
+  #####Attend Your Hearing Early and Safely:
+  
+  If you are attending your hearing in-person: 
+  
+  - Arrive to the courthouse early (we recommend arriving 30 minutes early) to observe other cases being heard, which can provide valuable insights into the judge's preferences and proceedings
+  - Find the courtroom. The courtroom will be listed alongside your hearing date on the Notice of Court Hearing (form DV-109) next to either “Dept” or “Room.” If you get lost, you can ask the court security where to go. 
+  - Do not sit near or talk to ${resp}. If you are afraid of ${resp.name.first}, tell the officer who is in the courtroom. 
+  - When the courtroom opens, go in and tell the courtroom clerk or officer that you are present. When your name or case is called, go to the front of the courtroom.
+  
+  ${prog_disclose(prohibited_items)}
+  
+  If you are attending your hearing remotely:
+  
+  - Practice using the technology (typically Zoom) before your court date. 
+  - Make sure you have a strong internet connection and are in a private, quiet, and safe location (consider using a virtual or blurred background to keep your location private). 
+  - Check to see if your court has a back-up phone number that you can use if you are having technical difficulties. Write this down and keep it close by before your hearing starts.  
+continue button field: courthouse_arrival
+---
+template: prohibited_items
+subject: |
+  Which items are allowed and prohibited in the courthouse?
+content: |
+  You must go through security to enter any California court. Do NOT bring any of the following with you to the courthouse: 
+
+  - Any type of firearm, knives, tools, or sharp objects that can be used as weapons
+  - Mace/pepper spray
+  - Food and beverages (other than water) are also prohibited
+  
+  Please leave any items you are unsure about at home or in your vehicle. 
+---
+question: |
+  What to Expect During the Court Hearing: Tardiness/Missing the Hearing
+subquestion: |
+  Write down the hearing's date, time, and location, mark it on your calendar, or set any other necessary reminders you need to attend your hearing. 
+  
+  ${card_start("Do NOT Miss Your Hearing:", color="warning")}
+  If you miss the hearing, any Temporary Restraining Orders will end, and you will have to start the entire restraining order process from the beginning.
+  ${card_end()}
+  
+  If you are late to the courthouse, you may miss your case being called and your Request for Domestic Violence Restraining Orders may be dismissed. 
+  
+  If you plan on attending your hearing and determine that you might be late, try to call the court right away to let the courtroom staff know that you will be late.
+continue button field: missing_the_hearing
+---
+question: |
+  Court Attire
+subquestion: |  
+  Dress appropriately. While you do not need to wear a suit and tie to court, try and dress as professionally as you can. You want to represent yourself in the best light possible. 
+  
+  #####What to Wear to Court: 
+  
+  - Formal/Business Attire: Dress in conservative and professional clothing, such as a suit, dress, or a combination of a blazer/blouse and pants/skirt
+  - Covered Shoulders and Knees: Ensure that your shoulders and knees are covered
+  - Closed-Toe Shoes: Wear closed-toe shoes, preferably dress shoes
+  - Minimal Accessories: Keep jewelry and accessories minimal 
+  - Groomed Appearance: Present yourself with a neat and well-groomed appearance
+  - Clean and Unwrinkled Clothing: Ensure that your clothes are clean and free of excessive wrinkles
+
+  #####What NOT to Wear to Court: 
+  
+  - Casual Attire (t-shirts, jeans, shorts, sweats, athletic attire/jerseys, overly-revealing outfits, graphic or offensive clothing)
+  - Open-Toe Shoes (flip-flops or sandals)
+  - Hats or Sun-glasses (religious head coverings are okay)
+  - Distracting Attire (avoid bright/neon colors, excessive jewelry, or strong perfume/colognes, as some people may have sensitivities)
+continue button field: court_attire
+---
+question: |
+  What to Expect During the Hearing: Court Rules and Ettiquete 
+subquestion: |
+  #####Common Court Rules and Practices: 
+  
+  - Do not eat or drink during your hearing, except for water
+  - Do not use your phone (turn it off or silence your phone and electronics before entering the courtroom)
+  - Do not wear a hat or sunglasses in the courtroom 
+  - Wait until it's your turn to speak and do not talk over anyone or interrupt anyone who is speaking. You and ${resp.name.first} will both get a chance to speak. If you have something to say and it is not your turn, let the person finish talking and then ask the judge for permission to speak
+  - Address the judge as "Your Honor" and maintain courtroom decorum
+  - Be prepared to be at court for several hours, depending on how many cases there are. Your hearing may last just a few minutes or up to an hour. You may not use your phone or computer in the courtroom, so we recommend sitting and watching other similar cases being heard before the judge or bringing reading materials to keep yourself occupied while other cases are being heard
+  - Note that the judge may decide on certain issues at your hearing and postpone deciding on other issues until another hearing
+continue button field: court_rules
+---
+question: |
+  What to Expect During the Hearing: Speaking in Court
+subquestion: |
+  #####Tips for the Hearing and Speaking in Court:
+  
+  - Before your hearing, provide both the judge and ${resp.name.first} (or his/her lawyer) with a copy of any and all the evidence you plan to use during the hearing that was NOT filed with your Request for DVRO court documents. (*Ideally, your evidence should have been submitted with your court forms/documents that you filed in support of your request for a restraining order.*)
+  - Have extra copies or electronic versions of all filed documents in case the court needs them. Make sure you have copies for yourself, for the judge, and for the other party (${resp.name.first} or his/her lawyer). 
+  - At the start of your hearing, you may respectfully ask what the court wants to focus on during the hearing
+  - Never be disrespectful to or use profanity towards the judge or courtroom staff
+  - Direct your comments to the court (judge) and avoid arguing with ${resp.name} or his/her attorney
+  - If ${resp.name.first} lies in court, do not interrupt them. Wait until he or she finishes talking, and then you can tell the judge why what ${resp.name.first} said is a lie
+  - Present your case by referencing the facts and evidence you have prepared
+  - Listen carefully to the court's instructions and guidance during the hearing
+  - Take notes of important statements from the court or the other side, as these points may need to be addressed during your presentation
+continue button field: speaking_in_court
+---
+question: |
+  What to Expect During the Hearing: Speaking in Court
+subquestion: |
+  #####During the hearing, the judge may ask questions: 
+  
+  - Tell the truth. Speak slowly. You can read from your list if you need to. You can also ask the judge if you can review your notes to be sure you covered everything
+  - ${resp.name.first} or his or her lawyer may also ask you questions
+  - Give complete answers and try to answer exactly what the judge asks
+  - If you do not understand, you can say “I don’t understand the question.”
+  - Speak only to the judge unless it is your turn to ask questions of ${resp.name.first} or any of ${resp.name.first}’s witnesses. 
+  - When people are talking to the judge, wait for them to finish. Then you can ask them questions about or comment on what they said. 
+continue button field: answering_questions
+---
+question: |
+  What to Expect During the Hearing: Continuances
+subquestion: |
+  Note, the court may continue (postpone/reschedule) your hearing if:
+  
+  - ${resp.name.first} has not been served,
+  - ${resp.name.first} needs time to get a lawyer or prepare a response,
+  - the judge wants more information, or 
+  - your hearing is taking longer than planned.
+
+  If this happens, you will have to come back to court on another day. You may ask the judge to extend any temporary orders (if any were previously issued) to the new hearing date. The court might use form DV-116 to give you the new hearing's date, time, and location. 
+
+  Ask the clerk for the forms you need so you can make sure that the temporary orders (if any) are extended until the new hearing date. 
+continue button field: hearing_postponed
+---
+question: |
+  What to Expect After the Court Hearing: Formal Notice
+subquestion: |
+  When attending your DVRO hearing, it's crucial to be prepared to address the issue of formal notice. At the end of the hearing, the court may inquire about your preference regarding formal notice. This refers to the official written notification of future court dates, filings, or any significant developments in your case.
+
+  You have two options: waiving formal notice or requesting the court to prepare and serve formal notice on your behalf.
+
+  1. **Waiving Formal Notice:** If you choose to waive formal notice, you are essentially stating that you do not require the court to provide you with written notifications of future proceedings. By waiving formal notice, you acknowledge that you are responsible for keeping track of upcoming court dates and staying informed about the progress of your case independently.
+
+  2. **Requesting the Court to Prepare Formal Notice:** On the other hand, if you request the court to prepare and serve formal notice, the court will take responsibility for providing you with written notifications. This ensures that you receive official documentation regarding future hearings, filings, and any crucial updates related to your DVRO case.
+
+  When the court poses this question, be prepared to make a clear and informed decision. Consider factors such as your ability to keep track of court dates and your confidence in staying informed about your case's progress. It's important to understand the implications of waiving formal notice, as it places the responsibility on you to stay updated.
+
+  During the hearing, the court may provide further instructions on how to proceed based on your choice. It's essential to listen carefully to the court's guidance and address any questions or concerns you may have regarding formal notice.
+continue button field: formal_notice
+---
+question: |
+  What to Except After the Hearing: The Judge's Decision
+subquestion: |
+  To decide if the requested orders should be approved or not, the judge will decide if the evidence shows that the person asking for protection (in this case, you) is entitled to a restraining order. The judge will consider the evidence and the safety risks of the adults and children involved in the case. At the end of your hearing, the judge will say what the orders are. The judge may: 
+  
+  - Give you the orders you asked for.
+  - Give you some of the orders you asked for and not others.
+  - Not give you any of the orders you asked for.
+continue button field: dvro_outcome
+---
+question: |
+  What to Expect After the Hearing: If the Restraining Order After Hearing (ROAH) is Granted 
+subquestion: |
+  After the Request for Domestic Violence Restraining Order (DVRO) hearing, if the judge grants an ROAH (Restraining Order After Hearing), there are important next steps for you to take. At U Do It Legal, we understand that preparing the necessary court forms can be overwhelming, so we have provided proposed order forms at the end of each applicable interview. These proposed orders can serve as a helpful starting point when you are preparing the order forms after the hearing.
+continue button field: dvro_granted1
+---
+question: |
+  What to Expect After the Hearing: If the Restraining Order After Hearing (ROAH) is Granted 
+subquestion: |
+  It's important to note that practices may vary from court to court. Some courts will prepare the DVRO/ROAH forms for the parties (you and ${resp.name.first}), while others may provide Minute Orders (written transcripts/summaries of the hearing) and require the parties to prepare the forms themselves. 
+  
+  To ensure that you have the appropriate forms for your specific court, we have generated both proposed orders (forms we've prepared with the orders you requested) and blank versions of the forms (with just your name and case information prepared). This way, you can choose the version that aligns with the practices of your particular court. 
+  
+  ${prog_disclose(court_prepares_orders)}
+  
+  As of 2023, only 6 counties in California do not prepare the Restraining Order After Hearing forms for you if one is granted. Those counties are Alpine, Amador, Lake, Modoc, San Mateo, and Santa Clara. If you are seeking a Domestic Violence Restraining Order in one of those counties, read the information box below.
+  
+  ${prog_disclose(court_doesnt_prepare_orders)}
+continue button field: dvro_granted2
+---
+template: court_prepares_orders
+subject: |
+  Option 1: Your Court Prepares the DVRO/ROAH Forms
+content: |
+    If the court prepares the order forms for the parties, it means that after the hearing, the court will generate the necessary DVRO/ROAH forms for you based on the judge's decision. You will typically receive these forms from the court clerk or through a designated court process. It's important to carefully review the prepared order forms for accuracy and completeness. If you have any questions or concerns about the prepared forms, it is advisable to seek guidance from the court's clerk, family law facilitator, or self-help center.
+---
+template: court_doesnt_prepare_orders
+subject: |
+  Option 2: Your Court Has You Prepare Proposed DVRO/ROAH Forms
+content: |
+  If your local court requires you to prepare the DVRO/ROAH forms, make sure to carefully follow any specific instructions provided by the court and accurately prepare the forms with relevant information. The six counties listed above will likely refer you to your local self-help center, whose staff can assist you to prepare proposed orders based on the "Minute Order" received during the hearing. 
+    
+  The "Minute Order" is a written record of the judge's orders as they were announced, and in some cases, you may receive it at the end of the hearing. However, if it's not immediately available, you have the option to request a copy from the court clerk a few days after the hearing. It is important to refer to the minute order when completing the order forms. If desired, you can also purchase a transcript of the hearing from the court reporter, which provides a verbatim account of all the proceedings (keep in mind that transcripts can be costly, so it's wise to inquire about the estimated expense beforehand).
+  
+  ${card_start("Note:", color="info")}
+  When enforcing the DVRO, the police will only consider the terms written in the official order itself, not the information contained in the transcript or minute order. Therefore, it's crucial that you carefully review the order before leaving the court to ensure that it includes the specific terms you expected.
+  ${card_end()}
+---
+question: |
+  What to Expect After the Hearing: If the Restraining Order is Denied
+subquestion: |
+  If the judge does not give you a restraining order, talk to an advocate about what you can do to appeal the judge's decision. Unfortunately, we at U Do It Legal currently lack the capacity to service DVRO appeals.
+  
+  - National Domestic Violence Hotline: 1-800-799-3224 is a source to inquire about an appeal, or [find your local domestic violence legal help agencies](https://www.cpedv.org/domestic-violence-organizations-california)
+  - If ${resp.name.first} continues to abuse you, you can file a new Request for Domestic Violence Restraining Order. In the declaration in your new forms, you may tell the judge that ${resp.name.first} has continued to abuse you and describe the most recent abuse.
+continue button field: dvro_denied
+---
+question: |
+  What to Expect After Your Hearing: Next Steps 
+subquestion: |
+  If you were granted a DVRO/ROAH, your next steps will depend on whether ${resp.name.first} was present at the hearing. 
+  
+  #####If ${resp.name.first} or his/her Lawyer was at the Hearing:
+  
+  In a DVRO hearing, if the other party (in this case ${resp.name.first}) or his/her lawyer attended the hearing, they are usually considered to have received notice of the orders issued by the judge at the hearing. In such instances, you will not need to serve ${resp.name.first} with a copy of the DVRO/ROAH. 
+  
+  However, it is important to note that the exact procedures for providing the orders may vary depending on the specific court and jurisdiction.
+  
+  #####If ${resp.name.first} or his/her Lawyer was NOT at the Hearing: 
+  
+  In a DVRO hearing, if the other party (${resp.name.first}) or his/her lawyer did NOT attend the hearing, you must have them served with a copy of the orders. Service may be done personally (using form DV-200 or the local sheriff's/process server's equivalent form) or by mail (using form DV-250). Once service is complete, file the Proof of Service with the court as soon as possible and **keep copies of the file-stamped Proof of Service with copies of your restraining orders at all times.** 
+  
+  Once you file it with the court, the Proof of Service will show up in California Restraining and Protective Order System (CARPOS) and California Law Enforcement Telecommunications System (CLETS).
+  
+  ${card_start("Warning:", color="warning")}
+   Note, your ROAH is not enforceable until law enforcement can see a file-stamped Proof of Service in CARPOS/CLETS or confirm that ${resp.name.first} was at the hearing. If ${resp.name.first} or his/her lawyer was not at the hearing and you were issued an ROAH, **keep a copy of your file-stamped Proof of Service with your orders and with you at all times.**
+  ${card_end()}
+continue button field: after_hearing_next_steps
+---
+question: |
+  Enforcing the Restraining Order After Hearing
+subquestion: |
+  If the court issues a DVRO and the Restrained Party (in this case ${resp}) violates any provision of the order, it is crucial for you, as the protected party, to contact law enforcement, document the violations, and gather evidence, such as text messages, emails, or witness statements, to support your case. 
+  
+  You should promptly report any violations to law enforcement (i.e. call the police), providing them with a copy of the order and the evidence of the violations. It may also be helpful for you to consult with a domestic violence advocate to understand the available remedies and the best course of action for enforcing the order. Remember, it is essential for you to prioritize your safety and well-being, and to seek appropriate assistance and support throughout the enforcement process.
+continue button field: enforcement1
+---
+question: |
+  Enforcing the Restraining Order After Hearing
+subquestion: |
+  #####Arrest Required if Order is Violated:
+  
+  If the court issued a DVRO and a police officer has probable cause to believe that the Restrained Person (in this case ${resp.name.first}) had notice of the order (i.e. knew about the restraining order) and has disobeyed the order, the officer must arrest the Restrained Party. (Penal Code sections 836(c)(1), 13701(b).) A violation of the order may be a violation of Penal Code section 166 or 237.6. 
+continue button field: enforcement2
+---
+question: |
+  Enforcing the Restraining Order After Hearing
+subquestion: |  
+  #####If You (the Protected Party) Contact ${resp.name.first} (the Restrained Party) After the Issuance of a DVRO:
+  
+  Even if the protected person (you) invites or consents to contact with the Restrained Party (${resp.name.first}, the restraining orders remain in effect and must be enforced. The protected person cannot be arrested for inviting or consenting to contact with the Restrained Party. The orders can be changed only by another court order. (Penal Code section 13710(b).)
+  
+  % if requesting_custody:
+  #####Child Custody and Visitation Orders
+  
+  Child Custody and Visitation orders will be listed on form DV-140, Child Custody and Visitation Order. If the judge makes these orders, look at Items 13 and 14 on the DV-140 to see if the judge granted an exception to any No-Contact or Stay-Away orders for brief and peacful contact with you as needed for court-ordered visitation. Contact by ${resp.name.first} that is *not* brief and peaceful is considered a violation of the order.
+  % endif
+continue button field: enforcement3
+---
+question: |
+  When do you plan to file your Request for DVRO forms?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date.
+  
+  If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file.
+fields: 
+  - Date: filing_date
+    datatype: date
+    min: ${ today() }
+    default: ${today().format("yyyy-MM-dd")}
+---
+mandatory: true
+event: download_forms
+question: |
+  Your forms are ready to download.
+subquestion: |
+  Thank you. Your forms are ready to download and deliver.
+  
+  1. Look over the forms below.
+  2. Download or email the forms to yourself.
+  3. Follow the instructions on your Next Steps Checklist and review the additional materials generated below to prepare for your hearing. Feel free to re-run this interview to review longer explanations.
+  
+  ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download Next Steps Checklist", icon='download')} 
+  
+  % if requesting_interpreter:
+  ${ action_button_html(al_user_bundle2.as_pdf().url_for(), label="Download Completed INT-300, Request for Interpreter", icon='download') } 
+  % endif
+  
+  % if requesting_disabilityaccommodations:
+  ${ action_button_html(al_user_bundle3.as_pdf().url_for(), label="Download Completed MC-410, Disability Accommodation Request", icon='download') } 
+  % endif
+  
+  ${ action_button_html(al_user_bundle4.as_pdf().url_for(), label="Download Blank Forms to Serve On the Other Party", icon='download')} 
+  
+  ${ action_button_html(al_user_bundle5.as_pdf().url_for(), label="Download the California Judicial Council's Information Worksheets", icon='download')} 
+  
+  #####Download Blank ROAH/DVRO (Order) Forms to Bring to Your Hearing:
+  
+  ${ action_button_html(al_user_bundle6.as_pdf().url_for(), label="Download Blank DV-130, Restraining Order After Hearing", icon='download')}
+  
+  % if requesting_custody:
+    ${ action_button_html(al_user_bundle7.as_pdf().url_for(), label="Download Blank DV-140, Child Custody and Visitation Order", icon='download')}
+  % endif
+  
+  % if requesting_childabduction:
+    ${ action_button_html(al_user_bundle8.as_pdf().url_for(), label="Download Blank DV-145, Order to Prevent Child Abduction", icon='download')}
+  % endif
+  
+  % if requesting_supervisedvisitation:
+    ${ action_button_html(al_user_bundle9.as_pdf().url_for(), label="Download Blank DV-150, Supervised Visitation and Exchange Order", icon='download')}
+  % endif
+  
+  % if requesting_confidentiality:
+    ${ action_button_html(al_user_bundle10.as_pdf().url_for(), label="Download Blank DV-165, Order on Request to Keep Minor's Information Confidential", icon='download')}
+    ${ action_button_html(al_user_bundle11.as_pdf().url_for(), label="Download Blank DV-170, Notice of Order Protecting Information of Minor", icon='download')}
+  % endif
+
+  % if requesting_wirelesstransfer:
+    ${ action_button_html(al_user_bundle12.as_pdf().url_for(), label="Download Blank DV-900, Order Transferring Wireless Phone Account", icon='download')}
+  % endif
+
+  % if requesting_childsupport:
+    ${ action_button_html(al_user_bundle13.as_pdf().url_for(), label="Download Blank FL-342, Child Support Information and Order Attachment", icon='download')}
+  % endif
+
+  % if requesting_spousalsupport:
+    ${ action_button_html(al_user_bundle14.as_pdf().url_for(), label="Download Blank FL-343, Spousal, Domestic Partner, or Family Support Order Attachment", icon='download')}
+  % endif
+  
+  ${ al_user_bundle.send_button_html() }
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+  Get a copy of your forms in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  % if len(x) > 1:
+  Your ${ x.title } document is ready
+  % else:
+  Your "${ x.title }" documents are ready
+  % endif
+content: |
+  Thank you for using U Do It Legal!
+
+  Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### bundle objects
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[next_steps_checklist], title="Next Steps Checklist", filename="Next_Steps_Checklist.pdf")
+  - al_user_bundle2: ALDocumentBundle.using(elements=[INT_300_attachment], title="Forms to download and deliver to court", filename="Completed_INT_300.pdf")
+  - al_user_bundle3: ALDocumentBundle.using(elements=[MC_410_attachment, MC_410_INFO], title="Forms to download and deliver to court", filename="Completed_MC_410.pdf")
+  - al_user_bundle4: ALDocumentBundle.using(elements=[DV_120, DV_120_INFO, DV_125, FL_150, DV_250], title="Blank Forms to Serve On the Other Party", filename="Completed_MC_410.pdf")
+  - al_user_bundle5: ALDocumentBundle.using(elements=[DV_160_INFO, DV_200_INFO, DV_205_INFO, DV_520_INFO, DV_530_INFO], title="California Judicial Council Information Sheets", filename="Information_Sheets.pdf")
+  
+  - al_user_bundle6: ALDocumentBundle.using(elements=[Blank_DV_130], title="Blank DV-130", filename="Blank_DV_130.pdf")
+  - al_user_bundle7: ALDocumentBundle.using(elements=[Blank_DV_140], title="Blank DV-140", filename="Blank_DV_140.pdf")
+  - al_user_bundle8: ALDocumentBundle.using(elements=[Blank_DV_145], title="Blank DV-145", filename="Blank_DV_145.pdf")
+  - al_user_bundle9: ALDocumentBundle.using(elements=[Blank_DV_150], title="Blank DV-150", filename="Blank_DV_150.pdf")
+  - al_user_bundle10: ALDocumentBundle.using(elements=[Blank_DV_165], title="Blank DV-165", filename="Blank_DV_165.pdf")
+  - al_user_bundle11: ALDocumentBundle.using(elements=[Blank_DV_170], title="Blank DV-170", filename="Blank_DV_10.pdf")
+  - al_user_bundle12: ALDocumentBundle.using(elements=[Blank_DV_900], title="Blank DV-900", filename="Blank_DV_900.pdf")
+  - al_user_bundle13: ALDocumentBundle.using(elements=[Blank_FL_342], title="Blank FL-342", filename="Blank_FL_342.pdf")
+  - al_user_bundle14: ALDocumentBundle.using(elements=[Blank_FL_343], title="Blank FL-343", filename="Blank_FL_343.pdf")
+---
+#### bundle 1, next steps checklist
+objects: 
+  - next_steps_checklist: ALDocument.using(filename="Next_Steps", title="Next Steps Checklist", enabled=True)
+---
+#### bundle 2, intepreters request 
+objects:
+  - INT_300_attachment: ALDocument.using(filename="INT_300", title="INT-300, Request for Interpreter", enabled=True, has_addendum=False)
+---
+#### bundle 3, disability accommodation
+objects: 
+  - MC_410_attachment: ALDocument.using(filename="MC_410", title="MC-410, Disability Accommodation Request", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+---
+#### bundle 4, info sheets
+objects:
+  - MC_410_INFO: ALStaticDocument.using(filename="MC_410_INFO.pdf", title="Disability Accommodation Information Sheet", enabled=True)
+  - DV_120_INFO: ALStaticDocument.using(filename="DV_120_INFO.pdf", title="Response to Request for Domestic Violence Restraining Order Information Sheet", enabled=True)
+  - DV_160_INFO: ALStaticDocument.using(filename="DV_160_INFO.pdf", title="Request to Keep Minor's Information Confidential Information Sheet", enabled=True)
+  - DV_200_INFO: ALStaticDocument.using(filename="DV_200_INFO.pdf", title="What is Proof of Personal Service? Information Sheet", enabled=True)
+  - DV_205_INFO: ALStaticDocument.using(filename="DV_205_INFO.pdf", title="Service Evasion Information Sheet", enabled=True)
+  - DV_520_INFO: ALStaticDocument.using(filename="DV_520_INFO.pdf", title="Getting Ready for Your Restraining Order Court Hearing Information Sheet", enabled=True)
+  - DV_530_INFO: ALStaticDocument.using(filename="DV_530_INFO.pdf", title="How to Enforce Your Restraining Order Information Sheet", enabled=True)
+---
+#### bundle 5, blank response forms for service
+objects:
+  - DV_120: ALStaticDocument.using(filename="DV_120.pdf", title="(Blank) Reponse to Request for Domestic Violence Restraining Order", enabled=True)
+  - DV_125: ALStaticDocument.using(filename="DV_125.pdf", title="(Blank) Response to Request for Custody and Visitation Orders", enabled=True)
+  - FL_150: ALStaticDocument.using(filename="FL_150.pdf", title="(Blank) Income and Expense Declaration", enabled=True)
+  - DV_250: ALStaticDocument.using(filename="DV_250.pdf", title="(Blank) Proof of Service by Mail", enabled=True)
+---
+#### blank order forms
+objects:
+  - Blank_DV_130: ALDocument.using(filename="DV_130.pdf", title="(Blank) Restraining Order After Hearing", enabled=True, has_addendum=False)
+  - Blank_DV_140: ALDocument.using(filename="DV_140.pdf", title="(Blank) Child Custody and Visitation Order", enabled=True, has_addendum=False)
+  - Blank_DV_145: ALDocument.using(filename="DV_145.pdf", title="(Blank) Order to Prevent Child Abduction", enabled=True, has_addendum=False)
+  - Blank_DV_150: ALDocument.using(filename="DV_150.pdf", title="(Blank) Supervised Visitation and Exchange Order", enabled=True, has_addendum=False)
+  - Blank_DV_165: ALDocument.using(filename="DV_165.pdf", title="(Blank) Order on Request to Keep Minor's Information Confidential", enabled=True, has_addendum=False)
+  - Blank_DV_170: ALDocument.using(filename="DV_170.pdf", title="(Blank) Notice of Order Protecting Information of Minor", enabled=True, has_addendum=False)
+  - Blank_DV_900: ALDocument.using(filename="DV_900.pdf", title="(Blank) Order Transferring Wireless Phone Account", enabled=True, has_addendum=False)
+  - Blank_FL_342: ALDocument.using(filename="FL_342.pdf", title="(Blank) Child Support Information and Order Attachment", enabled=True, has_addendum=False)
+  - Blank_FL_343: ALDocument.using(filename="FL_343.pdf", title="(Blank) Spousal, Domestic Partner, or Family Support Order Attachment", enabled=True, has_addendum=False)
+---
+#### next steps attachment code
+attachment:
+    variable name: next_steps_checklist[i]
+    name: Next Steps Checklist
+    filename: Next Steps Checklist
+    skip undefined: true
+    docx template file: Next_Steps_Checklist.docx
+---
+#### disability accommodation attachment code
+attachment:
+  variable name: MC_410_attachment.addendum
+  docx template file: MC_410_Attachment.docx
+---
+code: |
+  MC_410_attachment.overflow_fields['accommodation_explain'].overflow_trigger = 175
+  MC_410_attachment.overflow_fields['accommodation_explain'].label = "5. Why do you need this accommodation to assist you in court?"
+  MC_410_attachment.overflow_fields.gathered = True 
+---
+#### interpreters request attachment code
+attachment:
+    variable name: INT_300_attachment[i]
+    name: INT-300
+    filename: INT-300
+    skip undefined: true
+    pdf template file: 2023_INT_300.pdf
+    fields:
+      - pet_name: "${pet.name}"
+      - in_pro_per: "In Pro Per"
+      - court_address_county: "${court_county}"
+      - Firm Name: "${}"
+      - court_name: "${court_name}"
+      - pet_address_street: "${pet.address.street}"
+      - court_address_street: "${court_address1}"
+      - pet_address_city: "${pet.address.city}"
+      - pet_address_zip: "${pet.address.zip}"
+      - pet_address_state: "${pet.address.state}"
+      - court_city_street_zip: "${court_address2}"
+      - pet_phone: "${pet.phone}"
+      - pet_email: "${pet.email}"
+      - case_number: "${case_number}"
+      - party_petitioner: Yes
+      - party_respondent: No
+      - party_other: No
+      - party_other_describe: "${}"
+      - pet_language: "${defined('pet_language')}"
+      - pet_language_spanish: "${pet_language == 'pet_language_spanish'}"
+      - pet_language_vietnamese: "${pet_language == 'pet_language_vietnamese'}"
+      - pet_language_korean: "${pet_language == 'pet_language_korean'}"
+      - pet_language_mandarin: "${pet_language == 'pet_language_mandarin'}"
+      - pet_language_tagalog: "${pet_language == 'pet_language_tagalog'}"
+      - pet_language_farsi: "${pet_language == 'pet_language_farsi'}"
+      - pet_language_russian: "${pet_language == 'pet_language_russian'}"
+      - pet_language_cantonese: "${pet_language == 'pet_language_cantonese'}"
+      - pet_language_punjabi: "${pet_language == 'pet_language_punjabi'}"
+      - pet_language_other: "${pet_language == 'pet_language_other'}"
+      - pet_language_other_specify: "${pet_language_other_specify}"
+      - pet_language_arabic: "${pet_language == 'pet_language_arabic'}"
+      - town_of_origin: "${town_of_origin}"
+      - witness_interpreter: "${witness_interpreter}"
+      - hearing_date: "${}"
+      - hearing_time: "${}"
+      - hearing_department_and_judge: "${}"
+      - no_set_hearing: Yes
+      - witness_language_sameaspet: "${witness_language == 'witness_language_sameaspet'}"
+      - witness_language_other: "${witness_language == 'witness_language_other'}"
+      - witness_language_other_specify: "${witness_language_other_specify}"
+      - filing_date: "${filing_date}"
+      - Signature3_es_:signer:signature: "${}"
+      - case_number2: "${case_number}"
+---
+attachment:
+    variable name: MC_410_attachment[i]
+    name: MC-410
+    filename: MC-410
+    skip undefined: true
+    pdf template file: 2023_MC_410.pdf
+    fields:
+      - court_name: "${court_name}"
+      - pet_name: "${pet.name}"
+      - court_address_street: "${court_address1}"
+      - court_city_street_zip: "${court_address2}"
+      - pet_address_street: "${pet.address.street2}"
+      - pet_address_city_state_zip: "${pet.address.city2}, ${pet.address.state2} ${pet.address.zip2}"
+      - pet_phone: "${pet.phone2}"
+      - pet_email: "${pet.email2}"
+      - case_number: "${case_number}"
+      - Juror: "${}"
+      - Lawyer: "${}"
+      - Party: Yes
+      - Witness: "${}"
+      - case_name_and_type: "${pet.name.last}, ${pet.name.first} v. ${resp.name.last}, ${resp.name.first} / Request for DVRO"
+      - Other explain: "${}"
+      - hearing_info: "${}"
+      - accommodation_specify: "${accommodation_specify}"
+      - "accommodation_explain": ${MC_410_attachment.safe_value('accommodation_explain')}
+      - attachment: Yes
+      - filing_date: "${filing_date}"
+      - Signature4_es_:signer:signature: "${}"
+      - pet_name2: "${pet.name}"
+      - caregiver_name: "${caregiver_name}"
+      - caregiver_email: "${caregiver_email}"
+      - caregiver_phone: "${caregiver_phone}"
+      - pet_name3: "${pet.name}"
+      - case_number2: "${case_number}"
+---
+attachment:
+    variable name: Blank_DV_130[i]
+    name: Blank-DV-130
+    filename: Blank-DV-130
+    skip undefined: true
+    pdf template file: 2023_DV_130.pdf
+    fields:
+      - original_order: Yes
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${court_address1}"
+      - court_city_street_zip: "${court_address2}"
+      - case_number: "${case_number}"
+      - case_number2: "${case_number}"
+      - case_number3: "${case_number}"
+      - case_number4: "${case_number}"
+      - case_number5: "${case_number}"
+      - case_number6: "${case_number}"
+      - case_number7: "${case_number}"
+      - case_number8: "${case_number}"
+      - case_number9: "${case_number}"
+      - case_number10: "${case_number}"
+---     
+attachment:
+    variable name: Blank_DV_140[i]
+    name: Blank-DV-140
+    filename: Blank-DV-140
+    skip undefined: true
+    pdf template file: 2023_DV_140.pdf
+    fields:
+      - case_number: "${case_number}"
+      - dv_110: No
+      - dv_130: Yes
+      - pet_name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - case_number2: "${case_number}"
+      - case_number3: "${case_number}"
+      - case_number4: "${case_number}"
+---
+attachment:
+    variable name: Blank_DV_145[i]
+    name: Blank-DV-145
+    filename: Blank-DV-145
+    skip undefined: true
+    pdf template file: 2023_DV_145.pdf
+    fields:
+      - case_number: "${case_number}"
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - resp_parent: "${}"
+      - case_number2: "${case_number}"
+---
+attachment:
+    variable name: Blank_DV_150[i]
+    name: Blank-DV-150
+    filename: Blank-DV-150
+    skip undefined: True
+    pdf template file: 2023_DV_150.pdf
+    fields: 
+      - case_number: "${case_number}"
+      - DV_130: Yes
+      - DV_140: Yes
+      - pet_name: "${pet.name}"
+      - resp_name: "${resp.name}"
+---
+attachment:
+    variable name: Blank_DV_165[i]
+    name: Blank-DV-150
+    filename: Blank-DV-150
+    skip undefined: True
+    pdf template file: 2023_DV_165.pdf
+    fields: 
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${court_address1}"
+      - court_city_state_zip: "${court_address2}"
+      - case_number: "${case_number}"
+      - case_number2: "${case_number}"
+      - case_number3: "${case_number}"
+      - case_number4: "${case_number}"
+      - case_number5: "${case_number}"
+      - case_number6: "${case_number}"
+---
+attachment: 
+    variable name: Blank_DV_170[i]
+    name: Blank-DV-170
+    filename: Blank-DV-170
+    skip undefined: True
+    pdf template file: 2023_DV_170.pdf
+    fields:
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${court_address1}"
+      - court_city_state_zip: "${court_address2}"
+      - case_number: "${case_number}"
+---
+attachment: 
+    variable name: Blank_DV_900[i]
+    name: Blank-DV-900
+    filename: Blank-DV-900
+    skip undefined: True
+    pdf template file: 2023_DV_900.pdf
+    fields:
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${court_address1}"
+      - court_city_state_zip: "${court_address2}"
+      - case_number: "${case_number}"
+      - case_number2: "${case_number}"
+---
+attachment: 
+    variable name: Blank_FL_342[i]
+    name: Blank-FL-342
+    filename: Blank-FL-342
+    skip undefined: True
+    pdf template file: 2023_FL_342.pdf
+    fields:
+      - pet_name: "${pet.name}"
+      - resp_name: "${resp.name}"
+      - case_number: "${case_number}"
+      - otherparty_name: "${}"
+      - FL_340: No
+      - FL_250: No
+      - FL_180: No
+      - DV_130: Yes
+      - attachedtoother: No
+      - pet_name2: "${pet.name}"
+      - resp_name2: "${resp.name}"
+      - case_number2: "${case_number}"
+      - otherparty_name2: "${}"
+      - pet_name3: "${pet.name}"
+      - resp_name3: "${resp.name}"
+      - case_number3: "${case_number}"
+      - otherparty_name3: "${}"
+---
+attachment: 
+    variable name: Blank_FL_343[i]
+    name: Blank-FL-343
+    filename: Blank-FL-343
+    skip undefined: True
+    pdf template file: 2023_FL_343.pdf
+    fields:
+      - pet_name: "${pet.name}"
+      - case_number: "${case_number}"
+      - resp_name: "${resp.name}"
+      - FL_180: No
+      - FL_340: No
+      - attachedtoother: No
+      - DV_130: Yes
+      - attachedtostip: No
+      - stip_date: "${}"
+      - pet_name2: "${pet.name}"
+      - case_number2: "${case_number}"
+      - resp_name2: "${resp.name}"
+      - pet_name3: "${pet.name}"
+      - case_number3: "${case_number}"
+      - resp_name3: "${resp.name}"

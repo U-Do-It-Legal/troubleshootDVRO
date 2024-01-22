@@ -1,0 +1,2192 @@
+metadata:
+    title: |
+        Request for DVRO: Part 3.1, Financial Information for Support
+    short title: |
+        FL-150
+    description: |
+        An interview guiding self-representing DVRO Petitioners through the Income and Expense Declaration
+    authors:
+        - name: Kelly D. Crabtree
+          organization: U Do It Legal
+        - name: Ryan E. Stearns
+          organization: U Do It Legal
+          revision_date: 2023-04-27
+          require privileges: [dvro-p1, admin]
+    required privileges for listing: [dvro-p1, admin]
+    sessions are unique: True
+    hidden: True
+    jurisdiction: CA
+    tags:
+        - California
+        - Domestic Violence
+        - Restraining Order
+        - DVRO
+        - Self-Represented Litigant
+---
+modules:
+    - docassemble.ALToolbox.misc
+    - .ThreePartsDate
+    - .PhoneNumberDataType
+    - docassemble.AssemblyLine.al_document
+    - .progressivedisclosure
+---
+features:
+    labels above fields: True
+    question back button: True
+    navigation back button: False
+    navigation: False
+    navbar: False
+    progress bar: True
+    javascript:
+        - intlTelInput-jquery.min.js
+        - intlTelInput-jquery.js
+        - intlTelInput.js
+        - phone-number-validation.js
+    css:
+        - docassemble.ALToolbox:prog_disclose.css
+        - intlTelInput.min.css
+        - phone-number-validator.css
+        - custom.css
+---
+include:
+    - docassemble.ALToolbox:escape_button.yml
+    - docassemble.ALToolbox:phone-number-validation.yml
+    - docassemble.demo:data/questions/examples/cards.yml
+    - docassemble.AssemblyLine:al_package_unstyled.yml
+---
+imports:
+    - statistics
+---
+code: |
+    from itertools import chain
+    from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+    from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+    counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+    - pet: Individual
+    - resp: Individual
+    - children: DAList.using(ask_number=True, object_type=Individual)
+    - householdmembers: DAList.using(ask_number=True, object_type=Individual)
+    - installmentpaymentsanddebts: DAList.using(object_type=Thing)
+    - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+    set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+    menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+    if returning_user(minutes=5):
+      welcome_back
+---
+event: welcome_back
+question: |
+    Welcome back!
+subquestion: |
+    You are currently in the
+    **${ nav.get_section(display=True) }**
+    section.
+
+    ${ nav }
+
+    Press "Continue" to pick up
+    where you left off.
+buttons:
+    Continue: continue
+---
+sections:
+    - intro: Introduction
+    - caseinfo: Case Information
+    - yourchildren: Your Children
+    - child_support: Child Support
+    - spousal_support: Spousal Support
+    - yourincomeandemployment: Your Income and Employment
+      subsections:
+          - youremployment: Employment
+          - youreducation: Education
+          - yourtaxes: Taxes
+          - yourincome: Income
+          - yourexpenses: Expenses
+    - conclusion: Conclusion
+---
+mandatory: True
+code: |
+    nav.set_section('intro')
+    safety_warning
+    interview_part
+    welcome1
+
+    nav.set_section('caseinfo')
+    pet.name.first
+    pet.address.street
+    pet.phone
+    resp.name.first
+    court_name
+
+    nav.set_section('yourchildren')
+    children.there_are_any
+
+    nav.set_section('child_support')
+    if children.there_are_any:
+      requesting_childsupport
+      if requesting_childsupport:
+        percent_time_with_pet
+        child_support_calculator
+
+    nav.set_section('spousal_support')
+    parties_married
+    if requesting_childsupport:
+      spousal_support_calculator
+      
+    nav.set_section('yourincomeandemployment')
+    nav.set_section('youremployment')
+    currently_employed
+    if not currently_employed:
+      has_not_been_employed
+      if has_not_been_employed:
+        pet.education_highschool
+      else:
+        pet.employer
+        pet.has_second_job
+    else:
+      pet.employer
+      pet.has_second_job
+
+    nav.set_section('yourincome')
+    self_employed
+    salary_lm
+    change_in_income
+    if currently_employed:
+      union_dues
+    proof_of_income_upload_info
+    if exhibit_attachment.exhibits.has_exhibits:
+      exhibit_attachment.exhibits.gather()
+
+    assets_cash_and_deposit_accounts
+    nav.set_section('respondentincome')
+    resp.gross_monthly_income
+
+    nav.set_section('youreducation')
+    pet.education_highschool
+    nav.set_section('yourtaxes')
+    taxes_last_filing_year
+
+    householdmembers.there_are_any
+    if householdmembers.there_are_any:
+      householdmembers.gather()
+
+    nav.set_section('yourexpenses')
+    has_mortgage
+    installmentpaymentsanddebts.there_are_any
+    if installmentpaymentsanddebts.there_are_any:
+      installmentpaymentsanddebts.gather()
+    totalexpenses
+
+    nav.set_section('conclusion')
+    filing_date
+    download_forms
+---
+question: |
+    Welcome to U Do It Legal's **Request for Domestic Violence Restraining Order, Part 3.1: Financial Information for Support**
+subquestion: |
+    **If you are in danger right now, or at any time, call 911.**
+
+    ${card_start("Quick Escape:", color="warning")}
+    If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+    ${card_end()}
+
+    Please note that websites you visit may be viewed by someone else later.
+
+    To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+
+    For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+
+    We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place.
+continue button field: safety_warning
+---
+template: part1
+subject: |
+    **Part 1, Introduction**
+content: |
+    This interview covers:
+
+    - Your Request for Domestic Violence Restraining Order Roadmap
+    - The Importance of Safety Planning and Related Resources
+---
+template: part2
+subject: |
+    **Part 2, Case Information**
+content: |
+    This interview prepares the following forms for you:
+
+    - California Law Enforcement Telecommunications System Information Form (form [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf))
+    - Notice of Hearing (form [DV-109](https://www.courts.ca.gov/documents/dv109.pdf))
+---
+template: part3
+subject: |
+    **Part 3, Requesting Restraining Orders**
+content: |
+    This interview prepares the following form for you:
+
+    - Request for Domestic Violence Restraining Order (form [DV-100](https://www.courts.ca.gov/documents/dv100.pdf))
+
+    This interview also prepares the following proposed order form for court completion:
+
+    - Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))
+---
+template: part3_1
+subject: |
+    **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+    This interview prepares the following form for you: 
+
+    - Income and Expense Declaration (form [FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part3_2
+subject: |
+    **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+    This interview prepares the following forms for you:
+
+    - Request for Child Custody and Visitation Orders (form [DV-105](https://www.courts.ca.gov/documents/dv105.pdf))
+    - Request for Child Abduction Prevention Orders (form [DV-108](https://www.courts.ca.gov/documents/dv108.pdf)) (Optional) *if requesting orders to prevent your child from being kidnapped by the other party**
+
+    This interview also prepares the following proposed order forms for court completion:
+
+    - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+    - Child Abduction PReventions Orders (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+    - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part3_3
+subject: |
+    **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the Other Party**
+content: |
+    This interview prepares the following form for you:
+
+    - Request to Keep Minor's Information Confidential (form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf))
+
+    This interview also prepares the following proposed order form for court completion:
+
+    - Order on Request to Keep Minor's Information Confidential (form [DV-165](https://www.courts.ca.gov/documents/dv165.pdf))
+---
+template: part4
+subject: |
+    **Part 4, Next Steps**
+content: |
+    This interview not only guides you through your next steps after form preparation, encompassing filing, service, hearing preparation, and more, but also provides you with a personalized Proof of Service (form [DV-200](https://www.courts.ca.gov/documents/dv200.pdf)) featuring a completed caption for your ease. For context, the "caption" is the section at the top of a legal document where you provide your basic information, like your name and address.
+
+    In addition to the prepped Proof of Service form, which is intended to be completed by your designated server, the interview provides you with a written summary and a checklist of your next steps, ensuring your readiness to confidently navigate each step of your case beyond preparing your court forms and documents.
+---
+template: part4_1
+subject: |
+    **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule/postpone their hearing**
+content: |
+    This interview prepares the following forms for you:
+
+    - Request to Continue Hearing (form [DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+
+    This interview prepares the following proposed order forms for court completion:
+
+    - Order on Request to Continue Hearing (form [DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part5
+subject: |
+    **Part 5, Restraining Order After Hearing and Renewal**
+content: |
+    This interview is tailored toward individuals who were granted a Restraining Order After Hearing. It explains different scenarios that may happen after your hearing and will provide you with blank versions of the relevant ROAH forms, such as:
+
+    - Restraining Order After Hearing (form [DV-130](https://www.courts.ca.gov/documents/dv130.pdf))
+    - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf)) *If child custody and visitation orders are issued**
+    - Child Abduction Prevention Order (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *If child abduction prevention orders are issued**
+    - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf))  *If supervised visitation or exchange orders are issued**
+    - Order on Request to Keep Minor's Information Confidential (Form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf)) *If orders to keep minor's information confidential are issued**
+    - Child Support Information and Order Attachment (Form [FL-342](https://www.courts.ca.gov/documents/fl342.pdf)) *If child support orders are issued**
+    - Spousal, Domestic Partner, or Family Support Order Attachment (Form [FL-343](https://www.courts.ca.gov/documents/fl343.pdf)) *If spousal, partner, or family support orders are issued**
+
+    This interview will also offer valuable recommendations on locating assistance for ROAH form preparation if your court does not prepare ROAH forms or self-representing parties. Please note that, as of 2023, we are aware of only 6 CA counties that do not prepare ROAH forms for self-representing parties.
+
+    Lastly, this interview will provide you with a personalized Request to Renew Restraining Order (form [DV-700](https://www.courts.ca.gov/documents/dv700.pdf)) and Notice of Hearing to Renew Restraining Order (form [DV-710](https://www.courts.ca.gov/documents/dv710.pdf)) featuring completed captions for your ease, should you wish to renew the ROAH prior to its expiration.
+---
+question: |
+    **Interview 3.1:** Financial Information for Support
+subquestion: |
+    Our website will guide you through and assist you with the preparation of the court forms and documents required for your Domestic Violence Restraining Order (DVRO) proceeding.  
+
+    This interview is **Part 3.1** of 5:
+
+    ${prog_disclose(part1)}
+
+    ${prog_disclose(part2)}
+
+    ${prog_disclose(part3)}
+      
+    ${card_start("You are here:", color="light")}
+    ${prog_disclose(part3_1)}
+    ${card_end()}
+
+    ${prog_disclose(part3_2)}
+
+    ${prog_disclose(part3_3)}
+
+    ${prog_disclose(part4)}
+
+    ${prog_disclose(part4_1)}
+
+    ${prog_disclose(part5)}
+
+continue button field: interview_part
+---
+template: fl_150_explanation
+subject: |
+    **FL-150** Income and Expense Declaration
+content: |
+    The court uses the information from the FL-150, Income and Expense Declaration, to better understand your and the Other Party's financial circumstances in connection with making orders for child/spousal support, attorneys fees, and other costs.
+---
+question: |
+    Court Forms this Interview Prepares for You
+subquestion: |
+    More specifically, this interview will help you complete 1 court form: 
+
+    ${prog_disclose(fl_150_explanation)}
+
+    **Only complete this interview and file this form with the court if you are requesting child support and/or spousal support orders and/or attorney's fees and costs.** 
+
+    If you are not requesting any support or attorney's fees and costs orders, you may exit out of this interview. 
+
+    This interview asks you for information about your and the Other Party's income, education, taxes, available cash, living expenses, and more. Having relevant financial documents accessible, such as your latest tax return, bank account statements, and monthly bills, will help you complete this interview much faster. The interview should take you roughly 30 minutes to complete. 
+
+    You may begin answering questions on the next page. 
+
+    ${card_start("Note:", color="info")}
+    Some pages in this interview may prompt you to input repetitive or redundant information.
+    ${card_end()}
+continue button field: welcome1
+---
+initial: True
+code: |
+    after_hours = ((current_datetime() > current_datetime().replace(hour=16,minute=30)) or (current_datetime() < current_datetime().replace(hour=8,minute=30)) )
+    court_closed_today = (today().dow > 5)
+---
+question: |
+    **Protected Party:** What is your name?
+subquestion: |
+    Provide your full legal name. This should match the name written on both your ID and your other court forms.
+fields:
+    - First name: pet.name.first
+    - Middle name (if applicable): pet.name.middle
+      required: False
+    - Last name: pet.name.last
+    - Suffix (if applicable): pet.name.suffix
+      required: False
+      datatype: combobox
+      code: |
+          name_suffix()
+      help: |
+          You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+template: confidentialaddress_explanation
+subject: 'As a reminder: Can I keep my address confidential?'
+content: |
+    California mandates that if a party (or his or her children) alleges to be a victim of domestic violence or abuse at the hands of the opposing party, that the victim and his or her children's current address must remain confidential if unknown to the other party. 
+
+    The Court requires that you include an address on your forms where you can receive mail regarding the case you are filing, such as a friend or relative's address or P.O. box. **This address does not have to be the place where you live.** Court documents and court files are public record and whatever address is included on your forms will be seen by the other party and anyone else who looks at the Court file.
+---
+template: dv_shelter_warning
+subject: |
+    What if I'm staying at a Domestic Violence Shelter?
+content: |
+    ${card_start("Warning", color="warning")}
+    As a reminder, if you are staying at a domestic violence shelter, do NOT write the physical address of the domestic violence shelter anywhere. Most shelters have a P.O. Box you can use if the court needs to contact you or mail you anything.
+    ${card_end()}
+---
+question: |
+    **Your Information:** Provide Your Mailing Address
+subquestion: |
+    Provide your mailing address, and make sure it matches the address written on your other court forms.
+    ${prog_disclose(confidentialaddress_explanation)}
+    ${prog_disclose(dv_shelter_warning)}
+    #####Your Mailing Address:
+fields:
+    - Street address: pet.address.street
+    - Apartment or Unit: pet.address.unit
+      required: False
+    - City: pet.address.city
+    - State: pet.address.state
+      code: states_list()
+    - Zip: pet.address.zip
+---
+question: |
+    Your Contact Information:
+subquestion: |
+    As a reminder, providing your contact information is optional. Make sure this information matches what you've written on your other court forms. 
+
+    If you do not want the other party to be able to see your personal contact information, you may opt to leave these fields blank or provide an alternative phone number, email, or fax number that you are comfortable with the Other Party seeing. 
+
+    Any contact information you provide may be used if the court needs to reach you.
+fields:
+    - Phone Number: pet.phone
+      hint: '###-###-####'
+      required: False
+    - Email: pet.email
+      required: False
+    - Fax: pet.fax
+      required: False
+---
+question: |
+    **Other Party's Name**
+subquestion: |
+    Provide the Other Party's full legal name. This should match the name written on your other court forms.
+fields:
+    - First name: resp.name.first
+    - Middle name (if applicable): resp.name.middle
+      required: false
+    - Last name: resp.name.last
+    - Suffix (if applicable): resp.name.suffix
+      required: false
+      datatype: combobox
+      code: |
+          name_suffix()
+      help: |
+          You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+    Identify your Court
+subquestion: |
+    Provide the following information about the Court in which you are filing your paperwork. Make sure that this information matches the information on your other court forms regarding the identity of the court where you are filing your DVRO case.
+fields:
+    - Court name: court_name
+      maxlength: 28
+    - County: court_county
+      code: counties_list
+    - note: |
+          Please provide the court's address below
+    - Street: courtstreetaddress_street
+    - Does the court have a different mailing address?: different_mailing_address
+      datatype: yesnoradio
+    - Specify Mailing Address: different_mailing_address_specify
+      show if: different_mailing_address
+    - City: courtstreetaddress_city
+    - Zip code: courtstreetaddress_zip
+
+    - note: '#####Additional Case Information'
+    - Case Number (if you've been assigned one): case_number
+      required: False
+      help: |
+          Your case number will be stamped or written at the top of any forms you've filed with the court. If you have not filed any court forms with the court, you do not have a case number yet and you may leave this field blank.
+---
+#### start of children question blocks
+question: |
+    **Do you and ${resp} have children?**
+subquestion: |
+    #####Do you and ${ resp.name.first } have minor children together?
+
+    This includes:
+
+    - Children born to you and ${resp.name.first} who are under 18. 
+    - Any children you have legally adopted with ${resp.name.first} who are under 18. 
+
+    This does not include:
+
+    - Any of your children aged 18 or older.
+    - Any of your children or any minor children under your care whose other parent is not ${resp.name.first}.
+    - Any of your step-children whose other parent is ${resp.name.first}.
+fields:
+    - Are you and ${ resp.name.first } the parents (together) of a child or children under 18 years old?: children.there_are_any
+      datatype: yesnoradio
+    - How many of your children with ${resp.name.first} are under 18?: children.target_number
+      datatype: integer
+      max: 10
+      show if: children.there_are_any
+---
+#### start of child support question blocks
+question: |
+    **Requesting Orders:** Child Support
+fields:
+    - Are you requesting child support orders?: requesting_childsupport
+      datatype: yesnoradio
+      label above field: true
+---
+question: |
+    **Requesting Orders:** Child Support
+subquestion: |
+    Provide the following information about your children and their related expenses.
+fields:
+    - note: |
+          **Parenting Arrangement**
+    - What percentage of time do your children spend with **you** or that you would like the court to order that your children spend with you (versus ${resp.name.first})?: percent_time_with_pet
+      datatype: integer
+      min: 0
+      max: 100
+      hint: 'Examples: 100%, 50%, etc.'
+      required: false
+      help: |
+          Input the percentage of time you wish to have with your children versus the other party—e.g., 90-10, 80-20, 70-30, etc. For example, if the children spend all of their time with you, and no time with ${resp.name.first}, you would write 100*
+    - If you are not sure about the percentage, or a schedule has not been agreed upon, please describe your typical parenting schedule here: parenting_schedule_summary
+      input type: area
+      required: false
+    - note: |
+          **Children's health-care expenses**
+    - Do you have health insurance available to you for the children through your job?: health_insurance_through_job
+      datatype: yesnoradio
+    - Name of insurance company: insurance_company
+      show if: health_insurance_through_job
+    - Address of insurance company: insurance_company_address
+      input type: area
+      show if: health_insurance_through_job
+    - The monthly cost for the children's health insurance is or would be: health_insurance_cost
+      datatype: currency
+    - note: |
+          **Additional expenses for children in this case**
+    - Do you pay for childcare so you can work or get job training?: childcare_for_work
+      datatype: yesnoradio
+    - Monthly cost of childcare during your working/training hours: childcare_for_work_amount
+      datatype: currency
+      show if: childcare_for_work
+
+    - Monthly cost of children's healthcare not covered by insurance: childrens_healthcare
+      datatype: currency
+
+    - Monthly cost of travel expenses for visitation (if applicable): travel_expenses
+      datatype: currency
+      required: false
+
+    - Monthly cost of children's educational or other special needs: childrens_educational_or_specialneeds_expenses
+      datatype: currency
+      maxlength: 100
+
+    - If you wrote an amount (greater than $0) for "Children's educational or other special needs" above, please specify the child or children's needs: childrens_educational_or_specialneeds_expenses_specify
+      required: false
+    - note: |
+
+          ${card_start("Special hardships:", color="info")}
+          Provide information about any of the following special financial circumstances you are experiencing that you would like the court to consider in its determination of child support. Some examples of special hardships may include: unforeseen medical expenses for a child's ongoing treatment, loss of employment or significant reduction in income due to the COVID-19 pandemic, extraordinary educational expenses for a child with special needs, substantial debt obligations resulting from a previous marriage or partnership, and other unique financial hardships that you believe should be taken into account by the court when determining child support.
+          ${card_end()}
+    - Do you have any extraordinary health expenses?: extraordinary_health_expenses
+      datatype: yesnoradio
+    - Amount per month: extraordinary_health_expenses_amount
+      datatype: currency
+      show if: extraordinary_health_expenses
+    - For how many months?: extraordinary_health_expenses_months
+      datatype: integer
+      show if: extraordinary_health_expenses
+
+    - Have you had any major losses not covered by insurance (*examples include fire, theft, other insured loss, etc.*): major_losses
+      datatype: yesnoradio
+    - Amount per month: major_losses_amount
+      datatype: currency
+      show if: major_losses
+    - For how many months?: major_losses_months
+      datatype: integer
+      show if: major_losses
+
+    - Do you have any expenses from minor children from other relationships who are currently living with you? (if applicable): other_children_expenses
+      datatype: yesnoradio
+    - Amount per month: other_children_expenses_amount
+      datatype: currency
+      show if: other_children_expenses
+    - For how many months?: other_children_expenses_months
+      datatype: integer
+      show if: other_children_expenses
+    - List the names and ages of those children: other_children_expenses_names_and_ages
+      input type: area
+      show if: other_children_expenses
+    - Do you receive child support for these children?: other_children_expenses_childsupport
+      datatype: yesnoradio
+      show if: other_children_expenses
+    - Monthly amount: other_children_expenses_childsupport_amount
+      datatype: currency
+      show if: other_children_expenses_childsupport
+
+    - Do you believe any of the above expenses create an extreme financial hardship?: extreme_financial_hardship
+      datatype: yesnoradio
+    - Explain why the above expenses create an extreme financial hardship for you: extreme_financial_hardship_explanation
+      input type: area
+      show if: extreme_financial_hardship
+
+    - If there is any other information you want the court to know concerning child support in your case, please write it below: other_information_concerning_childsupport
+      input type: area
+      required: false
+      label above field: true
+#### end of child support question blocks
+---
+#### start of spousal support question blocks
+question: |
+    Spousal Support
+subquestion: |
+    % if requesting_childsupport is False: 
+    You indicated that you are not requesting child support orders at this time. 
+    % endif
+
+    ${card_start("Note for Registered Domestic Partners:", color="info")}
+    Please be aware that the term "spousal support" used throughout this interview pertains interchangeably to both spousal and domestic partner support.
+    ${card_end()}
+fields:
+    - To confirm, are you currently married to or reqistered domestic partners with ${resp.name}?: parties_married
+      datatype: yesnoradio
+    - Are you currently seeking spousal support orders from the court? In other words, did you previously request the court to order ${resp.name.first} to make monthly support payments to you during the 'Request for Domestic Violence Restraining Orders' interview?: requesting_spousal_support
+      datatype: yesnoradio
+      show if: parties_married
+validation code: |
+    if (requesting_childsupport is False and parties_married is False) or (requesting_childsupport is False and requesting_spousal_support is False):
+      validation_error("Based on your responses, you have indicated that you are not requesting child support or spousal/partner support orders at this time. If this is a mistake, please correct your answers. Note that you should not complete this interview if you are not requesting child or spousal/partner support orders. If this is the case, please close this tab and navigate back to the U Do It Legal Members Homepage to start your next interview.")
+---
+#### Start of income and expense question blocks
+question: |
+    Your Employment Information
+fields:
+    - Are you currently employed?: currently_employed
+      datatype: yesnoradio
+      label above field: true
+    - Do you currently receive public assistance?: public_assistance
+      datatype: yesnoradio
+      label above field: true
+---
+question: |
+    Your Employment Information
+fields:
+    - Have you ever been employed?: has_not_been_employed
+      datatype: noyesradio
+      label above field: true
+---
+question: |
+    Your Employment Information
+fields:
+    - note: |
+          Provide information about your current job or, if you are currently unemployed, your most recent job.
+    - Employer: pet.employer
+      help: |
+          If you have never been employed, you may write, "Never Employed"
+    - Employer's Address: pet.employer_address
+    - Employer's Phone Number: pet.employer_phone_number
+      required: false
+    - Occupation/Job Title: pet.occupation
+    - Date Job Started: pet.job_start_date
+      datatype: ThreePartsDate
+      help: |
+          If you do not know an exact date, give your best estimate.
+    - If you are currently unemployed, when did your last job end?: pet.job_end_date
+      datatype: ThreePartsDate
+      required: false
+      help: |
+          Leave this blank if you are currently employed. If you are unemployed, but you do not know the exact date your last job ended, give your best estimate.
+    - How many hours do you typically work in a week?: pet.weekly_hours_worked
+      datatype: integer
+    - What is your gross income?: pet.gross_income
+      datatype: currency
+      help: |
+          In other words, what is your pay before taxes are taken out?
+    - Per: pet.gross_income_payperiod
+      choices:
+          - month: pet.gross_income_monthly
+          - week: pet.gross_income_weekly
+          - hour: pet.gross_income_hourly
+---
+question: |
+    Your Employment Information
+fields:
+    - Do you have a second job?: pet.has_second_job
+      datatype: yesnoradio
+    - note: 'Provide the following information about your second job'
+      show if: pet.has_second_job
+    - Employer: pet.employer_2nd
+      show if: pet.has_second_job
+    - Employer's Address: pet.employer_address_2nd
+      show if: pet.has_second_job
+    - Employer's Phone Number: pet.employer_phone_number_2nd
+      required: false
+      show if: pet.has_second_job
+    - Occupation/Job Title: pet.occupation_2nd
+      show if: pet.has_second_job
+    - Date Job Started (if you do not know an exact date, give your best estimate): pet.job_start_date_2nd
+      datatype: ThreePartsDate
+      show if: pet.has_second_job
+    - How many hours do you typically work in a week?: pet.weekly_hours_worked_2nd
+      datatype: integer
+      show if: pet.has_second_job
+    - note: 'What is your gross income?'
+      show if: pet.has_second_job
+    - In other words, what is your pay before taxes are taken out?: pet.gross_income_2nd
+      datatype: currency
+      show if: pet.has_second_job
+    - Per: pet.gross_income_payperiod_2nd
+      choices:
+          - month: pet.gross_income_monthly_2nd
+          - week: pet.gross_income_weekly_2nd
+          - hour: pet.gross_income_hourly_2nd
+      show if: pet.has_second_job
+---
+question: |
+    Your Education Information
+fields:
+    - Your age: pet.age
+    - Have you completed high school or the equivalent?: pet.education_highschool
+      datatype: yesnoradio
+    - What was the highest grade you completed?: pet.education_highest_grade_completed
+      datatype: integer
+      min: 0
+      max: 11
+      show if:
+          variable: pet.education_highschool
+          is: False
+    - Did you attend college?: attended_college
+      datatype: yesnoradio
+    - How many years of college have you completed?: pet.education_college
+      datatype: integer
+      min: 1
+      max: 5
+      show if: attended_college
+    - Did you obtain any degrees?: pet.education_college_degrees
+      datatype: yesnoradio
+      show if: attended_college
+    - Degrees obtained: pet.education_college_degrees_specify
+      show if: pet.education_college_degrees
+    - Did you attend graduate school?: attended_graduate_school
+      datatype: yesnoradio
+    - How many years of graduate school have you completed?: pet.education_graduate_school
+      datatype: integer
+      min: 1
+      max: 8
+      show if: attended_graduate_school
+    - Did you obtain any graduate degrees?: pet.education_graduate_school_degrees
+      datatype: yesnoradio
+      show if: attended_graduate_school
+    - Graduate Degrees Obtained: pet.education_graduate_school_degrees_specify
+      show if: pet.education_graduate_school_degrees
+    - Do you have any professinal or occupational licenses?: pet.has_professional_licenses
+      datatype: yesnoradio
+    - Please specify: pet.has_professional_licenses_specify
+      show if: pet.has_professional_licenses
+    - Do you have any vocational training?: pet.has_vocational_training
+      datatype: yesnoradio
+      help: |
+          Vocational training refers to instructional programs or courses that focus on the skills required for a particular job function or trade. In vocational training, education prepares students for specific careers, disregarding traditional, unrelated academic subjects. Students typically require vocational training to prepare for trades including, but not limited to: Automotive repair, Plumbing, Culinary arts, Graphic design, Fashion design, and Welding.
+    - Please specify: pet.has_vocational_training_specify
+      show if: pet.has_vocational_training
+---
+question: |
+    Your Tax Information
+fields:
+    - In which tax year did you last file taxes?: taxes_last_filing_year
+    - What is your tax filing status: tax_filing_status
+      choices:
+          - single: tax_filing_status_single
+          - head of household: tax_filing_status_head_of_household
+          - married, filing separately: tax_filing_status_married_filing_separately
+          - married, filing jointly: tax_filing_status_married_filing_jointly
+    - Filing jointly with (specify): tax_filing_status_married_filing_jointly_specify
+      show if:
+          variable: tax_filing_status
+          is: tax_filing_status_married_filing_jointly
+    - Do you file your taxes in California?: tax_filed_in_ca
+      datatype: yesnoradio
+    - In which state did you last file your taxes?: tax_filed_in_state
+      show if:
+          variable: tax_filed_in_ca
+          is: False
+    - How many exemptions do you claim on your taxes?: tax_exemptions
+      datatype: integer
+      help: |
+          The number of tax exemptions you claim depends on your situation. For example, a single filer with no children would likely claim a maximum of 1 tax exemption, while a married couple with one source of income would likely file a joint return with 2 tax exemptions. You can also claim your children as dependents if you support them financially and they’re not past the age of 19. Children attending college can be claimed until the age of 24. For instance, a married couple with one source of income and two minor children would likely file a joint tax return with 4 tax exemptions.
+    - note: |
+          ${card_start("Important Note on Tax Returns:", color="warning")}
+          You will need to take copies of your last 2 year's filed tax returns to your court hearing and be prepared to give them to the other party. Make sure you **black out/redact your social security number.** Do not file these documents with the court.
+          ${card_end()}
+---
+question: |
+    ${resp.name.first}'s Income Information
+fields:
+    - What is ${ resp }'s gross monthly income? In other words, what is ${ resp }'s monthly pay before taxes are taken out? If you do not know, please give your best estimate: resp.gross_monthly_income
+      datatype: currency
+      label above field: true
+    - What is this estimate based on? In other words, why do you think ${ resp } is paid this monthly amount?: resp.gross_monthly_income_explanation
+      maxlength: 85
+---
+question: |
+    Your Income Information
+subquestion: |
+    #####Your Income from Self-Employment
+
+    Note: Even if you provided this information on previous pages, fill it in again below.
+fields:
+    - Are you self-employed?: self_employed
+      datatype: yesnoradio
+      label above field: true
+    - You are the ___ of the business (*choose one*): self_employed_position
+      choices:
+          - Owner/Sole Prioprietor: self_employed_owner
+          - Business Partner: self_employed_business_partner
+          - Other: self_employed_other
+      show if: self_employed
+    - If you selected 'Other' above, specify: self_employed_other_specify
+      required: false
+      show if: self_employed
+    - How many years have you been in this business?: self_employed_years
+      datatype: integer
+      show if: self_employed
+    - Business Name: self_employed_business_name
+      show if: self_employed
+      maxlength: 80
+    - What type of business is it?: self_employed_business_type
+      show if: self_employed
+      maxlength: 80
+    - What was your gross income from this self-employment, after business expenses for all businesses, last month?: self_employed_lm
+      datatype: currency
+      show if: self_employed
+    - What was your gross income from this self-employment, after business expenses for all businesses, over the last year (i.e. over the last 12 months)?: self_employed_ly
+      datatype: currency
+      show if: self_employed
+---
+question: |
+    #####**Upload Your Proof of Income Documents**
+subquestion: |
+    You must file with the court copies of your paystubs or other proof of income documents for the past two months for **each category of income** you have identified. You must file copies of these documents as attachments to your Income and Expense Declaration, which is the form this interview prepares for you. You will want to redact/black out private and sensitive information on these documents, such as your social security number, or your home address if you want it kept confidential.
+
+    If you do not have digital copies of the documents available to upload, you will need to physically attach paper copies to your court forms prior to filing. We provide you with thorough instructions for filing in your **Part 4: Next Steps and Hearing Preparation** interview.
+continue button field: proof_of_income_upload_info
+---
+question: |
+    Your Income Information
+subquestion: |
+    Your Change in Income
+fields:
+    - Has your financial situation changed significantly over the last 12 months?: change_in_income
+      datatype: yesnoradio
+      help: |
+          For example, some common reasons for significant changes in income include getting a new job, being laid off, or having a child.
+    - Briefly explain this change in income: change_in_income_specify
+      show if: change_in_income
+---
+question: |
+    Your Income Information
+subquestion: |
+    Your Deductions
+fields:
+    - note: |
+          For each type of deduction below, please provide the amount **deducted from your monthly income**. Write '0' for any deductions that do not apply.
+    - Required union dues: union_dues
+      datatype: currency
+    - Required retirement payments (not Social Security, FICA, 401(k) or IRA): required_retirement_payments
+      datatype: currency
+    - Medical, hospital, dental, and other health insurance premiums (*  total monthly amount*): medical_premiums
+      datatype: currency
+    - Child support (*that you pay*): child_support_deductions
+      datatype: currency
+    - Spousal support (*that you pay*): spousal_support_deductions
+      datatype: currency
+    - Partner support (*that you pay*): partner_support_deductions
+      datatype: currency
+    - Necessary, job-related expenses not reimbursed by my employer: job_related_expenses
+      datatype: currency
+    - Specify the type of necessary, job-related expenses, if applicable: job_related_expenses_specify
+      required: false
+---
+template: realproperty_explanation
+subject: 'What is **Real Property**?'
+content: |
+    Real property is real estate. Some common examples include: 
+
+      - A Family Home (owned, not leased)
+      - Vacation home
+      - Rental/Investment Property (that you own)
+      - Commercial Property (e.g., office building or retail shopping center)
+      - Raw Land
+      - Timeshares
+      - Fractional Interest Property (e.g., a single piece of property with multiple owners)
+---
+template: personalproperty_explanation
+subject: 'What is **Personal Property**?'
+content: |
+    Personal property is defined as all property except real property (see definition above). Some common examples of personal property include: 
+
+    - Vehicles (that you own, not leased) 
+    - Furniture, electronics, and appliances
+    - Clothing
+    - Jewelry and Collectibles
+---
+question: |
+    Your Financial Circumstances
+subquestion: |
+    #####**Cash and Money**
+fields:
+    - What is the total monetary amount of cash and money deposited in checking, savings, credit union, money market accounts, and any other deposit accounts you have whether in your name alone, with the other party, or held with anyone else? Provide your best estimate. If you have no cash or any such deposit accounts, please enter "0": assets_cash_and_deposit_accounts
+      datatype: currency
+      label above field: true
+    - What is the total monetary value of any and all stocks, bonds, and other assets you have whether in your name alone, with the other party, or held by anyone else and which you could easily sell? If none, write '0': assets_stocks_and_bonds
+      datatype: currency
+      label above field: true
+    - note: '#####**Real Property**'
+    - note: '${prog_disclose(realproperty_explanation)}'
+    - Do you own any real property? (see definition above): owns_real_estate
+      datatype: yesnoradio
+    - Estimate the total, fair market value of your real property less (minus) all debts owed against such property (e.e., mortgage, line of credit, other deeds or trust/liens). If you do not own any real property, you may write '0': assets_real_property
+      datatype: currency
+      help: 'To calculate fair market value, estimate how much you could reasonably sell your real property for, minus any debts you owe.'
+
+    - note: '#####**Personal Property**'
+    - note: '${prog_disclose(personalproperty_explanation)}'
+    - Estimate the total, fair market value of all of your personal property, less (minus) any debts owed against that property: assets_personal_property
+      datatype: currency
+      label above field: true
+      help: 'To calculate fair market value, estimate how much you could reasonably sell your assets for, minus any debts you owe.'
+---
+question: |
+    Your Expense Information
+subquestion: |
+    Household members include, but are not limited to, roommates, significant others, spouses or domestic partners, or family members such as children, parents, or extended family.
+fields:
+    - Does anyone else live in the same household as you?: householdmembers.there_are_any
+      datatype: yesnoradio
+    - Not including yourself, how many people live in your household?: householdmembers.target_number
+      datatype: integer
+      show if: householdmembers.there_are_any
+---
+question: |
+    Your Expense Information
+subquestion: |
+    % if householdmembers.target_number == 1:
+    Tell us about the other person that lives with you.
+    % elif householdmembers.target_number >= 2 and i == 0:
+    Tell us about the **first** person that lives with you.
+    % else:
+    You told us about **${comma_and_list([householdmembers.name for householdmembers in householdmembers.complete_elements()])}**. 
+    Now tell us about the **${ordinal(i)}** person that lives with you. 
+    % endif
+fields:
+    - First name: householdmembers[i].name.first
+    - Middle name (if applicable): householdmembers[i].name.middle
+      required: false
+    - Last name: householdmembers[i].name.last
+    - Suffix (if applicable): householdmembers[i].name.suffix
+      required: False
+      datatype: combobox
+      code: |
+          name_suffix()
+    - Age: householdmembers[i].age
+      datatype: integer
+    - How is this person related to you? (*i.e. this person is my ____*): householdmembers[i].relationship
+      hint: |
+          Examples: Son, Wife, Mother, etc.
+    - What is this person's gross monthly income? Include any public assistance received, if applicable. If this household member does not have an income, you may write '0': householdmembers[i].income
+      datatype: currency
+    - Does this household member pay some of the household expenses? (*This may include helping pay for rent, food, bills, childcare costs, etc.*): householdmembers[i].pays_expenses
+      datatype: yesnoradio
+---
+template: expensesinstructions_explanation
+subject: |
+    **READ ME:** INSTRUCTIONS
+content: |
+    * Provide the **average monthly** amounts that you spend on each of the following expenses. If you do not spend any money on a particular expense, you may write '0'. 
+
+    * Make sure that the amounts listed are what your **whole household**, and not just you, spend each month. You will provide the amount of expenses paid by others on the following pages.
+
+    * If you only make certain purchases a few times a year, add up the amount you would typically spend in a year and divide it by 12 to get an average monthly amount. For example:
+        - *If you spend $120 on school supplies every fall for your child, divide that by 12 to get an average monthly expense of $10.* 
+        - *If you spend $1200 a year on birthdays, Christmas, and other gifts, the average monthly amount spent after dividing by 12 would be $100.*
+
+    * Make sure you account for all of your household's expenses. Consider these examples: 
+        - *Do you pay to park your car in a lot or garage?*
+        - *Do you donate to charity or church?* 
+        - *Do you pay for any sports activities you or your children play?*
+        - *Are you or any household member enrolled in an educational activity, such as classes to get a real estate license?*
+---
+question: |
+    Your Expense Information
+subquestion: |
+    **Your Average Monthly Household Expenses**
+
+    Read these instructions **before** answering the questions below:
+    ${prog_disclose(expensesinstructions_explanation)}
+fields:
+    - Indicate whether the monthly household expenses you will be listing below are estimated, actual, or based on your proposed needs (i.e., you expect these to be your expenses each month): expenses_type
+      choices:
+          - Estimated: expenses_estimated
+          - Actual: expenses_actual
+          - Proposed needs: expenses_proposedneeds
+    - Do you have a mortgage?: has_mortgage
+      datatype: yesnoradio
+    - Monthly mortgage payment: mortgage_payment
+      datatype: currency
+      show if: has_mortgage
+    - Average principal: mortgage_principal
+      datatype: currency
+      show if: has_mortgage
+    - Average interest: mortgage_interest
+      datatype: currency
+      show if: has_mortgage
+    - Real property taxes: real_property_taxes
+      datatype: currency
+      show if: has_mortgage
+    - Homeowner's insurance: homeowners_insurance
+      datatype: currency
+      show if: has_mortgage
+    - Maintenance and Repair: maintenance_and_repair
+      datatype: currency
+      show if: has_mortgage
+    - Rent payment: rent_payment
+      datatype: currency
+      show if:
+          variable: has_mortgage
+          is: false
+    - Renter's insurance: renters_insurance
+      datatype: currency
+      show if:
+          variable: has_mortgage
+          is: false
+    - Maintenance and repair: maintenance_and_repair
+      datatype: currency
+      show if:
+          variable: has_mortgage
+          is: false
+    - Utilities (gas, electric, water, trash, etc.): utilities
+      datatype: currency
+    - Healthcare costs not covered by insurance: healthcare_costs
+      datatype: currency
+    - Child Care: childcare
+      datatype: currency
+    - Groceries and household supplies: groceries_and_supplies
+      datatype: currency
+    - Eating out: eating_out
+      datatype: currency
+    - Telephone, cell phone, and internet: telephone
+      datatype: currency
+    - Laundry and cleaning: laundry_and_cleaning
+      datatype: currency
+    - Clothes: clothes
+      datatype: currency
+    - Education (Do not include student loans, as we will ask you about installment payments on the next page): education
+      datatype: currency
+    - Entertainment, gifts, and vacation: entertainment
+      datatype: currency
+    - Auto expenses and transportation (gas, repairs, bus, etc.): auto_expenses
+      datatype: currency
+    - Insurance (life, accident, etc.; do not include auto, home, or health insurance): insurance_expenses
+      datatype: currency
+    - Savings and investments: savings_and_investments
+      datatype: currency
+    - Charitable contributions: charitable_contributions
+      datatype: currency
+    - Other: other_household_expenses
+      datatype: currency
+    - Specify the "Other" expense above, if applicable: other_household_expenses_specify
+      required: false
+      maxlength: 28
+---
+question: |
+    Your Expense Information
+subquestion: |
+    **Your Average Monthly Household Expenses:** Installment Payments and Debts 
+
+    Do you have any installment payments and/or debts that you pay each month that you did not list on the prior page? 
+
+    *These can be monthly payments like credit card bills, gym memberships, streaming service subscriptions, student loans, personal loans, etc.*
+yesno: installmentpaymentsanddebts.there_are_any
+---
+question: |
+    Your Expense Information
+subquestion: |
+    **Your Average Monthly Household Expenses:** Installment Payments and Debts
+
+    *These can be monthly payments like credit card bills, gym memberships, streaming service subscriptions, student loans, personal loans, etc.*
+
+    Tell us about your **${ordinal(i)}** installment payment or debt.
+fields:
+    - For: installmentpaymentsanddebts[i].name.text
+      maxlength: 30
+    - Paid to: installmentpaymentsanddebts[i].paid_to
+      maxlength: 30
+    - Amount (*if monthly payments vary, write the average amount*): installmentpaymentsanddebts[i].amount
+      datatype: currency
+    - Balance remaining: installmentpaymentsanddebts[i].balance
+      datatype: currency
+      help: |
+          If your balance varies, you may write the typical balance due each month.
+    - Date of last payment: installmentpaymentsanddebts[i].date
+      datatype: ThreePartsDate
+---
+question: |
+    Your Expense Information
+subquestion: |
+    **Your Average Monthly Household Expenses:** Installment Payments and Debts 
+
+    Do you have any more installment payments and/or debts?
+yesno: installmentpaymentsanddebts.there_is_another
+---
+#### start of attorneys fees question blocks
+question: |
+    **Requesting Orders:** Attorney's Fees
+fields:
+    - Did you request an order for payment of your attorney's fees and costs?: requesting_attorneysfees
+      datatype: yesnoradio
+---
+question: |
+    **Requesting Orders:** Attorney's Fees
+subquestion: |
+    If you did NOT previously hire and pay for an attorney to represent you in this case, write '0' for each monetary amount requested below.
+fields:
+    - To date, I have paid my prior attorney this amount of fees and costs (*specify*): attorneysfees_paid
+      datatype: currency
+    - Briefly explain what the source of this money was: attorneysfees_paid_source
+      help: 'If you did not previously hire and pay for an attorney to represent you in this case, write "n/a"'
+    - I still owe the following fees and costs to my prior attorney (*specify total owed*): attorneysfees_owed
+      datatype: currency
+    - My prior attorney's hourly rate is (*specify*): attorneysfees_hourlyrate
+      datatype: currency
+---
+question: |
+    Your Employment Information
+fields:
+    - Are you currently employed?: pet.employed
+      datatype: yesnoradio
+    - Job Title: pet.occupation_title
+      hide if:
+          variable: pet.employed
+          is: False
+    - Name of Employer: pet.employer_name
+      hide if:
+          variable: pet.employed
+          is: False
+    - Employer's Address: pet.employer_address2
+      hide if:
+          variable: pet.employed
+          is: False
+---
+question: |
+    Your Income Information
+subquestion: |
+    Does your income change a lot from month to month?
+under: |
+    *If it does, complete the next sections based on your average income for the past 12 months*
+yesno: monthly_income_changes
+---
+question: |
+    Your Income Information
+subquestion: |
+    **Overview of Your Sources of Income**
+
+    For each of the following categories of income applicable to you, provide the gross amount (the amount before taxes) you made last month, as well as the gross amount you made in the past year (the last 12 months from the date you are preparing this form). 
+
+    For any category of income that is not applicable to you, write '0' as every line is required to be filled in.
+fields:
+    - note: |
+          **Salary or Wages from Employment**
+    - Last Month: salary_lm
+      datatype: currency
+    - Last 12 Months: salary_ly
+      datatype: currency
+    - note: |
+          **Overtime**
+    - Last Month: overtime_lm
+      datatype: currency
+    - Last 12 Months: overtime_ly
+      datatype: currency
+    - note: |
+          **Commissions or Bonuses**
+    - Last Month: commissions_lm
+      datatype: currency
+    - Last 12 Months: commissions_ly
+      datatype: currency
+    - note: |
+          **Public Assistance**
+    - Last Month: publicassistance_lm
+      datatype: currency
+    - Last 12 Months: publicassistance_ly
+      datatype: currency
+    - note: |
+          **Spousal Support**
+    - Do you pay spousal support?: spousal_support
+      datatype: yesnoradio
+    - Do you pay spousal support to ${resp}?: spousal_support_this_marriage
+      datatype: yesnoradio
+      show if: spousal_support
+      help: |
+          If you select 'No', our software will note that you pay spousal support for a previous marriage.
+    - Last Month: spousalsupport_lm
+      datatype: currency
+      show if: spousal_support
+    - Last 12 Months: spousalsupport_ly
+      datatype: currency
+      show if: spousal_support
+    - Are these support payments tax deductible?: spousal_support_tax_deductible
+      datatype: yesnoradio
+      show if: spousal_support
+      help: |
+          In other words, was this spousal support ordered prior to January 1, 2019, or was there a court-ordered change that maintains spousal support payments as taxable income to the recipient and tax deductible to the payor?
+    - note: |
+          **Partner Support**
+    - Do you pay partner support?: partner_support
+      datatype: yesnoradio
+    - Do you pay partner support to ${resp}?: partner_support_this_dp
+      datatype: yesnoradio
+      show if: partner_support
+      help: |
+          If you select 'No', our software will note that you pay partner support for a previous domestic partnership.
+    - Last Month: partnersupport_lm
+      datatype: currency
+      show if: partner_support
+    - Last 12 Months: partnersupport_ly
+      datatype: currency
+      show if: partner_support
+    - note: |
+          **Pension/Retirement Fund Payments (that you receive)**
+    - Last Month: pension_lm
+      datatype: currency
+    - Last 12 Months: pension_ly
+      datatype: currency
+    - note: |
+          **Social Security Retirement (*not* SSI)**
+    - Last Month: socialsecurityretirement_lm
+      datatype: currency
+    - Last 12 Months: socialsecurityretirement_ly
+      datatype: currency
+    - note: |
+          **Disability**
+    - Last Month: disability_lm
+      datatype: currency
+    - Last 12 Months: disability_ly
+      datatype: currency
+    - If applicable, please indicate which type of disability you receive: disability_type
+      required: false
+      choices:
+          - Social Security (not SSI): disability_socialsecurity
+          - State Disability (SDI): disability_sdi
+          - Private Insurance: disability_privateinsurance
+    - note: |
+          **Unemployment Compensation**
+    - Last Month: unemployment_lm
+      datatype: currency
+    - Last 12 Months: unemployment_ly
+      datatype: currency
+    - note: |
+          **Worker's Compensation**
+    - Last Month: workerscomp_lm
+      datatype: currency
+    - Last 12 Months: workerscomp_ly
+      datatype: currency
+    - note: |
+          **Other (Military Allowances, Royalty Payments, etc.)**
+    - Last Month: other_lm
+      datatype: currency
+    - Last 12 Months: other_ly
+      datatype: currency
+    - If you listed income amounts under 'Other' above, please specify the source of income: otherincomesource_specify
+      required: false
+      maxlength: 35
+    - note: |
+          #####**Your Sources of Investment Income**
+    - Do you claim any sources of investment income? Common examples include Dividends/Interest, Rental Property Income, and Trust Income.: investment_income
+      datatype: yesnoradio
+    - note: |
+          **Dividends/Interest**
+      show if: investment_income
+    - Last Month: dividends_lm
+      datatype: currency
+      show if: investment_income
+    - Last 12 Months: dividends_ly
+      datatype: currency
+      show if: investment_income
+    - note: |
+          **Rental Property Income**
+      show if: investment_income
+    - Last Month: rentalprop_lm
+      datatype: currency
+      show if: investment_income
+    - Last 12 Months: rentalprop_ly
+      datatype: currency
+      show if: investment_income
+    - note: |
+          **Trust Income**
+      show if: investment_income
+    - Last Month: trust_lm
+      datatype: currency
+      show if: investment_income
+    - Last 12 Months: trust_ly
+      datatype: currency
+      show if: investment_income
+    - note: |
+          **Other Investment Income**
+      show if: investment_income
+    - Last Month: otherinvestment_lm
+      datatype: currency
+      show if: investment_income
+    - Last 12 Months: otherinvestment_ly
+      datatype: currency
+      show if: investment_income
+    - If you listed investment income amounts under 'Other' above, please specify the source of income: otherinvestmentincomesource_specify
+      required: false
+      show if: investment_income
+      maxlength: 65
+    - note: |
+          #####**Your Additional Income**
+    - Have you received one-time money (lottery winnings, inheritance, etc.) in the last 12 months?: additional_income
+      datatype: yesnoradio
+      label above field: true
+    - Specify the **source** and **amount** of this additional income: additional_income_specify
+      show if: additional_income
+      maxlength: 85
+---
+question: |
+    Optional Resource: Child Support Calculator
+subquestion: |
+    **Guideline Support**
+
+    California law requires courts to adhere to statewide uniform guidelines in setting child support orders (i.e. determining the appropriate amount for child support payments). You may estimate the guideline child support payments in your case by using the California Child Support Service's [Guideline Calculator](https://childsupport.ca.gov/guideline-calculator/), which applies the statewide uniform guideline calculation once you enter your income and expense information into it. 
+
+    **How does the court calculate guideline support?**
+
+    The guideline support calculator will consider the following information:
+
+    * Each parent’s monthly gross income
+    * The percentage of time each child spends with each parent (note: you should input in the section that requires this information the percentage of time you wish to have with your children versus the other party—e.g., 90-10, 80-20, 70-30, etc.)
+    * Any available income tax deductions that the parents can claim, such as mortgage interest, property taxes
+    * Mandatory payroll deductions, such as health insurance, pensions, and union dues, and child care costs incurred by either parent.
+
+    Once you input this financial information into the calculator, it will calculate estimated child support and related amounts for one or both parents.
+
+    For more information on how guideline child support determinations are made, please review [Family Code Sections 4050-4076](https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=FAM&division=9.&title=&part=2.&chapter=2.&article=2.).
+continue button field: child_support_calculator
+---
+question: |
+    Optional Resource: Spousal Support Calculator
+subquestion: |
+    ${card_start("Note for Registered Domestic Partners:", color="info")}
+    Please be aware that the term "spousal support" will be used interchangeably to encompass both spousal and domestic partner support throughout this interview.
+    ${card_end()}
+
+    **Calculating Temporary Spousal Support**
+
+    In most courts, the judge/judicial officer uses a computer based formula to determine temporary spousal support. In other courts, the judge might elect to use another type of formula. For example, a judge may use the following temporary spousal support formula: 
+
+    Monthly support = 40% of the higher earner’s net monthly income minus 50% of the lower earner’s net monthly income  
+
+    These formulas are guidelines that the judge might vary at his or her discretion.  
+
+    **Helpful Support Calculator**
+
+    Each county's Superior Court may use a different guideline for spousal support determinations. If you want to get an estimate on what the spousal support might be in your case, the [California Maintenance (Alimony) Calculator](https://calculators.law/calculators/maintenance/california) can do so for you. However, the "Maintenance Payment" calculated by this program is solely an estimate, and should not be relied upon as what the court might order.  
+
+    ${prog_disclose(support_calculator_disclaimer)}
+continue button field: spousal_support_calculator
+---
+template: support_calculator_disclaimer
+subject: 'Disclaimer'
+content: |
+    The information and materials on the Legal Calculators website are provided "as is." As stated on its website, "Legal Calculators makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties, including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights. Further, Legal Calculators does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its Internet website or otherwise relating to such materials or on any sites linked to this site.
+
+    This calculator has not been approved by the State of California and is for estimation purposes only. No guarantee is made regarding its accuracy. We do not advise you to rely solely on this program in calculating support and do accept any liability from your use of the program. Additionally, this calculator does not constitute legal advice and is limited to estimation of spousal support based on limited input. You should consult a qualified attorney to obtain accurate legal advice regarding your specific spousal support rights and obligations. Only support calculations computed by certified software programs are admissible in court. This calculator is not certified or admissible for court use."
+---
+code: |
+    def sum_if_defined(*pargs):
+      total = 0
+      for source in pargs:
+        if defined(source):
+          total += value(source)
+      return total
+---
+code: |
+    total_installmentpayments = sum(item.amount for item in installmentpaymentsanddebts)
+
+    total_monthly_expenses = sum_if_defined('mortgage_payment', 'rent_payment', 'real_property_taxes', 'homeowners_insurance', 'renters_insurance', 'maintenance_and_repair', 'healthcare_costs', 'childcare', 'groceries_and_supplies', 'eating_out', 'utilities', 'telephone', 'laundry_and_cleaning', 'clothes', 'education', 'entertainment', 'auto_expenses', 'insurance_expenses', 'savings_and_investments', 'charitable_contributions', 'other_household_expenses', 'total_installmentpayments')
+---
+question: |
+    Your Expense Information
+subquestion: |
+    Based on your answers to our deduction and expense information questions, your average **Total Monthly Household Expenses** = $${total_monthly_expenses}
+fields:
+    - note: 'Write the total monthly amount that other people (*such as your spouse, roommates, relatives, etc.*) pay for all the total monthly household expenses.'
+    - Amount of expenses paid by others: expenses_paid_by_others
+      datatype: currency
+continue button field: totalexpenses
+---
+question: |
+    When do you plan on filing?
+subquestion: |
+    We automatically answer "today" for you, below. You can change the date. If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file
+fields:
+    - When do you plan to file these forms with the court?: filing_date
+      datatype: date
+      default: ${today().format("yyyy-MM-dd")}
+---
+mandatory: true
+event: download_forms
+question: |
+    Your forms are ready to download.
+subquestion: |
+    Thank you. Your completed forms are ready to download and deliver.
+
+    ${prog_disclose(review_your_forms)}
+    ${prog_disclose(edit_if_needed)}
+    ${prog_disclose(sign_the_forms)}
+    ${prog_disclose(next_steps_interview)}
+
+    ${prog_disclose(next_interview)}
+
+    ${prog_disclose(next_interview)}
+
+    % if not x.has_exhibits:
+    As a reminder, you must attach physical copies of the following documents to the back of your court forms: 
+
+    - **For each source of income claimed:** Copies of pay stubs for the last two months or comparable proof of income documents 
+    % endif
+    % if not x.has_exhibits and investment_income:
+    - **For each piece of property/source of investment income:** Schedule showing gross receipts less cash expenses (such as Schedule E)
+    % endif
+    % if not x.has_exhibits and self_employed:
+    - **For each business/source of self-employment income:** Profit and Loss statement for the past 2 years OR a Schedule C from your last federal tax return 
+    % endif
+
+    ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download Completed FL-150 and Attachments", icon='download') } 
+
+    ${ al_user_bundle.send_button_html() }
+---
+template: review_your_forms
+subject: |
+    **Step 1:** Review Your Forms
+content: |
+    **Review Your Forms:** Examine the form(s) generated below. Clicking the 'Download' button will either open your completed forms as an editable PDF in a new tab or save them directly to your device. Alternatively, you can choose to email the forms to yourself using the 'Send' button.
+---
+template: edit_if_needed
+subject: |
+    **Step 2:** Edit If Needed
+content: |
+    **Edit if Needed:** If any corrections are necessary, feel free to edit the forms directly in your browser, using a PDF editor of your choice, or by printing them out and making changes with a pen in blue or black ink. Remember, it's okay to cross out or use white-out for corrections, but ensure the forms are still clean and easy to read.
+---
+template: sign_the_forms
+subject: |
+    **Step 3:** Sign the Forms
+content: |
+    **Sign the Forms:** Carefully review each page and provide your signature on any sections that require it. If additional documents are attached to the completed court forms, write in the number of pages attached on any sections that require it.
+---
+template: next_steps_interview
+subject: |
+    **Step 4:** Next Steps
+content: |
+    **Next Steps:** Once you're satisfied with your forms, head back to your membership homepage to continue with the next relevant interview.
+---
+template: next_interview
+subject: |
+    **Which Interview Do I Complete Next?**
+content: |
+    - Complete interview **Part 3.2: Child Custody, Visitation, and Support** if you and ${resp.name.first} have minor children together
+    - Complete interview **Part 3.3: Request to Keep Minor's Information Confidential** if you'd like to ask the court to keep information about your minor child(ren) confidential from the public or ${resp.name.first}
+    - Complete interview **Part 4: Next Steps** once you are finished with each applicable interview in Part 3. If you are not requesting any child support, spousal support, child custody and visitation, or lawyer's fees and costs orders, skip straight to this interview. 
+    - Complete interview **Part 4.1: Request to Reschedule Hearing** before the scheduled hearing (the hearing will be scheduled when you file all your court forms with the court clerk) if you need to request that the court postpone/reschedule the hearing for good cause.
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+    Get a copy of the documents in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+    Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+    Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+    % if len(x) > 1:
+    Your ${ x.title } document is ready
+    % else:
+    Your "${ x.title }" documents are ready
+    % endif
+content: |
+    Thank you for using U Do It Legal!
+
+    Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### Attachment objects
+objects:
+    - al_user_bundle: ALDocumentBundle.using(elements=[FL_150_attachment, exhibit_attachment], title="Forms to download and deliver to court", filename="Completed_Income_and_Expense_Declaration.pdf")
+---
+objects:
+    - FL_150_attachment: ALDocument.using(filename="FL_150", title="FL-150, Income and Expense Declaration", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+    - exhibit_attachment: ALExhibitDocument.using(
+          title="Proof of Income Documents",
+          filename="exhibit_attachment",
+          add_page_numbers=True,
+          include_table_of_contents=True,
+          include_exhibit_cover_pages=False,
+          )
+---
+attachment:
+    variable name: FL_150_attachment.addendum
+    docx template file: FL_150_Attachment.docx
+---
+code: |
+    FL_150_attachment.overflow_fields['change_in_income_specify'].overflow_trigger = 85
+    FL_150_attachment.overflow_fields['change_in_income_specify'].label = "9. Change in income. My financial situation has changed significantly over the last 12 months because (specify)"
+    FL_150_attachment.overflow_fields['householdmembers'].overflow_trigger = 5
+    FL_150_attachment.overflow_fields['householdmembers'].label = "12. The following people live with me"
+    FL_150_attachment.overflow_fields['installmentpaymentsanddebts'].overflow_trigger = 6
+    FL_150_attachment.overflow_fields['installmentpaymentsanddebts'].label = "14. Installment payments and debts not listed above"
+    FL_150_attachment.overflow_fields['parenting_schedule_summary'].overflow_trigger = 450
+    FL_150_attachment.overflow_fields['parenting_schedule_summary'].label = "16b. Parenting schedule"
+    FL_150_attachment.overflow_fields['extreme_financial_hardship_explanation'].overflow_trigger = 450
+    FL_150_attachment.overflow_fields['extreme_financial_hardship_explanation'].label = "19. The expenses listed in a, b, and c create an extreme financial hardship because (explain)"
+    FL_150_attachment.overflow_fields['other_information_concerning_childsupport'].overflow_trigger = 345
+    FL_150_attachment.overflow_fields['other_information_concerning_childsupport'].label = "20. Other information I want the court to know concerning support in my case"
+    FL_150_attachment.overflow_fields.gathered = True
+---
+attachment:
+    variable name: FL_150_attachment[i]
+    name: FL-150, Income and Expense Declaration
+    filename: FL-150-attachment
+    skip undefined: True
+    pdf template file: FL-150_INCOME_AND_EXPENSE_DECLARATION.pdf
+    fields:
+        - pet_name: '${pet.name}'
+        - pet_street_address: '${pet.address.street}'
+        - pet_city: '${pet.address.city}'
+        - pet_state: '${pet.address.state}'
+        - pet_zip: '${pet.address.zip}'
+        - pet_phone: '${pet.phone}'
+        - pet_email: '${pet.email}'
+        - in_pro_per: 'In Pro Per'
+        - court_county: '${court_county}'
+        - court_street_address: '${ courtstreetaddress_street}'
+        - court_mailing_address: |
+              % if different_mailing_address:
+              ${different_mailing_address_specify}
+              % else: 
+              ${courtstreetaddress_street}
+              % endif
+        - court_city_state_zip: '${ courtstreetaddress_city }, CA ${courtstreetaddress_zip}'
+        - court_name: '${court_name}'
+        - pet_name2: '${pet.name}'
+        - resp_name: '${resp.name}'
+        - case_number: '${case_number}'
+        - employer: '${pet.employer}'
+        - employer_address: '${pet.employer_address}'
+        - employer_phone: '${pet.employer_phone_number}'
+        - occupation: '${pet.occupation}'
+        - job_startdate: '${pet.job_start_date}'
+        - job_enddate: '${pet.job_end_date}'
+        - hours_worked: '${pet.weekly_hours_worked}'
+        - per_week: "${pet.gross_income_payperiod == 'pet.gross_income_weekly'}"
+        - per_month: "${pet.gross_income_payperiod == 'pet.gross_income_monthly'}"
+        - per_hour: "${pet.gross_income_payperiod == 'pet.gross_income_hourly'}"
+        - paid: '${pet.gross_income}'
+        - pet_age: '${pet.age}'
+        - complete_no: '${not pet.education_highschool}'
+        - complete_yes: '${pet.education_highschool}'
+        - highest_grade_completed: '${pet.education_highest_grade_completed}'
+        - degrees_obtained: '${pet.education_college_degrees}'
+        - degrees_obtained_specify: |
+              % if attended_college:
+              ${pet.education_college_degrees_specify}
+              % else: 
+              n/a
+              % endif
+        - college_years_completed: |
+              % if attended_college:
+              ${pet.education_college}
+              % else:
+              0
+              % endif
+        - graduate_degrees_obtained: |
+              % if attended_graduate_school:
+              ${pet.education_graduate_school_degrees}
+              % else:
+              n/a
+              % endif
+        - graduate_school: |
+              % if attended_graduate_school:
+              ${pet.education_graduate_school}
+              % else: 
+              0
+              % endif
+        - professional_licenses: '${pet.has_professional_licenses}'
+        - professional_licenses_specify: '${pet.has_professional_licenses_specify}'
+        - vocational_training: '${pet.has_vocational_training}'
+        - graduate_degrees_obtained_specify: '${pet.education_graduate_school_degrees_specify}'
+        - vocational_training_specify: '${pet.has_vocational_training_specify}'
+        - tax: Yes
+        - tax_year: '${taxes_last_filing_year}'
+        - tax_status_head: "${tax_filing_status == 'tax_filing_status_head_of_household'}"
+        - tax_status_single: "${tax_filing_status == 'tax_filing_status_single'}"
+        - tax_status_married_filing_separately: "${tax_filing_status == 'tax_filing_status_married_filing_separately'}"
+        - tax_status_married_filing_jointly: "${tax_filing_status == 'tax_filing_status_married_filing_jointly'}"
+        - resp_name2: '${tax_filing_status_married_filing_jointly_specify}'
+        - files_taxes_outside_ca: '${not tax_filed_in_ca}'
+        - files_taxes_ca: '${tax_filed_in_ca}'
+        - files_taxes_outside_ca_specify: '${tax_filed_in_state}'
+        - number_of_exemptions: '${tax_exemptions}'
+        - resp_income: '${resp.gross_monthly_income}'
+        - resp_income_explain: '${resp.gross_monthly_income_explanation}'
+        - pages_attached:
+        - date: '${current_datetime()}'
+        - pet_name3: '${pet.name}'
+        - Signature102_es_:signer:signature": '${}'
+        - pet_name4: '${pet.name}'
+        - resp_name3: '${resp.name}'
+        - case_number2: '${case_number}'
+
+        - salary_lm: '${int(salary_lm)}'
+        - salary_avg: '$${int(salary_ly/12)}'
+        - overtime_lm: '${int(overtime_lm)}'
+        - overtime_avg: '$${int(overtime_ly/12)}'
+        - commissions_lm: '${int(commissions_lm)}'
+        - commissions_avg: '$${int(commissions_ly/12)}'
+        - receiving_publicassistance: '${public_assistance}'
+        - publicassistance_lm: '${int(publicassistance_lm)}'
+        - publicassistance_avg: '$${int(publicassistance_ly/12)}'
+        - ss_lm: |
+              % if spousal_support:
+              ${int(spousalsupport_lm)}
+              % else:
+              0
+              % endif
+        - ss_avg: |
+              % if spousal_support:
+              $${int(spousalsupport_ly/12)}
+              % else:
+              $0
+              % endif
+        - ss_from_this_marriage: No
+        - ss_from_different_marriage: '${spousal_support}'
+        - ss_federally_taxable: '${spousal_support_tax_deductible}'
+        - ps_lm: |
+              % if partner_support:
+              ${int(partnersupport_lm)}
+              % else:
+              0
+              % endif
+        - ps_avg: |
+              % if partner_support:
+              $${int(partnersupport_ly/12)}
+              % else:
+              $0
+              % endif
+        - ps_from_different_dp: '${partner_support}'
+        - ps_from_this_dp: No
+        - pension_lm: '${int(pension_lm)}'
+        - pension_avg: '$${int(pension_ly/12)}'
+        - socialsecurity_lm: '${int(socialsecurityretirement_lm)}'
+        - socialsecurity_avg: '$${int(socialsecurityretirement_ly/12)}'
+        - disability_lm: '${int(disability_lm)}'
+        - disability_avg: '$${int(disability_ly/12)}'
+        - disability_privateinsurance: "${disability_type == 'disability_privateinsurance'}"
+        - disability_socialsecurity: "${disability_type == 'disability_socialsecurity'}"
+        - disability_statedisability: "${disability_type == 'disability_sdi'}"
+        - unemployment_lm: '${int(unemployment_lm)}'
+        - unemployment_avg: '$${int(unemployment_ly/12)}'
+        - workerscomp_lm: '${int(workerscomp_lm)}'
+        - workerscomp_avg: '$${int(workerscomp_ly/12)}'
+        - otherincome_lm: '${int(other_lm)}'
+        - otherincome_avg: '$${int(other_ly/12)}'
+        - otherincome_specify: '${otherincomesource_specify}'
+        - dividends_lm: '${int(dividends_lm)}'
+        - dividends_avg: '$${int(dividends_ly/12)}'
+        - rentalprop_lm: '${int(rentalprop_lm)}'
+        - rentalprop_avg: '$${int(rentalprop_ly/12)}'
+        - trust_lm: '${int(trust_lm)}'
+        - trust_avg: '$${int(trust_ly/12)}'
+        - otherinvestmentincome_lm: '${int(otherinvestment_lm)}'
+        - otherinvestmentincome_avg: '$${int(otherinvestment_ly/12)}'
+        - otherinvestmentincome_specify: '${otherinvestmentincomesource_specify}'
+        - selfemployment_lm: |
+              % if self_employed:
+              ${int(self_employed_lm)}
+              % else:
+              0
+              % endif
+        - selfemployment_avg: |
+              % if self_employed:
+              ${int(self_employed_ly/12)}
+              % else:
+              $0
+              % endif
+        - selfemployment_other: "${self_employed_position == 'self_employed_other'}"
+        - selfemployment_owner: "${self_employed_position == 'self_employed_owner'}"
+        - selfemployment_businesspartner: "${self_employed_position == 'self_employed_business_partner'}"
+        - selfemployment_other_specify: '${self_employed_other_specify}'
+        - years_in_business: '${self_employed_years}'
+        - selfemployment_business_name: '${self_employed_business_name}'
+        - selfemployment_business_type: '${self_employed_business_type}'
+        - additional_income: '${additional_income}'
+        - additional_income_explain: '${additional_income_specify}'
+        - change_in_income: '${change_in_income}'
+        - 'change_in_income_explained': ${ FL_150_attachment.safe_value('change_in_income_specify')}
+        - union_dues: |
+              % if currently_employed:
+              ${int(union_dues)}
+              % else: 
+              0
+              % endif
+        - retirement_payments: |
+              % if currently_employed:
+              ${int(required_retirement_payments)}
+              % else: 
+              0
+              % endif
+        - health_insurance_premiums: |
+              % if currently_employed:
+              ${int(medical_premiums)}
+              % else: 
+              0
+              % endif
+        - paid_cs: |
+              % if currently_employed:
+              ${int(child_support_deductions)}
+              % else: 
+              0
+              % endif
+        - paid_ss: |
+              % if currently_employed:
+              ${int(spousal_support_deductions)}
+              % else: 
+              0
+              % endif
+        - paid_ss_taxdeductible: '${spousal_support_tax_deductible}'
+        - paid_ps: |
+              % if currently_employed:
+              ${int(partner_support_deductions)}
+              % else: 
+              0
+              % endif
+        - job_related_expenses: |
+              % if currently_employed:
+              ${int(job_related_expenses)}
+              % else: 
+              0
+              % endif
+        - job_related_expenses_specify: '${job_related_expenses_specify}'
+        - total_cash_and_savings: |
+              ${int(assets_cash_and_deposit_accounts)}
+        - total_stocks_bonds_and_assets: |
+              ${int(assets_stocks_and_bonds)}
+        - total_property_value: '${int(assets_real_property) + int(assets_personal_property)}'
+        - real_property: '${owns_real_estate}'
+        - personal_property: Yes
+        - pet_name5: '${pet.name}'
+        - resp_name4: '${resp.name}'
+        - case_number3: '${case_number}'
+        - hm0_name: '${householdmembers.item(0).name}'
+        - hm0_relationship: '${householdmembers.item(0).relationship}'
+        - hm0_income: '${int(householdmembers.item(0).income)}'
+        - hm0_age: '${householdmembers.item(0).age}'
+        - hm0_yes: '${householdmembers.item(0).pays_expenses}'
+        - hm0_no: '${householdmembers.there_are_any and not householdmembers.item(0).pays_expenses}'
+        - hm1_age: '${householdmembers.item(1).age}'
+        - hm1_relationship: '${householdmembers.item(1).relationship}'
+        - hm1_income: '${int(householdmembers.item(1).income)}'
+        - hm1_name: '${householdmembers.item(1).name}'
+        - hm1_no: '${householdmembers.target_number >= 2 and not householdmembers.item(1).pays_expenses}'
+        - hm1_yes: '${householdmembers.item(1).pays_expenses}'
+        - hm2_relationship: '${householdmembers.item(2).relationship}'
+        - hm2_income: '${int(householdmembers.item(2).income)}'
+        - hm2_age: '${householdmembers.item(2).age}'
+        - hm2_name: '${householdmembers.item(2).name}'
+        - hm2_yes: '${householdmembers.item(2).pays_expenses}'
+        - hm2_no: '${householdmembers.target_number >= 3 and not householdmembers.item(2).pays_expenses}'
+        - hm3_name: '${householdmembers.item(3).name}'
+        - hm3_age: '${householdmembers.item(3).age}'
+        - hm3_relationship: '${householdmembers.item(3).relationship}'
+        - hm3_income: '${int(householdmembers.item(3).income)}'
+        - hm3_yes: '${householdmembers.item(3).pays_expenses}'
+        - hm3_no: '${householdmembers.target_number >= 4 and not householdmembers.item(3).pays_expenses}'
+        - hm4_age: '${householdmembers.item(4).age}'
+        - hm4_relationship: '${householdmembers.item(4).relationship}'
+        - hm4_income: '${int(householdmembers.item(4).income)}'
+        - hm4_name: '${householdmembers.item(4).name}'
+        - hm4_yes: '${householdmembers.item(4).pays_expenses}'
+        - hm4_no: '${householdmembers.target_number >= 5 and not householdmembers.item(4).pays_expenses}'
+
+        - actual_expenses: "${expenses_type == 'expenses_actual'}"
+        - estimated_expenses: "${expenses_type == 'expenses_estimated'}"
+        - proposed_needs: "${expenses_type == 'expenses_proposedneeds'}"
+
+        - laundry: '${int(laundry_and_cleaning)}'
+        - mortgage: '${has_mortgage}'
+        - rent: '${not has_mortgage}'
+        - home_amount: |
+              % if has_mortgage:
+              ${int(mortgage_payment)}
+              % else: 
+              ${int(rent_payment)}
+              % endif
+        - clothes: '${int(clothes)}'
+        - education: '${int(education)}'
+        - avg_principal: |
+              % if has_mortgage:
+              ${int(mortgage_principal)}
+              % else:
+              n/a
+              % endif
+        - entertainment: '${int(entertainment)}'
+        - avg_interest: |
+              % if has_mortgage:
+              ${int(mortgage_interest)}
+              % else:
+              n/a
+              % endif
+        - transportation: '${int(auto_expenses)}'
+        - real_property_taxes: |
+              % if has_mortgage:
+              ${int(real_property_taxes)}
+              % else:
+              n/a
+              % endif
+        - insurance: '${int(insurance_expenses)}'
+        - homeowners_renters_insurance: |
+              % if has_mortgage: 
+              ${int(homeowners_insurance)}
+              % else: 
+              ${int(renters_insurance)}
+              % endif
+        - savings_and_investments: '${int(savings_and_investments)}'
+        - maintenance_and_repair: '${int(maintenance_and_repair)}'
+        - charitable_contributions: '${int(charitable_contributions)}'
+        - healthcare: '${int(healthcare_costs)}'
+        - childcare: '${int(childcare)}'
+        - installment_payments_total: '${int(sum(item.amount for item in installmentpaymentsanddebts))}'
+        - groceries: '${int(groceries_and_supplies)}'
+        - other_monthlyexpenses: '${int(other_household_expenses)}'
+        - other_monthlyexpenses_specify: '${other_household_expenses_specify}'
+        - eating_out: '${int(eating_out)}'
+        - utilities: '${int(utilities)}'
+        - telephone: '${int(telephone)}'
+        - total_expenses: '${int(total_monthly_expenses)}'
+        - expenses_paid_by_others: '${int(expenses_paid_by_others)}'
+        - installmentpayment1_balance: '${int(installmentpaymentsanddebts.item(0).balance)}'
+        - installmentpayment1_to: '${installmentpaymentsanddebts.item(0).paid_to}'
+        - installmentpayment1_for: '${installmentpaymentsanddebts.item(0).name.text}'
+        - installmentpayment1_amount: '${int(installmentpaymentsanddebts.item(0).amount)}'
+        - installmentpayment1_date: '${installmentpaymentsanddebts.item(0).date}'
+        - installmentpayment2_balance: '${int(installmentpaymentsanddebts.item(1).balance)}'
+        - installmentpayment2_to: '${installmentpaymentsanddebts.item(1).paid_to}'
+        - installmentpayment2_for: '${installmentpaymentsanddebts.item(1).name.text}'
+        - installmentpayment2_amount: '${int(installmentpaymentsanddebts.item(1).amount)}'
+        - installmentpayment2_date: '${installmentpaymentsanddebts.item(1).date}'
+        - installmentpayment3_balance: '${int(installmentpaymentsanddebts.item(2).balance)}'
+        - installmentpayment3_to: '${installmentpaymentsanddebts.item(2).paid_to}'
+        - installmentpayment3_for: '${installmentpaymentsanddebts.item(2).name.text}'
+        - installmentpayment3_amount: '${int(installmentpaymentsanddebts.item(2).amount)}'
+        - installmentpayment3_date: '${installmentpaymentsanddebts.item(2).date}'
+        - installmentpayment4_balance: '${int(installmentpaymentsanddebts.item(3).balance)}'
+        - installmentpayment4_to: '${installmentpaymentsanddebts.item(3).paid_to}'
+        - installmentpayment4_for: '${installmentpaymentsanddebts.item(3).name.text}'
+        - installmentpayment4_amount: '${int(installmentpaymentsanddebts.item(3).amount)}'
+        - installmentpayment4_date: '${installmentpaymentsanddebts.item(3).date}'
+        - installmentpayment5_balance: '${int(installmentpaymentsanddebts.item(4).balance)}'
+        - installmentpayment5_to: '${installmentpaymentsanddebts.item(4).paid_to}'
+        - installmentpayment5_for: '${installmentpaymentsanddebts.item(4).name.text}'
+        - installmentpayment5_amount: '${int(installmentpaymentsanddebts.item(4).amount)}'
+        - installmentpayment5_date: '${installmentpaymentsanddebts.item(4).date}'
+        - installmentpayment6_balance: '${int(installmentpaymentsanddebts.item(5).balance)}'
+        - installmentpayment6_to: '${installmentpaymentsanddebts.item(5).paid_to}'
+        - installmentpayment6_for: '${installmentpaymentsanddebts.item(5).name.text}'
+        - installmentpayment6_amount: '${int(installmentpaymentsanddebts.item(5).amount)}'
+        - installmentpayment6_date: '${installmentpaymentsanddebts.item(5).date}'
+        - more_than_6_installments: |
+              % if installmentpaymentsanddebts.number() > 6:
+              See Attachment
+              % endif
+        - attorneysfees_paid: |
+              % if requesting_attorneysfees:
+              ${attorneysfees_paid}
+              % else:
+              n/a
+              % endif
+        - attorneysfees_paid_source: |
+              % if requesting_attorneysfees:
+              ${attorneysfees_paid_source}
+              % else:
+              n/a
+              % endif
+        - attorneysfees_owed: |
+              % if requesting_attorneysfees:
+              ${attorneysfees_owed}
+              % else:
+              n/a
+              % endif
+        - attorneysfees_hourlyrate: |
+              % if requesting_attorneysfees:
+              ${attorneysfees_hourlyrate}
+              % else:
+              n/a
+              % endif
+        - date2: '${current_datetime()}'
+        - pet_name6: '${pet.name}'
+        - Signature103_es_:signer:signature": '${}'
+        - pet_name7: '${pet.name}'
+        - resp_name5: '${resp.name}'
+        - case_number4: '${case_number}'
+        - children_number: '${children.target_number}'
+        - pet_percentage: '${percent_time_with_pet}'
+        - resp_percentage: '${100 - int(percent_time_with_pet)}'
+        - 'timeshare': ${ FL_150_attachment.safe_value('parenting_schedule_summary')}
+        - has_healthinsurance_through_job: '${health_insurance_through_job}'
+        - no_healthinsurance_through_job: '${not health_insurance_through_job}'
+        - insurance_company_name: '${insurance_company}'
+        - insurance_company_address: '${insurance_company_address}'
+        - childrens_healthinsurance_cost: '${int(health_insurance_cost)}'
+        - childcare_for_work: '${int(childcare_for_work_amount)}'
+        - childrens_healthcare_not_covered: '${int(childrens_healthcare)}'
+        - visitation_travel_expenses: '${int(travel_expenses)}'
+        - childrens_special_needs: '${int(childrens_educational_or_specialneeds_expenses)}'
+        - childrens_special_needs_specify: '${childrens_educational_or_specialneeds_expenses_specify}'
+        - extraordinary_health_expenses_amount: '${int(extraordinary_health_expenses_amount)}'
+        - extraordinary_health_expenses_months: '${extraordinary_health_expenses_months}'
+        - major_losses_amount: '${int(major_losses_amount)}'
+        - major_losses_months: '${major_losses_months}'
+        - otherchildren_amount: '${int(other_children_expenses_amount)}'
+        - otherchildren_months: '${other_children_expenses_months}'
+        - otherchildren_names_and_ages: '${other_children_expenses_names_and_ages}'
+        - otherchildren_cs_received: '${int(other_children_expenses_childsupport_amount)}'
+        - 'extreme_financial_hardship_explain': ${ FL_150_attachment.safe_value('extreme_financial_hardship_explanation')}
+        - 'other_information_explain': ${ FL_150_attachment.safe_value('other_information_concerning_childsupport')}
+        - pet_signature_es_:signer:signature: '${}'
+        - pet_signature2_es_:signer:signature: '${}'
+---
+generic object: ALExhibitList
+mandatory: True
+code: |
+    x.enabled = x.exhibits.has_exhibits
+---
+generic object: ALExhibitList
+id: any exhibits
+question: |
+    Upload Your Proof of Income Documents
+subquestion: |
+    ${card_start("Note on Sensitive Information:", color="warning")}
+    Documents filed with the court become part of the public court record unless otherwise exempted. 
+    Make sure you **black out/redact your social security number** on any proof of income documents prior to uploading copies or filing these documents with the court.
+    ${card_end()}
+
+    Based on your responses thus far, you must upload the following documents: 
+
+    - **For each source of income claimed:** Copies of pay stubs for the last two months or comparable proof of income documents 
+    % if investment_income:
+    - **For each piece of property/source of investment income:** Schedule showing gross receipts less cash expenses (such as Schedule E)
+    % endif
+    % if self_employed:
+    - **For each business/source of self-employment income:** Profit and Loss statement for the past 2 years OR a Schedule C from your last federal tax return 
+    % endif
+fields:
+    - Can you upload copies of the proof of income documents above?: x.has_exhibits
+      datatype: yesnoradio
+    - note: 'Okay. You will be reminded to attach physical copies these documents to your completed forms at the end of the interview.'
+      show if:
+          variable: x.has_exhibits
+          is: False
+    - note: |
+          **Okay**. You will have a chance to upload multiple documents. 
+          You can also add additional pages to this document. Note that the title you use for each document will appear on a table of contents organizing your attachments.
+      show if: x.has_exhibits
+    - First document title (e.g., “Pay Stubs,” “Self-Employment Income,” “Dividend/Interest Income”): x[0].title
+      maxlength: 60 # longer might break TOC
+      show if: x.has_exhibits
+    - Upload the first document: x[0].pages
+      show if: x.has_exhibits
+      datatype: files
+      maximum image size: 1024
+      image upload type: jpeg
+      accept: |
+          "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"
+    - note: "Press 'Continue' once you are done uploading the proof of income document."
+validation code: |
+    if x.has_exhibits:
+      if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+        validation_error("Upload a file smaller than 15 MB.")
+      try:
+        pdf_concatenate(x[0].pages)
+      except:
+        validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+      x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+code: |
+    x.there_are_any = x.has_exhibits
+---
+generic object: ALExhibitList
+id: exhibit i
+question: |
+    Upload the ${ ordinal(i) } Proof of Income Document
+subquestion: |
+    You will have a chance to upload additional pages for this document later.
+fields:
+    - Document title: x[i].title
+      maxlength: 60 # longer might break TOC
+    - Upload the first exhibit: x[i].pages
+      datatype: files
+      maximum image size: 1024
+      image upload type: jpeg
+      accept: |
+          "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"
+validation code: |
+    if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[i].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+    if defined('x[i].pages'):    
+      x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i has additional pages
+question: |
+    Upload Your Proof of Income Documents
+subquestion: |
+    Does "**${ x[i] }**" have any additional pages?
+
+    You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+    ${ prog_disclose(x[i].in_progress_template )}
+
+field: x[i].pages.there_is_another
+buttons:
+    - Finished adding pages: False
+    - Add another page: True
+---
+generic object: ALExhibitList
+template: x[i].in_progress_template
+subject: |
+    Preview "${ x[i].title }" so far
+content: |
+    Use the buttons to rearrange the pages.
+
+    ${ x[i].rearrange_pages_table }
+---
+generic object: ALExhibitList
+id: exhibit additional page
+question: |
+    Upload Your Proof of Income Documents
+subquestion: |
+    Upload the ${ ordinal(j) } part of your ${ x[i].title } document
+fields:
+    - Upload a PDF, Word, or image file: x[i].pages[j]
+      datatype: file
+      maximum image size: 1024
+      image upload type: jpeg
+      accept: |
+          "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"
+validation code: |
+    if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[i].pages[j])
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+    x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
+---
+generic object: ALExhibitList
+id: another exhibit
+question: |
+    Upload Your Proof of Income Documents
+subquestion: |
+    As a reminder, you must upload the following documents: 
+
+    - **For each source of income claimed:** Copies of pay stubs for the last two months or comparable proof of income documents 
+    % if investment_income:
+    - **For each piece of property/source of investment income:** Schedule showing gross receipts less cash expenses (such as Schedule E)
+    % endif
+    % if self_employed:
+    - **For each business/source of self-employment income:** Proft and Loss statement for the past 2 years OR a Schedule C from your last federal tax return 
+    % endif
+
+    **You have ${ x.number_gathered() } document(s) so far. Do you have another document
+    you want to upload?**
+
+    ${ prog_disclose(x.in_progress_exhibits) }
+field: x.there_is_another
+buttons:
+    - Finished adding documents: False
+    - Add another document: True
+---
+generic object: ALExhibitList
+template: x.in_progress_exhibits
+subject: |
+    Preview your documents so far
+content: |
+    ${ x.rearrange_exhibits_table }
+---
+generic object: ALExhibitList
+table: x.rearrange_exhibits_table
+rows: x
+allow reordering: True
+delete buttons: True
+columns:
+    - ${ al_exhibit_title_label }: |
+          row_item.title
+    - ${ al_exhibit_preview_label }: |
+          row_item.pages.show(width="50%")
+    - ${ al_exhibit_total_pages_label }: |
+          row_item.pages.num_pages()
+edit:
+    - rearrange_pages
+---
+generic object: ALExhibit
+table: x.rearrange_pages_table
+rows: x.pages
+allow reordering: True
+delete buttons: True
+columns:
+    - ${ al_exhibit_preview_label }: |
+          row_item.show(width="50%")
+---
+template: al_exhibit_preview_label
+content: |
+    Thumbnail
+---
+template: al_exhibit_title_label
+content: |
+    Title
+---
+template: al_exhibit_total_pages_label
+content: |
+    Total pages
+---
+generic object: ALExhibitList
+question: |
+    Review Your Uploaded Proof of Income Documents
+subquestion: |
+    % if x.auto_label:
+    Each document will be labeled in the order below, starting at 
+    ${ x.auto_labeler(0) }, and continuing with ${ x.auto_labeler(1) } and so on.
+
+    % endif
+    ${ x.rearrange_exhibits_table }
+    ${ x.add_action() }
+continue button field: x.rearrange_exhibits
+---
+generic object: ALExhibit
+question: |
+    Review the Order of Your Uploaded Proof of Income Documents
+subquestion: |
+    ${ x.rearrange_pages_table }
+    ${ x.pages.add_action() }
+continue button field: x.rearrange_pages
+---
+generic object: ALExhibit
+attachment:
+    variable name: x.cover_page
+    docx template file: sksr_exhibit_cover.docx
+    field code:
+        exhibit_label: raw(x.label)
+---
+generic object: ALExhibitDocument
+attachment:
+    variable name: x.table_of_contents
+    docx template file: attachment_table_of_contents.docx
+    field code:
+        exhibits: raw(x.exhibits)
+        include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)
+---
+generic object: ALDocumentBundle
+code: |
+    x.there_is_another = False

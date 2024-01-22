@@ -1,0 +1,1092 @@
+metadata:
+  title: |
+    Request for DVRO: Part 3.3, Request to Keep Minor's Information Confidential
+  short title: |
+    DV-160, DV-165
+  description: |
+    An interview guiding self-representing DVRO Petitioners through the Request to Keep Minor's Information confidential in a DVRO Case
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      revision_date: 2023-05-11
+      require privileges: [dvro-p1, admin]
+  required privileges for listing: [dvro-p1, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+  counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - pet: Individual
+  - resp: Individual
+  - children: DAList.using(ask_number=True, object_type=Individual)
+  - otherconfidentialinfo: DAList.using(ask_number=False, object_type=Thing)
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+	- caseinfo: Case Information
+  - confidential_information: Information to Be Kept Confidential
+  - reasons_for_request: Reasons for Your Request 
+  - confidential_information_to_respondent: Information to Be Kept Confidential from the Other Party
+  - people_with_access: People You Want to Have Access to Confidential Information
+  - conclusion: Conclusion
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  safety_warning
+  interview_part
+  welcome1
+  welcome2
+  
+  nav.set_section('caseinfo')
+  court_name
+  pet.name.first
+  pet.address.street
+  pet.phone
+  resp.name.first
+  children.there_are_any
+  if children.there_are_any:
+    children.gather()
+  if children.target_number == 1:
+    children_language
+  pet_parentalrelationship
+  
+  nav.set_section('confidential_information')
+  if children.target_number >= 2:
+    childrens_confidential_information
+  public_confidential_name
+  if public_confidential_other:
+    confidentiality_law
+    circle_confidential_info
+    if circle_confidential_info:
+      circle_instructions
+    elif otherconfidentialinfo.there_are_any:
+      otherconfidentialinfo.gather()
+  
+  nav.set_section('reasons_for_request')
+  public_reasons_for_request
+  public_cancel_order
+  
+  nav.set_section('confidential_information_to_respondent')
+  resp_confidential_name
+  if resp_confidential_name or resp_confidential_address or resp_confidential_other:
+    resp_cancel_order
+  
+  nav.set_section('people_with_access')
+  childrens_school
+  
+  nav.set_section('conclusion')
+  filing_date
+  next_steps_info
+  download_forms
+---
+question: |
+  Welcome to U Do It Legal's **Request for Domestic Violence Restraining Order, Part 3.3: Request to Keep Minor's Information Confidential** 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+  
+  We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place. 
+continue button field: safety_warning
+---
+template: part1
+subject: |
+  **Part 1, Introduction**
+content: |
+  This interview covers:
+  
+  - Your Request for Domestic Violence Restraining Order Roadmap
+  - The Importance of Safety Planning and Related Resources
+---
+template: part2
+subject: |
+  **Part 2, Case Information**
+content: |
+  This interview prepares the following forms for you:
+  
+  - California Law Enforcement Telecommunications System Information Form (form [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf))
+  - Notice of Hearing (form [DV-109](https://www.courts.ca.gov/documents/dv109.pdf))
+---
+template: part3
+subject: |
+  **Part 3, Requesting Restraining Orders**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request for Domestic Violence Restraining Order (form [DV-100](https://www.courts.ca.gov/documents/dv100.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))
+---
+template: part3_1
+subject: |
+  **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Income and Expense Declaration (form [FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part3_2
+subject: |
+  **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request for Child Custody and Visitation Orders (form [DV-105](https://www.courts.ca.gov/documents/dv105.pdf))
+  - Request for Child Abduction Prevention Orders (form [DV-108](https://www.courts.ca.gov/documents/dv108.pdf)) (Optional) *if requesting orders to prevent your child from being kidnapped by the other party**
+  
+  This interview also prepares the following proposed order forms for court completion:
+  
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+  - Child Abduction PReventions Orders (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part3_3
+subject: |
+  **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the Other Party**
+content: |
+  This interview prepares the following form for you:
+  
+  - Request to Keep Minor's Information Confidential (form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf))
+  
+  This interview also prepares the following proposed order form for court completion:
+  
+  - Order on Request to Keep Minor's Information Confidential (form [DV-165](https://www.courts.ca.gov/documents/dv165.pdf))
+---
+template: part4
+subject: |
+  **Part 4, Next Steps** 
+content: |
+  This interview not only guides you through your next steps after form preparation, encompassing filing, service, hearing preparation, and more, but also provides you with a personalized Proof of Service (form [DV-200](https://www.courts.ca.gov/documents/dv200.pdf)) featuring a completed caption for your ease. For context, the "caption" is the section at the top of a legal document where you provide your basic information, like your name and address.
+
+  In addition to the prepped Proof of Service form, which is intended to be completed by your designated server, the interview provides you with a written summary and a checklist of your next steps, ensuring your readiness to confidently navigate each step of your case beyond preparing your court forms and documents.
+---
+template: part4_1
+subject: |
+  **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule/postpone their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing (form [DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing (form [DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part5
+subject: |
+  **Part 5, Restraining Order After Hearing and Renewal** 
+content: |
+  This interview is tailored toward individuals who were granted a Restraining Order After Hearing. It explains different scenarios that may happen after your hearing and will provide you with blank versions of the relevant ROAH forms, such as:
+  
+  - Restraining Order After Hearing (form [DV-130](https://www.courts.ca.gov/documents/dv130.pdf))
+  - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf)) *If child custody and visitation orders are issued**
+  - Child Abduction Prevention Order (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *If child abduction prevention orders are issued**
+  - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf))  *If supervised visitation or exchange orders are issued**
+  - Order on Request to Keep Minor's Information Confidential (Form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf)) *If orders to keep minor's information confidential are issued**
+  - Child Support Information and Order Attachment (Form [FL-342](https://www.courts.ca.gov/documents/fl342.pdf)) *If child support orders are issued**
+  - Spousal, Domestic Partner, or Family Support Order Attachment (Form [FL-343](https://www.courts.ca.gov/documents/fl343.pdf)) *If spousal, partner, or family support orders are issued**
+  
+  This interview will also offer valuable recommendations on locating assistance for ROAH form preparation if your court does not prepare ROAH forms or self-representing parties. Please note that, as of 2023, we are aware of only 6 CA counties that do not prepare ROAH forms for self-representing parties.
+  
+  Lastly, this interview will provide you with a personalized Request to Renew Restraining Order (form [DV-700](https://www.courts.ca.gov/documents/dv700.pdf)) and Notice of Hearing to Renew Restraining Order (form [DV-710](https://www.courts.ca.gov/documents/dv710.pdf)) featuring completed captions for your ease, should you wish to renew the ROAH prior to its expiration. 
+---
+question: |
+  **Interview 3.3:** Request to Keep Minor's Information Confidential
+subquestion: |
+  Our website will guide you through and assist you with the preparation of the court forms and documents required for your Domestic Violence Restraining Order (DVRO) proceeding. 
+  
+  This interview is **Part 3.3** of 5:
+  
+  ${prog_disclose(part1)}
+  
+  ${prog_disclose(part2)}
+  
+  ${prog_disclose(part3)}
+    
+  ${prog_disclose(part3_1)}
+  
+  ${prog_disclose(part3_2)}
+  
+  ${card_start("You are here:", color="light")}
+  ${prog_disclose(part3_3)}
+  ${card_end()}
+  
+  ${prog_disclose(part4)}
+  
+  ${prog_disclose(part4_1)}
+  
+  ${prog_disclose(part5)}
+continue button field: interview_part
+---
+template: dv_160_explanation
+subject: |
+  **DV-160,** Request to Keep Minor's Information Confidential
+content: |
+  Form DV-160 is a document filed with the court to request that a minor’s personal information, such as their name, address, and birthdate, be kept confidential in a domestic violence or family law case. This is done to protect the minor’s privacy and safety. 
+  
+    A parent or guardian can complete and file this form with the court, typically alongside other related forms, such as DV-100, Request for Domestic Violence Restraining Order, or DV-105, Request for Child Custody and Visitation Orders. The court will review the request and make a decision based on the best interest of the minor.
+---
+template: dv_165_explanation
+subject: |
+  **DV-165,** Order on Request to Keep Minor's Information Confidential 
+content: |
+  Form DV-165 is a court order that, if the request is granted, mandates that the minor's personal information in domestic violence cases be kept confidential, safeguarding the identified children from potential harm or further harassment. It is issued in response to a filed DV-160, Request to Keep Minor's Information Confidential.
+  
+  A judge reviews the DV-160 form and decides whether to grant or deny the request for confidentiality. If approved, the judge will issue the DV-165 order, providing that the minor's information remains confidential throughout the legal proceedings.
+  
+  Please note that we do not complete this form on your behalf. The official court order can only be prepared and issued by the judge/judicial officer assigned to your case. The judge/judicial officer will specify on this form which orders are granted or denied, any additional orders being made, and will sign the order form. However, our website will prepare a proposed order that you would like the judge to issue, which you can give to the court clerk alongside your DV-160. This proposed order helps streamline the process for the court in completing the form accurately.
+---
+question: |
+  Court Forms this Interview Prepares for You
+subquestion: | 
+  More specifically, this interview will help you complete the following form: 
+  
+  ${prog_disclose(dv_160_explanation)}
+  
+  This interview will also prepare the following official court order form for court completion: 
+  
+  ${prog_disclose(dv_165_explanation)}
+  
+  This interview is very simple and should only take you about 10-20 minutes to complete. 
+continue button field: welcome1
+---
+question: |
+  Before we begin,
+subquestion: |
+  Before you start answering questions, please have a copy of your completed DV-100 form (the Request for Domestic Violence Restraining Order) and any other forms you intend to file with it, as they will help you through this interview. We recommend that you either print physical copies to have during this interview, or you have digital/electronic copies available on your device.
+
+  In order to inform the court about the specific information you wish to keep confidential, you will need to refer to your completed DV-100 form and its attachments. Form DV-160, the Request to Keep Minor's Information Confidential, provides two methods for indicating to the court the information you want kept confidential:
+
+  1. Option one is to make a copy of your completed DV-100 and its attachments. Then, using blue or black ink, circle the information stated in the copy that you want confidential and attach that document to the back of your completed DV-160 form.
+  2. Option two involves you stating in a separate document the information contained in DV-100 and its attachments that you want  confidential by identifying where that information is in DV-100 and what specific information you want redacted so that this information is confidential. Page 3, at subsection c (2) of DV-160 will populate the information you want confidential and where it is located in DV-100. 
+  
+  We also recommend that you review the Court's [informational sheet regarding Privacy Protections for Minors](https://www.courts.ca.gov/documents/dv160info.pdf) before beginning this interview. That information sheet provides a very good summary of this process. 
+  
+  Begin answering questions on the next page.
+continue button field: welcome2
+---
+question: |
+  **Protected Party:** What is your name?
+subquestion: |
+  Provide your full legal name. This should match the name written on both your ID and your other court forms. 
+fields:
+  - First name: pet.name.first
+  - Middle name (if applicable): pet.name.middle
+    required: False 
+  - Last name: pet.name.last
+  - Suffix (if applicable): pet.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+template: confidentialaddress_explanation
+subject: "As a reminder: Can I keep my address confidential?"
+content: |
+  [California Government Code section 6206](https://www.sos.ca.gov/registries/safe-home/laws/confidential-address-program-victims-domestic-violence-sexual-assault-and-stalking-program-law) states that if a party (or his or her children) alleges to be a victim of domestic violence or abuse at the hands of the opposing party, that the victim and his or her children's current address may remain confidential if unknown to the other party. 
+  
+  The Court requires that you include an address on your forms where you can receive mail regarding the case you are filing, such as a friend or relative's address or P.O. box. **This address does not have to be the place where you live.** Court documents and court files are public record and whatever address is included on your forms will be seen by the other party and anyone else who looks at the Court file. 
+  
+  ${card_start("Note:", color="info")}
+  If you are able to receive mail from your home, you may write down your residential address even if you have left the home due to the abuse you claim, and you intend to return to and live at the home and have ${ resp.name.first } removed.
+  ${card_end()}
+---
+template: dv_shelter_warning
+subject: |
+  What if I'm staying at a Domestic Violence Shelter?
+content: |
+   ${card_start("Warning", color="warning")}
+   As a reminder, if you are staying at a domestic violence shelter, do NOT write the physical address of the domestic violence shelter anywhere. Most shelters have a P.O. Box you can use if the court needs to contact you or mail you anything.
+   ${card_end()}
+---
+question: |
+  **Your Information:** Provide Your Mailing Address
+subquestion: |
+  Provide your mailing address, and make sure it matches the address written on your other court forms.
+  ${prog_disclose(confidentialaddress_explanation)}
+  ${prog_disclose(dv_shelter_warning)}
+  #####Your Mailing Address:
+fields:
+  - Street address: pet.address.street  
+  - Apartment or Unit: pet.address.unit
+    required: False
+  - City: pet.address.city
+  - State: pet.address.state
+    code: states_list()
+  - Zip: pet.address.zip
+---
+question: |
+  Your Contact Information:
+subquestion: |
+  As a reminder, providing your contact information is optional. Make sure this information matches what you've written on your other court forms. 
+  
+  If you do not want the Other Party to be able to see your personal contact information, you may opt to leave these fields blank or provide an alternative phone number, email, or fax number that you are comfortable with the Other Party seeing. 
+  
+  Any contact information you provide may be used if the court needs to reach you.  
+fields: 
+  - Phone Number: pet.phone
+    hint: "###-###-####"
+    required: False
+  - Email: pet.email
+    required: False
+  - Fax: pet.fax
+    required: False
+---
+question: |
+  **Other Party's Name** 
+subquestion: |
+  Provide the Other Party's full legal name. This should match the name written on both your other court forms.  
+fields:
+  - First name: resp.name.first
+  - Middle name (if applicable): resp.name.middle
+    required: false
+  - Last name: resp.name.last
+  - Suffix (if applicable): resp.name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  Identify your Court
+subquestion: |
+  Provide the following information about the Court in which are filing your paperwork. Make sure that this information matches what's written on any other forms you've submitted to the court in this case. 
+fields: 
+  - Court name: court_name
+    maxlength: 28
+  - County: court_county
+    code: counties_list 
+  - note: |
+      Please provide the court's address below
+  - Street: courtstreetaddress_street 
+  - City: courtstreetaddress_city
+  - Zip code: courtstreetaddress_zip
+  - note: "If you've been assigned one, provide your case number."
+  - Case Number (if you've been assigned one): case_number
+    required: False
+    help: |
+      Your case number will be stamped or written at the top of any forms you've filed with the court. If you have not filed any court forms with the court, you do not have a case number yet and you may leave this field blank.
+---
+question: |
+  Your Minor Children Whose Information You Want to Keep Confidential
+subquestion: |  
+  The court needs to know about any minor children involved in the case whose information you want to be kept confidential and NOT made available to the public. 
+  
+  This includes:
+  
+  - Children born to you who are under 18. 
+  - Any children you have legally adopted who are under 18. 
+  - Any children over whom you have legal guardianship who are under 18. 
+  
+  This does not include:
+  
+  - Any of your children aged 18 or older.
+  - Any minor children to whom you are not a parent (biological or adoptive) or legal guardian.
+fields:
+  - Just to confirm, are you the parent or legal guardian of a child or children under 18 years old whose information you would like to be kept confidential?: children.there_are_any
+    datatype: yesnoradio
+  - How many of your children with ${resp.name.first} are under 18?: children.target_number
+    datatype: integer
+    max: 10
+    hide if: 
+      variable: children.there_are_any
+      is: False
+validation code: |
+  if children.there_are_any is False:
+    validation_error("You cannot proceed with this interview unless you indicate that there are minor children involved in this case who fit the criteria above. If you are not a parent or legal guardian to any such children, you may exit this interview and return to the UDIL Member Homepage. Note that if you are not the parent or legal guardian of a minor for whom you seek to maintain confidentiality, the child themselves (if age 12 or above), or their parent or legal guardian, can still complete and file form DV-160 in your case.")
+---
+question: |
+  **Your Children**
+subquestion: |
+  % if children.target_number == 1:
+  Tell us about the child.
+  % elif children.target_number >= 2 and i == 0:
+  Tell us about the first minor child whose information you want to be kept confidential.
+  % else:
+  You told us 
+  about **${comma_and_list([child.name.first for child in children.complete_elements()])}**. 
+  Tell us about the **${ordinal(i)}** child whose information you want to be kept confidential. 
+  % endif
+fields:
+  - First name: children[i].name.first
+  - Middle name: children[i].name.middle
+    required: false
+  - Last name: children[i].name.last
+  - Suffix: children[i].name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+  - Birthdate: children[i].birthdate
+    datatype: date
+    min: ${ today().minus(years=18) }
+---
+question: |
+  Note on Language Used Throughout this Interview:
+subquestion: |
+  Please note that throughout this interview, the terms "children" and "child" are used interchangeably. Any information or questions referring to multiple children also apply to situations where a parent has only one child. 
+      
+  The provided guidance remains relevant regardless of the number of children involved in a case, and this interview has recorded that you and ${resp.name.first} have one minor child together. 
+continue button field: children_language
+---
+question: |
+  Your Relationship to the Children
+fields: 
+  - Are you these children's parent, either biological or adoptive, their legal guardian, or both?: pet_parentalrelationship
+    choices: 
+      - Parent: pet_parentalrelationship_parent
+      - Legal Guardian: pet_parentalrelationship_legalguardian
+      - Both (I am parent to one or more of these children, and I am a legal guardian to one or more of these children): pet_parentalrelationship_both
+---
+question: |
+  Requests for More Than One Minor
+subquestion: |
+  If you are making this request for two or more minor children, you have the option to ask the court to maintain confidentiality for the same information across all children. Alternatively, you can request that different information be treated as confidential for each of your children.
+fields: 
+  - Select the option that applies best to your circumstances: childrens_confidential_information
+    choices: 
+      - The information I want confidential is the SAME for all the children: childrens_confidential_information_same
+      - The information I want confidential is NOT the same for all the children: childrens_confidential_information_different
+---
+question: |
+  Information to Be Kept Confidential From the Public
+subquestion: |  
+  ${card_start("Note:", color="info")}
+  If information relating to the minor is ordered confidential by the court, the public will not have access to this information through public court records. However, note that the Other Party must be given the information that is necessary to comply with the restraining order and to respond to the restraining order request. Also, the court may permit to the release of certain confidential information in this case to other people like the minor's childcare provider or school, or anyone who needs the information to protect the minor's best interest or to prevent abuse. 
+  ${card_end()}
+  
+  Later in this interview, you will be given the chance to indicate whether you would like ${resp} to have access to some of the information you indicate below. For now, indicate which information you want to be made confidential and NOT available **to the public**. Check all that apply.
+fields: 
+  - Child or Children's Name(s): public_confidential_name
+    datatype: yesno
+  - Child or Children's Address(es): public_confidential_address
+    datatype: yesno
+  - The address you want to be kept confidential is (specify full address): public_confidential_address_specify
+    show if: public_confidential_address
+  - Other Information Relating to the Child(ren): public_confidential_other
+    datatype: yesno
+---
+template: famcode_section_3048
+subject: |
+  California Family Code Section 3048
+content: |
+  **California [Family Code Section 3048](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=3048.&lawCode=FAM):**
+  
+  This section outlines the considerations the court must make when determining issues related to child custody and visitation in cases involving domestic violence. These considerations include evaluating the risk of child abduction, the harm to the child, and the use of a controlled substance by either parent.
+---
+template: famcode_section_6200
+subject: |
+  California Family Code Section 6200-6219. Domestic Violence Prevention Act
+content: |
+  **California [Family Code Section 6200-6219](https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=FAM&division=10.&title=&part=1.&chapter=&article=).** Domestic Violence Prevention Act: 
+  
+  This act outlines the procedures and considerations for granting protective orders, including requests to keep minor's information confidential.
+---
+template: ca_rulesofcourt_5_382
+subject: |
+  2023 California Rules of Court, Rule 5.382
+content: |
+  **2023 California Rules of Court, Rule 5.382.** Request to make minor's information confidential in domestic violence protective order proceedings: 
+  
+  This rule specifically discusses the process for requests to keep a child's information confidential in a domestic violence protective order proceeding. It states that a request to keep a child's information confidential may be made at any time and must demonstrate that the disclosure would risk the child's safety. The court can order the information confidential on its own motion or on request of a party or the child.
+---
+template: judicial_considerations_explanation
+subject: |
+  Family Code section 6301.5: What circumstances must the judge consider when deciding to grant or deny a request to keep infomration about a minor confidential?
+content: |
+  [Family Code section 6301.5](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=6301.5.&lawCode=FAM) states, "To approve your request, the court must expressly find all of the following: 
+  
+  - The minor's right to privacy overcomes the public's right to access the information;
+  - There's a substantial probability that the minor's interest will be prejudiced if the information is not kept confidential;
+  - The order to keep the information confidential is narrowly tailored; and
+  - No less restrictive means exist to protect the minor's privacy."
+  
+  ${prog_disclose(famcode_section_6301_5_simplified)}
+---
+template: famcode_section_6301_5_simplified
+subject: |
+  What does this mean in more simple terms?
+content: |
+  In a California DVRO case, when deciding whether to grant a request to keep a minor's information confidential, the court must be convinced of the following:
+
+  - The minor's need for privacy is more important than the public's right to access the information.
+  - If the information is not kept secret, it is very likely that the minor will be negatively affected.
+  - The request to keep the information confidential is precisely focused and does not cover more information than necessary.
+  - The way in which you are propopsing to protect the minor's privacy is the least intrusive of all other posible ways to keep that information confidential.
+
+  If the court agrees that each of these conditions is satisfied by the request, then it may approve the request to keep the minor's information confidential.
+---
+question: |
+  Read the page below before identifying the additional information you want kept kept confidential on the next pages.
+subquestion: |
+  #####**How does California Law define what information can be kept confidential?**
+  
+  In California, the laws pertaining to domestic violence restraining orders and child custody decisions are largely contained within the California Family Code and the California Rules of Court. The following identifies and provides a brief description of some key sections and rules:
+
+  ${prog_disclose(judicial_considerations_explanation)}
+  
+  ${prog_disclose(ca_rulesofcourt_5_382)}
+  
+  ${prog_disclose(famcode_section_3048)}
+
+  ${prog_disclose(famcode_section_6200)}
+
+  These are the rules and codes generally applicable to a request for information about a minor to be confidential, but may not encompass all of the considerations by a judicial officer when granting or denying a request to keep minor's information confidential. Each case is unique and the judge will consider the facts and circumstances of each individual case in the manner he/she deems appropriate and in conformity with the law.
+continue button field: confidentiality_law
+---
+question: |
+  How would you like to proceed?
+subquestion: |
+  **As a reminder:**
+  
+  Form DV-160, the Request to Keep Minor's Information Confidential, provides two methods for indicating which additional information should be treated as confidential:
+
+  1. Option one is to circle the information you want to keep confidential directly on a copy of your completed form(s), and then attach the copy(s) to the back of your DV-160 form.
+  2. Option two involves referencing the information you want to keep confidential by providing specific details about each piece of information's location within the form(s). This can include mentioning the information's form number, page number, paragraph number, line number, attachment number, and/or exhibit number.
+fields: 
+  - note: "**Select the option you want to proceed with** (check one):"
+  - I want to circle all the information I want kept confidential on a copy of form DV-100 and other forms that I am filing and then attach the copy(s) to the back of my DV-160 form.: circle_confidential_info
+    datatype: yesno
+  - I want to list the information I want kept confidential in this interview by identifying each piece of information and its location on form DV-100 and other forms.: otherconfidentialinfo.there_are_any
+    datatype: yesno
+validation code: |
+  if circle_confidential_info is True and otherconfidentialinfo.there_are_any is True:
+    validation_error("You have selected multiple options. Please select only one option to proceed.")
+---
+images:
+  DV_160_Instructions_image: "DV-160_Instructions.png"
+---
+template: circle_instructions_step1
+subject: |
+  **Step 1:** Print or open a digital copy of your completed DV-100 form & attachments
+content: |
+  You have two options at this point:
+
+  **1. Print your forms:** 
+  Print out a paper copy of your completed DV-100 form, as well as any other forms you intend to file with your Request for Domestic Violence Restraining Order. Additional attachment forms may include, but are not limited to, the DV-105, DV-105(A), DV-108, DV-109, DV-110, DV-130, DV-140, DV-145, DV-150, and FL-150. Ensure that these copies are single-sided, not double-sided.
+  
+  **2. Edit a digital copy of your forms:** 
+  Open a digital copy of your completed DV-100 form and any other forms you plan on filing with your Request for Domestic Violence Restraining Order in a PDF editor of your choice. Again, additional forms may include, but are not limited to, the DV-105, DV-105(A), DV-108, DV-109, DV-110, DV-130, DV-140, DV-145, DV-150, and FL-150.
+---
+template: circle_instructions_step2
+subject: |
+  **Step 2:** Identify and mark confidential information
+content: |
+  Carefully review your DV-100 form and any attachment forms you intend to file with your Request for Domestic Violence Restraining Order (as mentioned above). 
+  
+  **Next, circle or highlight each piece of information that you want to keep confidential from the public directly on the copies.** 
+  
+  As a reminder: 
+  ${prog_disclose(judicial_considerations_explanation)}
+---
+template: circle_instructions_step3
+subject: |
+    **Step 3:** Attach edited copies to the back of the DV-160 form
+content: |
+  Secure the copies of the forms (as mentioned above) on which you circled or highlighted the information to be kept confidential to the back of your DV-160 form. We will provide more information on how to prepare your forms for filing in the next interview titled "Part 4, Next Steps."
+---
+question: |
+  Tell the court which information you'd like to be kept confidential. 
+subquestion: |
+  [@ KELLY, insert Ryan video and video of you showing how to circle the information
+  
+  #####Instructions:
+  
+  ${prog_disclose(circle_instructions_step1)}
+  
+  ${prog_disclose(circle_instructions_step2)}
+  
+  ${prog_disclose(circle_instructions_step3)}
+  
+  ${card_start("Note:", color="info")}
+   You can choose to follow the instructions above now, or if you are unable to do so at the moment, you can wait until after completing this interview; the written instructions above will be provided along with your prepared DV-160 and DV-165 forms.
+   
+   Note, however, that should you choose to wait, you will need to know which information you want kept confidential further on in this interview. 
+  ${card_end()}
+continue button field: circle_instructions
+---
+question: |
+  Other Information Relating to the Minor to be Kept Confidential from the Public
+subquestion: |
+  **As a reminder:** 
+  ${prog_disclose(judicial_considerations_explanation)}
+  ${prog_disclose(famcode_section_6301_5_simplified)}
+  
+  Describe the information contained in the documents that you are filing that you want kept confidential regarding any minor children you have identified. 
+fields:
+  - Directly quote (if the information is written) or describe the information to be redacted (i.e., not viewable by the public): otherconfidentialinfo[i].name.text
+    datatype: area
+  - Location of Information (such as form number, page number, paragraph number, line number, attachment number, or exhibit number) : otherconfidentialinfo[i].location
+    datatype: area
+    help: |
+      For example: "Form DV-108, page 1, first paragraph below Item 3g, lines 2-3"
+list collect:
+  enable: not otherconfidentialinfo.has_been_gathered()
+  is final: True
+  allow delete: True
+  add another label: Add more
+  label: |
+    #####**${capitalize(ordinal(i))} Piece of Information to be Kept Confidential:**
+---
+question: |
+  Reasons for Request 
+subquestion: |
+  **As a reminder:** 
+  ${prog_disclose(judicial_considerations_explanation)}
+  ${prog_disclose(famcode_section_6301_5_simplified)}
+  
+  We recommethat you reference these four conditions when answering the questions below. 
+fields: 
+  - Why should the information you provided on the previous pages or circled on copies of your court forms be kept private and confidential from the public?: public_reasons_for_request
+    datatype: area
+  - What do you think would happen if the information was NOT made private or confidential?: public_consequences_if_denied
+    datatype: area
+---
+question: |
+  Given the possible outcomes, how would you like to proceed?
+subquestion: |
+  **If any portion of the request for confidentiality from the public is denied, I want to** (check one):
+fields: 
+  - Cancel my request for restraining order.: public_cancel_order
+    datatype: yesno
+  - note: "I ask the court NOT to make a decision on my Request for Domestic Violence Restraining Order (form DV-100). I understand that cancelling my request means that I will not receive a restraining order at this time. *(Note: You may file a request on the same or different facts at a later date.)*"
+  - Move forward with my request for restraining order.: public_move_forward_order
+    datatype: yesno
+  - note: "I ask the court to make a decison on my Request for Domestic Violence Order (form DV-100). *(Note: Choosing this option means that all of the information in your completed form DV-100 and other court papers in this case will be available to the public and seen by ${resp.name.first}, with the exception of the CLETS-001 form.)*"
+validation code: |
+  if public_cancel_order is True and public_move_forward_order is True:
+    validation_error("You have selected multiple options. Please select only one option to proceed.")
+---
+question: |
+  Information to Be Kept Confidential from ${resp.name}
+subquestion: |
+  ${card_start("Note:", color="info")}
+  ${resp.name.first} must be given information necessary to comply with the restraining order and to respond to the restraining order request.
+  ${card_end()}
+fields:
+  - note: "**What information do you want to be confidential and not given to ${resp}?** (check all that apply):"
+  - Child(ren)'s Name: resp_confidential_name
+    datatype: yesno
+  - Child(ren)'s Addresses: resp_confidential_address
+    datatype: yesno
+  - Other information relating to the minor child(ren) indicated on the previous pages or circled on copies of my court documents: resp_confidential_other
+    datatype: yesno
+  - Based on the information you've specified as confidential and not to be disclosed to the public, which specific details would you also like to be kept confidential from ${resp.name}? (specify): resp_confidential_other_specify
+    datatype: area
+    show if: resp_confidential_other
+  - Why should the information above be kept confidential and not given to ${resp.name}? (*skip this question if you did not check any of the boxes above*): resp_reasons_for_request
+    datatype: area
+    required: False
+  - What do you think will happen if the information above is given to ${resp.name}? (*skip this question if you did not check any of the boxes above*): resp_consequences_if_denied
+    datatype: area
+    required: False
+---
+question: |
+  Given the possible outcomes, how would you like to proceed?
+subquestion: |
+  **If any portion of the request for confidentiality from ${resp.name} is denied, I want to** (check one):
+fields: 
+  - Cancel my request for restraining order.: resp_cancel_order
+    datatype: yesno
+  - note: "I ask the court NOT to make a decision on my Request for Domestic Violence Restraining Order (form DV-100). I understand that cancelling my request means that I will not receive a restraining order at this time. *(Note: You may file a request on the same or different facts at a later date.)*"
+  - Move forward with my request for restraining order.: resp_move_forward_order
+    datatype: yesno
+  - note: "I ask the court to make a decison on my Request for Domestic Violence Order (form DV-100). *(Note: Choosing this option means that all of the information in your completed form DV-100 and other court papers in this case will be available to the public and seen by ${resp.name.first}, with the exception of the CLETS-001 form.)*"
+validation code: |
+  if resp_cancel_order is True and resp_move_forward_order is True:
+    validation_error("You have selected multiple options. Please select only one option to proceed.")
+---
+question: |
+  People You Want to Have Access to Confidential Information
+subquestion: |
+  ${card_start("Note:", color="info")}
+  If you want other people to have unredacted copied of restraining order forms in this case, you should answer the questions on this page.
+  ${card_end()}
+  
+  *Note: The following two questions must be read and answered together.*
+fields: 
+  - note: "**(Part 1)** If my request to keep minor's information confidential from the public is granted, I want to be allowed to give the following people... (select each person or entity that applies):" 
+  - Child(ren)'s school and after-school program: childrens_school
+    datatype: yesno
+  - Child(ren)'s childcare provider: childrens_childcare
+    datatype: yesno
+  - Supervised Visitation Provider: childrens_supervisor
+    datatype: yesno
+  - Other: childrens_other
+    datatype: yesno
+  - Other (specify name of person or entity): childrens_other_specify
+    show if: childrens_other
+  
+  - note: "**(Part 2)** ...copies of documents from this case with the following information (check all that apply):"
+  - Child(ren)'s Name: childrens_names2
+    datatype: yesno
+  - Child(ren)'s Address: childrens_addresses2
+    datatype: yesno
+  - Information that I indicated that I want to be kept confidential from the public: public_confidential_info 
+    datatype: yesno
+---
+question: |
+  When do you plan on filing?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date. If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file
+fields: 
+  - When do you plan to file these forms with the court?: filing_date
+    datatype: date
+    default: ${today().format("yyyy-MM-dd")}
+---
+question: |
+  Almost there!
+subquestion: |
+  Please note that it may take one to two minutes to generate your forms after pressing "Continue" below. We thank you for your patience. 
+continue button field: next_steps_info
+---
+mandatory: true
+event: download_forms
+question: |
+  Your forms are ready to download.
+subquestion: |
+  Thank you. Your completed forms are ready to download and deliver.
+  
+  ${prog_disclose(review_your_forms)}
+  ${prog_disclose(edit_if_needed)}
+  ${prog_disclose(sign_the_forms)}
+  ${prog_disclose(next_steps_interview)}
+  
+  ${prog_disclose(next_interview)}
+  
+  ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download Completed DV-160", icon='download') } 
+  
+  ${ action_button_html(al_user_bundle2.as_pdf().url_for(), label="Download Proposed DV-165", icon='download') } 
+  ${prog_disclose(proposed_form_disclaimer)}
+  
+  ${ al_user_bundle.send_button_html() }
+---
+template: proposed_form_disclaimer
+subject: |
+  Disclaimer on Preparation of Proposed Order Forms
+content: |
+  As a reminder: We do not complete this form on your behalf. The official court order can only be prepared and issued by the judge/judicial officer assigned to your case. The judge/judicial officer will specify on this form which orders are granted or denied, any additional orders being made, and will sign the order form. However, you may download the proposed order that you would like the judge to issue below, which you can give to the court clerk alongside your DV-160. This proposed order helps streamline the process for the court in completing the form accurately.
+---
+template: review_your_forms
+subject: |
+  **Step 1:** Review Your Forms 
+content: |
+  **Review Your Forms:** Examine the form(s) generated below. Clicking the 'Download' button will either open your completed forms as an editable PDF in a new tab or save them directly to your device. Alternatively, you can choose to email the forms to yourself using the 'Send' button.
+---
+template: edit_if_needed
+subject: |
+  **Step 2:** Edit If Needed
+content: |
+  **Edit if Needed:** If any corrections are necessary, feel free to edit the forms directly in your browser, using a PDF editor of your choice, or by printing them out and making changes with a pen in blue or black ink. Remember, it's okay to cross out or use white-out for corrections, but ensure the forms are still clean and easy to read.
+---
+template: sign_the_forms
+subject: |
+  **Step 3:** Sign the Forms
+content: |
+  **Sign the Forms:** Carefully review each page and provide your signature on any sections that require it. If additional documents are attached to the completed court forms, write in the number of pages attached on any sections that require it.
+---
+template: next_steps_interview
+subject: |
+  **Step 4:** Next Steps
+content: |
+  **Next Steps:** Once you're satisfied with your forms, head back to your membership homepage to continue with the next relevant interview.
+---
+template: next_interview
+subject: |
+  **Which Interview Do I Complete Next?**
+content: |
+  - Complete interview **Part 3.1: Financial Information for Support** if you are requesting child support, spousal support, or lawyers's fees and costs orders
+  - Complete interview **Part 3.2: Child Custody, Visitation, and Support** if you and ${resp.name.first} have minor children together
+  - Complete interview **Part 4: Next Steps** once you are finished with each applicable interview in Part 3. If you are not requesting any child support, spousal support, child custody and visitation, or lawyer's fees and costs orders, skip straight to this interview. 
+  - Complete interview **Part 4.1: Request to Reschedule Hearing** before the scheduled hearing (the hearing will be scheduled when you file all your court forms with the court clerk) if you need to request that the court postpone/reschedule the hearing for good cause. 
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+  Get a copy of your forms in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  % if len(x) > 1:
+  Your ${ x.title } document is ready
+  % else:
+  Your "${ x.title }" documents are ready
+  % endif
+content: |
+  Thank you for using U Do It Legal!
+
+  Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### Attachment objects
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[DV_160_attachment], title="Download Request to Keep Minor's Information Confidential Form", filename="Request_to_Keep_Minors_Info_Confidential")
+  - al_user_bundle2: ALDocumentBundle.using(elements=[DV_165_attachment], title="Download Prepped Order on Request to Keep Minor's Information Confidential Form", filename="Request_to_Keep_Minors_Info_Confidential")
+  - al_user_bundle3: ALDocumentBundle.using(elements=[DV_160_instructions], title="Download Request to Keep Minor's Information Confidential, Redacting Instructions", filename="Request_to_Keep_Minors_Info_Confidential")
+---
+objects:
+  - DV_160_attachment: ALDocument.using(filename="DV_160", title="Request to Keep Minor's Information Confidential", enabled=True, has_addendum=True, default_overflow_message=" [See Attachment]")
+  - DV_165_attachment: ALDocument.using(filename="DV_165", title="Order On Request to Continue Court Hearing", enabled=True, has_addendum=True, default_overflow_message=" [See Attachment]")
+  - DV_160_instructions: ALDocument.using(filename="Next_Steps", title="Request to Keep Minor's Information Confidential, Next Steps", enabled=True)
+---
+#### DV-160 Attachment Code
+attachment:
+  variable name: DV_160_attachment.addendum
+  docx template file: DV_160_Attachment.docx
+---
+code: |
+  DV_160_attachment.overflow_fields['children'].overflow_trigger = 4
+  DV_160_attachment.overflow_fields['children'].label = "2b(2). Additional Minors"
+  DV_160_attachment.overflow_fields['otherconfidentialinfo'].overflow_trigger = 0
+  DV_160_attachment.overflow_fields['otherconfidentialinfo'].label = "5c(2). Information Relating to the Minor to be Redacted"
+  DV_160_attachment.overflow_fields['public_reasons_for_request'].overflow_trigger = 750
+  DV_160_attachment.overflow_fields['public_reasons_for_request'].label = "6a. Why should the information be kept private or confidential from the public?"
+  DV_160_attachment.overflow_fields['public_consequences_if_denied'].overflow_trigger = 850
+  DV_160_attachment.overflow_fields['public_consequences_if_denied'].label = "6b. What do you think would happen if the informaton was NOT made confidential?"
+  DV_160_attachment.overflow_fields['resp_confidential_other_specify'].overflow_trigger = 250
+  DV_160_attachment.overflow_fields['resp_confidential_other_specify'].label = "8a. Other information relating to the minor from item 5 (specify)"
+  DV_160_attachment.overflow_fields['resp_reasons_for_request'].overflow_trigger = 355
+  DV_160_attachment.overflow_fields['resp_reasons_for_request'].label = "8b. Why should the information be kept confidential and not given to the Other Party?"
+  DV_160_attachment.overflow_fields['resp_consequences_if_denied'].overflow_trigger = 345
+  DV_160_attachment.overflow_fields['resp_consequences_if_denied'].label = "8c. What do you think would happen if the informaton is given to the Other Party?"
+  DV_160_attachment.overflow_fields['childrens_other_specify'].overflow_trigger = 45
+  DV_160_attachment.overflow_fields['childrens_other_specify'].label = "9a(4). People I want to have access to confidential information, Other (specify name of person or entity)"
+  DV_160_attachment.overflow_fields.gathered = True 
+---
+attachment:
+    variable name: DV_160_attachment[i]
+    name: DV-160, Request to Keep Minor's Information Confidential
+    filename: DV-160
+    skip undefined: true
+    pdf template file: 2023_DV_160.pdf
+    fields:
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_state_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - case_number: "${case_number}"
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name }"
+      - the_minor: No
+      - the_parent_or_legal_guardian: Yes
+      - the_parent: "${(pet_parentalrelationship == 'pet_parentalrelationship_parent') or (pet_parentalrelationship == 'pet_parentalrelationship_both')}"
+      - the_legal_guardian: "${(pet_parentalrelationship == 'pet_parentalrelationship_legalguardian') or (pet_parentalrelationship == 'pet_parentalrelationship_both')}"
+      - child1: "${children.item(0).name}"
+      - child2: "${children.item(1).name}"
+      - child3: "${children.item(2).name}"
+      - child4: "${children.item(3).name}"
+      - more_than_four_children: "${children.target_number >= 2}"
+      - case_number2: "${case_number}"
+      - pet.address.street: "${pet.address.street} ${pet.address.unit}"
+      - pet.address.city: "${pet.address.city}"
+      - pet.address.state: "${pet.address.state}"
+      - pet.address.zip: "${pet.address.zip}"
+      - pet.fax: "${pet.fax}"
+      - pet.phone: "${pet.phone}"
+      - pet.email: "${pet.email}"
+      - State Bar "${}": 
+      - in_pro_per: "In Pro Per"
+      - more_than_one_minor: "${children.target_number >= 2}"
+      - more_than_one_minor_same_info: "${childrens_confidential_information == 'childrens_confidential_information_same'}"
+      - more_than_one_minor_different_info: "${childrens_confidential_information == 'childrens_confidential_information_different'}"
+      - confidential_minors_name: "${public_confidential_name}"
+      - confidential_minors_address: "${public_confidential_address}"
+      - confidential_minors_address_specify: "${public_confidential_address_specify}"
+      - case_number3: "${case_number}"
+      - Information relating to the minor: "${public_confidential_other}"
+      - attach_copy_dv_100: "${circle_confidential_info}"
+      - list_info_below: "${otherconfidentialinfo.there_are_any}"
+      - redact1_location: |
+          % if otherconfidentialinfo.there_are_any:
+          See Attachment
+          % endif
+      - redact1: 
+      - redact2_location:
+      - redact2: 
+      - redact3: 
+      - redact3_location: 
+      - redact4_location: 
+      - redact4: 
+      - redact_more_than_four: "${otherconfidentialinfo.number() >= 5}"
+      - case_number4: "${case_number}"
+      - "redact_explain": ${DV_160_attachment.safe_value('public_reasons_for_request')}
+      - redact_explain_more_space: "${}"
+      - "redact_denied_consequences": ${DV_160_attachment.safe_value('public_consequences_if_denied')}
+      - redact_denied_consequences_explain: "${}"
+      - case_number5: "${case_number}"
+      - cancel_DVRO_request: "${public_cancel_order}"
+      - move_forward_with_DVRO_request: "${public_move_forward_order}"
+      - confidential_info_from_resp: "${resp_confidential_name or resp_confidential_address or resp_confidential_other}"
+      - confidential_info_from_resp_minors_name: "${resp_confidential_name}"
+      - confidential_info_from_resp_minors_address: "${resp_confidential_address}"
+      - confidential_info_from_resp_other: "${}"
+      - "confidential_info_from_resp_other_specify": ${DV_160_attachment.safe_value('resp_confidential_other_specify')}
+      - "confidential_info_from_resp_explain": ${DV_160_attachment.safe_value('resp_reasons_for_request')}
+      - "confidential_info_from_resp_denied_consequences": ${DV_160_attachment.safe_value('resp_consequences_if_denied')}
+      - confidential_info_from_resp_more_space: "${}"
+      - case_number6: "${case_number}"
+      - if_confidential_info_from_resp_denied: "${resp_cancel_order or resp_move_forward_order}"
+      - if_confidential_info_from_resp_denied_cancel_DVRO: "${resp_cancel_order}"
+      - if_confidential_info_from_resp_denied_move_forward: "${resp_move_forward_order}"
+      - minors_school: "${childrens_school}"
+      - minors_childcare: "${childrens_childcare}"
+      - minors_supervised_visitation_provider: "${childrens_supervisor}"
+      - minors_other: "${childrens_other}"
+      - minors_other_specify: ${DV_160_attachment.safe_value('childrens_other_specify')}
+      - give_minors_name: "${childrens_names2}"
+      - give_minors_address: "${childrens_addresses2}"
+      - give_minors_other_info: "${public_confidential_info}"
+      - pages_attached: "${}"
+      - date: "${filing_date}"
+      - Signature1_es_:signer:signature: 
+      - Signature Block2_es_:signer:signatureblock: 
+      - date2: "${}"
+---
+#### DV-160 Instructions Attachment Code
+attachment:
+    variable name: DV_160_instructions[i]
+    name: DV-160 Instructions
+    filename: DV_160_Instructions
+    skip undefined: true
+    pdf template file: DV-160_Instructions.pdf
+    fields:
+      - date_generated: "${today()}"
+---
+#### DV-165 Attachment Code
+attachment:
+  variable name: DV_165_attachment.addendum
+  docx template file: DV_165_Attachment.docx
+---
+code: |
+  DV_165_attachment.overflow_fields['children'].overflow_trigger = 4
+  DV_165_attachment.overflow_fields['children'].label = "6. Additional Minors"
+  DV_165_attachment.overflow_fields.gathered = True 
+---
+attachment:
+    variable name: DV_165_attachment[i]
+    name: DV-165, Order on Request to Keep Minor's Information Confidential
+    filename: DV-165
+    skip undefined: true
+    pdf template file: 2023_DV_165.pdf
+    fields:
+      - CONFIDENTIAL: "${}"
+      - PUBLIC VERSION REDACTED: "${}"
+      - pet.name: "${pet.name}"
+      - resp.name: "${resp.name}"
+      - court_address_county: "${court_county}"
+      - court_name: "${court_name}"
+      - court_address_street: "${courtstreetaddress_street}"
+      - court_city_state_zip: "${courtstreetaddress_city}, CA ${courtstreetaddress_zip}"
+      - case_number: "${case_number}"
+      - child1: "${children.item(0).name}"
+      - child2: "${children.item(1).name}"
+      - child3: "${children.item(2).name}"
+      - child4: "${children.item(3).name}"
+      - more_than_four_children: "${children.target_number >= 5}"

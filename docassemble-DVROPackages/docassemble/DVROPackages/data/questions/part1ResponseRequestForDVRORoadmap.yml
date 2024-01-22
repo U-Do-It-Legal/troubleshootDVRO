@@ -1,0 +1,1541 @@
+metadata:
+  title: |
+    Response to Request for DVRO: Part 1, Response to Request for DVRO Roadmap 
+  short title: |
+    Roadmap
+  description: |
+    An interview guiding self-representing DVRO Respondents through the Response to Request for Domestic Violence Restraining Order case process
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      require privileges: [dvro-p2, admin]
+    - exit url: https://www.udoitlegal.com/
+  required privileges for listing: [dvro-p2, admin]
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+images:
+  court_info_screenshot: "court_info_screenshot.png"
+  hearing_date_screenshot: "hearing_date_screenshot.png"
+  dv110_item7_screenshot: "dv110_item7_screenshot.png"
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- intro: Introduction
+    subsections: 
+    - safety_warnings: Safety Warning 
+    - your_deadlines: Your Deadlines
+	- dvro_case_process: DVRO Cases From Start to Finish
+  - considerations: Additional Considerations to Keep in Mind
+  - restrainingorder_types: Types of Restraining Orders in California
+  - ca_dv_law: How is Domestic Violence Defined Under California Law?
+  - dv_order_types: Restraining Orders That the Protected Party Can Request 
+  - resources: Additional (Free) Resources for Assistance and Support
+  - conclusion: Conclusion
+---
+mandatory: True
+code: |
+  nav.set_section('intro')
+  nav.set_section('safety_warnings')
+  safety_warning
+  tro_granted
+  nav.set_section('your_deadlines')
+  deadlines_intro
+  time_sensitive_warning1
+  time_sensitive_warning2
+  if tro_granted: 
+    has_firearms
+    if has_firearms:
+      firearms_restrictions_info1
+      firearms_restrictions_info2
+      firearms_restrictions_info3
+      firearms_restrictions_info4
+      firearms_restrictions_info5
+      firearms_restrictions_info6
+      firearms_restrictions_info7
+      firearms_restrictions_info8
+      firearms_restrictions_info9
+  deadlines_outro
+  interview_part
+  purpose1
+  purpose2
+  
+  nav.set_section('dvro_case_process')
+  court_process_intro
+  court_process_filing
+  court_process_tro
+  court_process_service
+  court_process_response
+  court_process_hearing1
+  court_process_hearing2
+  court_process_enforcement
+  mutual_restraining_orders1
+  mutual_restraining_orders2
+  
+  nav.set_section('considerations')
+  considerations_intro
+  considerations_cost
+  considerations_conflict_level
+  considerations_dvro_professionals
+  
+  nav.set_section('restrainingorder_types')
+  ro_types
+  
+  nav.set_section('ca_dv_law')
+  dv_advocate_definitions
+  ca_law_abuse
+  ca_law_victims
+    
+  nav.set_section('dv_order_types')
+  order_types_intro
+  order_types
+  
+  nav.set_section('resources')
+  free_resources
+  
+  nav.set_section('conclusion')
+---
+question: |
+  Welcome to U Do It Legal's Response to Request for Domestic Violence Restraining Order, Part 1: **Response to Request for DVRO Roadmap** 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+continue button field: safety_warning
+---
+question: |
+  Were You Served with a Temporary Restraining Order (TRO)?
+subquestion: |
+  Along with the Request for a Domestic Violence Restraining Order ([form DV-100](https://www.courts.ca.gov/documents/dv100.pdf)) and its attachments, you might have also received a Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf)). This order provides immediate, temporary protections for the petitioner (aka., the protected party) until the court hearing. 
+fields: 
+  - Were you served with (given) a Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))?: tro_granted
+    datatype: yesnoradio
+    help: |
+      If a TRO was issued against you, there are specific temporary restrictions you must follow. Please check the documents you were served with (given) and indicate whether you received a DV-110 (TRO) in addition to the DV-100.
+  - note: |
+      ${card_start("Important Warning:", color="warning")}
+      The answer to this question significantly impacts the guidance and information you'll receive throughout this interview. Please double-check the documents you've been served with to ensure you've answered this question correctly before proceeding.
+      ${card_end()}
+---
+question: |
+  **Warning:** Your Time-Sensitive Deadlines
+subquestion: |
+  The upcoming pages will outline how to find the key deadlines for your case.
+
+  It's crucial to note these dates in a place you frequently reference, such as a calendar, to ensure you don't overlook or miss any vital court deadlines.
+continue button field: deadlines_intro
+---
+question: |
+  **Warning:** Your Time-Sensitive Deadlines
+subquestion: |
+  ${card_start("File Your Response by Your Hearing Date:", color="warning")}
+  Your Response paperwork needs to be completed and submitted (filed with the court) before your scheduled hearing date.  
+  ${card_end()}
+  
+  You can find the details of your hearing's date, time, and location in Item 3 on the Notice of Court  Hearing, form DV-109 (see below), which is part of the paperwork the other party had served on (given to) you. 
+  
+  ${prog_disclose(hearing_date_screenshot_template)}
+  
+  **Write down your hearing's date, time, and location somewhere important so you don't forget it or miss any deadlines.** 
+  
+  It is essential to both file a Response and attend the scheduled hearing if you want the court to consider your side of the story. Taking no action may cost you enormously.
+continue button field: time_sensitive_warning1
+---
+template: hearing_date_screenshot_template
+subject: |
+  Click here to see a screenshot of Item 3 on form DV-109
+content: |
+  [FILE hearing_date_screenshot, 100%]
+---
+question: |
+  **Warning:** Your Time-Sensitive Deadlines
+subquestion: |
+  ${card_start("Need more time to prepare your Response? Request a Continuance:", color="warning")}
+  In California DVRO cases, if you need additional time to prepare your Response, you have the right as a Respondent to request a one-time continuance, which is essentially a postponement of your hearing. 
+  ${card_end()}
+  
+  Keep in mind, the court is authorized to grant such postponement requests when there's a demonstrated "good cause" by either party. 
+  
+  To ask the court to reschedule your hearing, you can access the optional **Part 3.1: Request to Reschedule Hearing** interview at any time on your membership homepage, which is designed to help you complete the Request to Continue Hearing (form DV-115) and a proposed Order on Request to Continue Court Hearing (form DV-116).
+continue button field: time_sensitive_warning2
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####Mandatory Firearms Restrictions and Receipts:
+fields: 
+  - Did the person seeking a restraining order against you claim that you own, use, or possess any firearms, firearm parts, or ammunition? Check Item 6 on the Temporary Restraining Order (form DV-110) you received to see if this claim was made by the court.: has_firearms
+    datatype: yesnoradio
+    help: |
+      These items include Firearms (guns); Firearms parts (receiver, frame, or unfinished receiver or frame as defined in Penal Code section 16531); or Ammunition
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####Mandatory Firearms Restrictions and Receipts:
+  
+  You indicated on a prior page that you were served with a Temporary Restraining Order (form DV-110). Because there was a TRO issued against you, you are prohibited from owning, using, or possessing firearms (guns), firearms parts (receiver, frame, or unfinished receiver or frame as defined in [Penal Code section 16531](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=PEN&sectionNum=16531.)), or ammunition until your hearing date, during which the judge will decide whether to make the firearms restrictions permanent. 
+  
+  You must keep track of the following firearms restrictions deadlines, which will each be explained on the following pages:
+  
+  - Your 24-Hour Deadline,
+  - Your 48-Hour Deadline, and
+  - The Hearing on Firearms Restrictions
+  
+  *For more information about these firearms restrictions, see Item 5 on page 2 of the Temporary Restraining Order (form DV-110) issued against you and review the court's helpful information sheet: [form DV-800-INFO](https://www.courts.ca.gov/documents/dv800info.pdf).*
+continue button field: firearms_restrictions_info1
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  ${card_start("Your **24 Hour** Deadline", color="warning")}
+  Within 24 hours of recieving a TRO (form DV-110) or DVRO/ROAH (form DV-130) issued against you, you **must** sell to or store with a licensed gun dealer, or turn in to law enforcement, any prohibited items you have in your immediate possession or control. 
+  ${card_end()}
+continue button field: firearms_restrictions_info2
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  ${card_start("Your **48 Hour** Deadline", color="warning")}
+  Within 48 hours of receiving a TRO (form DV-110) or DVRO/ROAH (form DV-130) issued against you, you **must** file a receipt with the court that proves all prohibited items have been turned in, sold, or stored. If law enforcement serves you with a restraining order, you must give a copy of the receipt to that law enforcement agency.
+  ${card_end()}
+continue button field: firearms_restrictions_info3
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |  
+  ${card_start("Hearing on Firearms Restrictions:", color="warning")}
+  If the other party alleged you possess firearms, the court may have scheduled a hearing for you to provide proof of their turn-in, storage, or sale. 
+  ${card_end()}
+
+  Check page 3 of the Temporary Restraining Order (form DV-100) you were given, under Item 7 (see sample screenshot below), for the hearing's date, time, and location, if set. 
+  [FILE dv110_item7_screenshot, 100%]
+  
+  **Write this information down somewhere important so you do not miss this hearing.**
+continue button field: firearms_restrictions_info4
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####How Do I Comply with the Firearms Restrictions in the Temporary Restraining Order?
+  
+  To assist individuals in understanding and adhering to the firearms restrictions associated with a Temporary Restraining Order (TRO), the court has prepared a comprehensive guide. 
+  
+  This court form, titled "How Do I Turn In, Sell, or Store My Firearms, Firearm Parts, and Ammunition?" ([form DV-800-INFO/JV-270-INFO](https://www.courts.ca.gov/documents/dv800info.pdf)), provides all the necessary details and steps you should take to ensure compliance with he firearms restrictions. 
+  
+  We highly recommend that you click the blue hyperlink above to review this form and gain a clear understanding of your obligations. Note, a copy of the form will be available to download at the end of this interview.
+continue button field: firearms_restrictions_info5
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####How Do I Prove to a Judge That I Have Complied With (Obeyed) the Orders?
+  
+  You can use form DV-800 as a receipt for turning in, selling, or storing any of the prohibited items above. You can access the optional **Part 2.3: Firearms Restrictions** interview available on your membership homepage, which will help you fill in the Receipt for Firearms, Firearm Parts, and Ammunition ([form DV-800/JV-270](https://www.courts.ca.gov/documents/dv800.pdf)). 
+continue button field: firearms_restrictions_info6
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####Consequences of Not Complying with Firearms Restrictions:
+
+  Adhering to the firearms restrictions outlined in a Temporary Restraining Order (TRO) is not just a matter of legal obligation; it's a matter of serious consequence if ignored. If you fail to comply with these restrictions, here's what you could face:
+
+  - **Law Enforcement Notification:** The court may notify law enforcement agencies about your non-compliance. This could lead to immediate action, including a search of your premises or further legal repercussions.
+  - **Prosecution:** Violation of the TRO's firearms restrictions can be seen as contempt of court or even a separate crime. The court has the authority to notify a prosecuting attorney, which might result in criminal charges against you and your arrest.
+  - **Increased Scrutiny:** Non-compliance can impact the court's perception of you, possibly affecting other decisions in your DVRO case or future legal proceedings.
+  
+  It's crucial to understand that obeying these restrictions is not only about adhering to a court order but also about safeguarding your legal standing and future. It's always advisable to follow the order meticulously and seek guidance if you're unsure about any aspect of compliance.
+continue button field: firearms_restrictions_info7
+---
+question: |
+  **Warning:** Write Down Your Time-Sensitive Deadlines
+subquestion: |
+  #####What if I Feel a TRO Was Granted Against Me Unjustly?
+  
+  If you believe that a Temporary Restraining Order (TRO) was issued against you unfairly, it's crucial to understand that the TRO is only enforceable until the court hearing. At this hearing, you will have the opportunity to contest the other party's request for a permanent Domestic Violence Restraining Order. If the judge decides not to grant a permanent order, the restrictions on firearms will be lifted.
+  
+  Given this, if you're confident about your case's merits and foresee a positive outcome, you might consider temporarily storing your firearms with a licensed dealer or law enforcement rather than selling them. This way, if the TRO is lifted, you can retrieve your items without incurring a permanent loss. 
+  
+  **However, always ensure you strictly comply with the temporary restrictions while the TRO is in effect.**
+continue button field: firearms_restrictions_info8
+---
+question: |
+  **Warning:** Pause and Exit This Interview if Approaching the 24-Hour or the 48-Hour Deadlines
+subquestion: |
+  If your 24-hour deadline to turn in, sell, or store your firearms is approaching or has passed OR if your 48-hour deadline to provide a receipt of your forfeiture or sale of firearms is your possession is approaching or has passed, **exit this interview now and begin the "Part 2.3, Firearms Restrictions" interview found on your membership homepage**. 
+  
+  Don't worry; your current progress will be saved, allowing you to resume this interview later. 
+continue button field: firearms_restrictions_info9
+---
+question: |
+  Important Note on Interview Order
+subquestion: |
+  You have completed the section outlining how to locate important deadlines in your case. Keep tabs on these deadlines to protect your standing, rights, and obligations in the case. 
+  
+  Remember, your progress on each interview is saved automatically, so you may complete the interviews in the order necessary to meet your deadlines. 
+  
+  % if tro_granted and has_firearms:
+  For example, if facing a fast-approaching 48-hour firearms restriction deadline, prioritize interview **Part 2.3: Firearms Restrictions**. Alternatively, if your hearing is approaching and you need more preparation time, begin with interview **Part 3.1: Request for Continuance** before tackling other interviews.
+  % else:
+  For instance, if your hearing date is soon and you require more time to complete the interviews that prepare your Response court forms and documents, you should prioritize completing the **Part 3.1: Request for Continuance** interview before proceeding with others.
+  % endif
+continue button field: deadlines_outro
+---
+template: part1
+subject: |
+  **Part 1, Responding to a Request for DVRO: Your Roadmap Through the Process**
+content: |
+  This interview covers:
+  
+  - Your Response to Request for Domestic Violence Restraining Order Roadmap
+---
+template: part2
+subject: |
+  **Part 2, Response to Request for DVRO**
+content: |
+  This interview prepares the following form for you:
+  
+  - Response to Request for Domestic Violence Restraining Order ([form DV-120](https://www.courts.ca.gov/documents/dv120.pdf))
+---
+template: part2_1
+subject: |
+  **Part 2.1, Financial Information** (Optional) *If the other party requested spousal support or child support orders**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Income and Expense Declaration ([form FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part2_2
+subject: |
+  **Part 2.2, Child Custody and Visitation** (Optional) *If the other party requested child custody and visitation orders**
+content: |
+  This interview prepares the following forms for you:
+  
+  - Response to Request for Child Custody and Visitation Orders ([form DV-125](https://www.courts.ca.gov/documents/dv125.pdf))
+  - City and state Where Children Lived ([form DV-105(A)](https://www.courts.ca.gov/documents/dv105a.pdf)) *if applicable**
+  
+  This interview also prepares the following proposed order forms for court completion:
+  
+  - Child Custody and Visitation Order ([form DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+  - Child Abduction Preventions Orders ([form DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+  - Supervised Visitation and Exchange Order ([form DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part2_3
+subject: |
+  **Part 2.3, Receipt for Firearms, Firearms Parts, and Ammunition** (Optional) *For those ordered to turn in, sell, or store their firearms, firearm parts, and/or ammunition**
+content: |
+  This interview prepares the following form for you: 
+  
+  - Receipt for Firearms, Firearm Parts, and Ammunition ([form DV-800/JV-270](https://www.courts.ca.gov/documents/dv800.pdf))
+---
+template: part3
+subject: |
+  **Part 3, Next Steps** 
+content: |
+  This interview covers instructions for Filing, Service, Hearing Preparation, and more. 
+  
+  It also generates written instructions in a PDF that you can download or email to yourself at the end of the interview. 
+---
+template: part3_1
+subject: |
+  **Part 3.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing ([form DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing ([form DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part4
+subject: |
+  **Part 4, Restraining Order After Hearing** 
+content: |
+  This interview provides a brief explanation of how different counties handle the preparation of Restraining Order After Hearing court forms. 
+---
+question: |
+  **Interview 1:** Responding to a DVRO, Your Roadmap Through the Process
+subquestion: |
+  Our website is here to help you every step of the way as you prepare all the necessary court forms for your Response to a Request for a Domestic Violence Restraining Order (DVRO). We've made things simpler by designing step-by-step interviews. As you work through your case, you can complete each interview in the order below. Click on an interview below to get a brief description. 
+  
+  You're currently viewing **Part 1** out of a 4-part interview series.
+  
+  ${card_start("You are here:", color="light")}
+  ${prog_disclose(part1)}
+  ${card_end()}
+  
+  ${prog_disclose(part2)}
+    
+  ${prog_disclose(part2_1)}
+  
+  ${prog_disclose(part2_2)}
+  
+  ${prog_disclose(part2_3)}
+  
+  ${prog_disclose(part3)}
+  
+  ${prog_disclose(part3_1)}
+  
+  ${prog_disclose(part4)}
+continue button field: interview_part
+---
+question: |
+  This Interview's Purpose 
+subquestion: |
+  This interview is crafted to guide you step-by-step as you respond to a Request for a Domestic Violence Restraining Order (DVRO) in California. We aim to present information in a clear and straightforward manner, ensuring you understand your rights, responsibilities, and the legal definitions related to domestic violence in California.
+
+  We will also provide you with essential resources and tools to assist in preparing your response. By the time you conclude this initial interview, you'll have the foundational knowledge required to confidently complete your court forms in subsequent interviews.
+
+  Remember, this process can be challenging, but we are here to support you every step of the way.
+continue button field: purpose1
+---
+question: |
+  This Interview's Purpose
+subquestion: |
+  This interview is purely informational. That said, we urge you not to skip it. 
+  
+  Understanding the nature of restraining orders, even as someone responding to one, is pivotal for safeguarding both your own well-being and that of individuals you care about.
+continue button field: purpose2
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  The upcoming pages offer a comprehensive breakdown of the DVRO case process from beginning to end. Here's an overview of the steps you'll learn about:
+
+  1. The Petitioner (the other party) submits a Request for a Domestic Violence Restraining Order (DVRO). The judge then determines if a Temporary Restraining Order (TRO) should be issued.
+
+  2. You receive the Petitioner's Request for DVRO, and if issued, the TRO.
+
+  3. As the Respondent (that's you), you file a Response. This document outlines your perspective and any orders you're seeking.
+
+  4. Both sides attend one or more court hearings. At these hearings, the judge decides on the issuance of a Permanent Restraining Order (DVRO/ROAH).
+
+  5. Important Info: Enforcing and Modifying Restraining Orders.
+
+  6. Important Info: Understanding Mutual Restraining Orders.
+continue button field: court_process_intro
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  #####**Step 1:** The Other Party Files a Request for DVRO
+  
+  When someone files a request for a restraining order, he or she must prepare the necessary court forms and submit them to the court. The person who initiates the case by filing the Request for DVRO is called the "Petitioner," and the person who responds to this request (in this case, you) is called the "Respondent."  
+  
+  "Filing" refers to the act of submitting these court forms and documents to the court, typically through the court clerk's office. It's the initial step the Petitioner takes to request a restraining order against you. The Petitioner's court forms and documents will contain the orders they want, as well as their allegations against you. We will help you understand the Petitioner's court forms and documents in your next interview. 
+
+  After the Petitioner has submitted their initial paperwork, the court clerk will pass all their court forms and documents to the judge. The judge then reviews these materials and decides if there is enough evidence to issue a Temporary Restraining Order (TRO) against you. By law, the judge must decide by the next business day, but the specific timing can vary from one court to another. 
+  
+  Continue to the next page for more information about Temporary Restraining Orders (TROs). 
+continue button field: court_process_filing
+---
+question: |
+  Understanding Temporary Restraining Orders (TRO) 
+subquestion: |
+  **What is a Temporary Restraining Order (TRO)?**
+
+  A Temporary Restraining Order (TRO) is a short-term protective order issued by the court. Its purpose is to offer immediate safety to the Petitioner. Once the order is granted, the Petitioner is often referred to as the "Protected Party." The order places specific conditions on the Respondent, who, once the TRO is in effect, is commonly called the "Restrained Party."
+
+  **Key Features of a TRO:**
+ 
+  ${prog_disclose(tro_duration)}
+  ${prog_disclose(tro_notice)}
+  ${prog_disclose(tro_service)}
+  ${prog_disclose(tro_response)}
+  ${prog_disclose(tro_consequences)}
+continue button field: court_process_tro
+---
+template: tro_duration
+subject: |
+  Duration
+content: |
+  **Duration:** A TRO is, by nature, temporary. It typically lasts for a few weeks, up to a maximum of 25 days, or until a full court hearing takes place to determine whether a "permanent" order (a DVRO/ROAH) should be issued.
+---
+template: tro_notice
+subject: |
+  Issued Without Notice to You
+content: |
+  **Issued Without Notice:** In situations where the Petitioner provides enough evidence to convince the judge that they're in immediate danger or that notifying you in advance would jeopardize their safety, a TRO can be issued without you being informed first. This is called an "ex parte" order.
+---
+template: tro_service
+subject: |
+  Service of the TRO
+content: |
+  **Service of the TRO:** Even if the TRO is issued without your prior knowledge, you will be officially served with the order soon after it's granted. This document will detail the specific restrictions placed upon you. **You must adhere to these restrictions, even if you believe the order is unjust or based on false information.**
+---
+template: tro_response
+subject: |
+  Your Right to Respond
+content: |
+  **Your Right to Respond:** After being served with a TRO, you'll have the opportunity to file a response and present your side at the scheduled court hearing. This is your chance to contest the TRO, provide evidence, or clarify any misunderstandings.
+---
+template: tro_consequences
+subject: |
+  Consequences of Violating a TRO
+content: | 
+  **Consequences of Violating a TRO:** Breaching the conditions of a TRO can result in serious legal consequences, including arrest and potential criminal charges. It's crucial to understand and strictly adhere to all the terms until the court hearing, where you can address the order's validity.
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  #####**Step 2: You're Served with the Request for DVRO (and TRO, if one was issued)**
+  
+  After the Petitioner files the Request for DVRO, they are required to ensure you are formally "served" with the court forms and documents they've submitted.
+
+  In legal terms, "service" means the official delivery of legal documents to another party in a case. This process ensures that everyone involved is aware of court actions and gives the Respondent (in this case, you) the opportunity to respond with your side of the story. Think of it as a court's official way of making sure you're informed about the case's progress.
+
+  It's crucial to thoroughly review any documents you receive to understand the Petitioner's specific claims or allegations. And remember, we're here to assist you in navigating these documents in the upcoming interview.
+  
+  The Judicial Council of California has also created a helpful, 2-page guide explaining personal service, available [here](https://www.courts.ca.gov/documents/dv200info.pdf). 
+continue button field: court_process_service
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  #####**Step 3: You File a Response**
+  
+  Once you have been served with the Request for DVRO (and TRO, if one was issued), you can file a document known as the "Response" to present your side of the story. In this document, you can agree with or disagree with the orders requested by the person seeking protection (the Petitioner), and can also request orders of your own. For instance, you might ask for child visitation rights or a change in the proposed contact restrictions. 
+  
+  Further, as the Respondent, you have a special right to ask the court to postpone (or "continue") the hearing if you need more time to prepare your Response or find a lawyer to prepare your case. Remember, just like the Petitioner, your requests are not automatically granted. The judge will carefully consider all the information and make a decision at the hearing.
+  
+  **Serving the Response Onto the Petitioner**
+
+  Once you've filed your Response and any associated documents with the court, it's crucial that the Petitioner is formally "served" with your court forms and documents. To reiterate, "service" in legal terms refers to the official delivery of documents to another party involved in a case. The purpose of this service is to inform the Petitioner of your Response and to offer them an opportunity to address your claims at the upcoming hearing, much like how you were informed of their initial request. We'll provide you with specific instructions for Service in the **Part 3, Next Steps** interview. 
+continue button field: court_process_response
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  #####**Step 4: Court Hearing**
+  
+  At the court hearing, the judge decides whether to grant or deny a permanent restraining order based on the evidence presented. Permanent restraining orders are often referred to as Domestic Violence Restraining Orders (DVROs) or Restraining Orders After Hearing (ROAHs). 
+  
+  We will guide you and provide information on how to prepare for the hearing, including understanding what to expect, gathering evidence, and presenting your case effectively in your **Part 3, Next Steps** interview. 
+  
+  The Judicial Council of California has also created a helpful, 4-page guide on how to prepare for a restraining order hearing, available [here](https://www.courts.ca.gov/documents/dv520info.pdf). 
+  
+  ${prog_disclose(employment_protections)}
+continue button field: court_process_hearing1
+---
+question: |
+  DVRO Cases from Start to Finish
+subquestion: |
+  #####**Step 4: Court Hearing**
+  
+  While you might wish that everything could be decided in one hearing, it is important to know that the court's priority is making fair and informed decisions. This sometimes means multiple hearings are needed to fully address all the issues of a particular request. However, the exact number of hearings can vary widely depending on the specifics of the case.
+  
+  ${prog_disclose(multiple_hearings_explanation)}
+  
+  The court may also postpose (continue) your hearing if:
+ 
+  - You have not been served or you need time to get a lawyer or prepare a Response, 
+  - The judge wants more information, or 
+  - Your hearing is taking longer than planned.
+continue button field: court_process_hearing2
+---
+template: employment_protections
+subject: |
+  Understanding Your Employment Protections: What Employment Rights Exist for Domestic Violence Victims in California?
+content: |
+  **Domestic Violence Victim Leave**
+  
+  [California Labor Code section 230](https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=230.&lawCode=LAB) provides important employment protections for victims of domestic violence. If you believe that you are a victim of domestic violence and if you work for an employer with **more than 25 employees**, you have the right to take domestic violence victim leave. This allows you time off work to address various matters related to the domestic violence, such as:
+  
+  - obtaining temporary restraining orders, 
+  - seeking medical or mental health treatment, or 
+  - finding safety in a domestic violence shelter.
+
+  **Notifying the Employer** 
+  
+  To exercise your right to domestic violence leave, you need to notify your employer within a reasonable time of your intended leave, unless advance notice is not feasible. 
+  
+  **Right to Reasonable Accommodation**
+  
+  Once you provide notice, your employer is required to provide "reasonable accommodation" during your time off. This can include:
+  
+  - changing your work schedule, 
+  - installing locks on your door, 
+  - changing work telephone numbers, 
+  - transferring you to a different job or location, or 
+  - implementing other changes that help protect your safety at work.
+
+  **No Retaliation or Discrimination**
+  
+  It's important to note that your employer is prohibited from retaliating against you or treating you differently as a result of taking domestic violence leave. They cannot wrongfully terminate your employment, fail to promote you, harass you, or discriminate against you based on your leave.
+
+  If you believe your employer has violated these protections, you can file a complaint with the California Labor Commissioner's Office. Employment attorneys experienced in this area can guide you through the process and help protect your rights.
+---
+template: multiple_hearings_explanation
+subject: |
+  Why might the court need to hold multiple hearings?
+content: |
+  In a Domestic Violence Restraining Order (DVRO) case, the court may need to hold multiple hearings if certain additional orders are requested, such as child custody, visitation, or support orders.
+
+  Here's why: these orders involve complex issues that often require more detailed investigation and consideration. For instance, if you or the other party request child custody or visitation orders, the court needs to ensure that any decisions made are in the best interests of the child or children. This often involves considering documentary evidence, hearing testimony from both parties and others, and sometimes, obtaining reports from child welfare professionals.
+
+  Similarly, decisions on child support or spousal support orders involve reviewing the financial circumstances of both parties. The court needs to ensure that any order made is fair and in line with California's guidelines for support and applicable law.
+---
+question: |
+  **Important Information:** Enforcement and Modification
+subquestion: |
+  **Restraining Order Enforcement**
+  
+  If the court issues a permanent restraining order against you after the hearing, it's vital to familiarize yourself with and follow all the directives stated in the Restraining Order After Hearing ([form DV-130](https://www.courts.ca.gov/documents/dv130.pdf)).
+
+  Additionally, the Judicial Council of California has provided a concise, 2-page guide on the enforcement of restraining orders in the state. You can access it [here](https://www.courts.ca.gov/documents/dv530info.pdf). Even though this document is primarily aimed at the protected party (Petitioner), we strongly suggest that you, as the hypothetical restrained party (Respondent) in this scenario, review it. This ensures you fully understand your legal responsibilities concerning the restraining order.
+  
+  **Restraining Order Modification**
+
+  Sometimes, circumstances change, and you may want to modify (change) the terms of the restraining order. The Judicial Council of California has created a helpful, 4-page guide on how to change or end a restraining order after your hearing through the Request for Order process, available [here](https://www.courts.ca.gov/documents/dv400info.pdf). Currently, U Do It Legal does not offer Request for Order services. However, we plan to introduce this service in 2024. 
+continue button field: court_process_enforcement
+---
+question: |
+  **Important Information:** Mutual Restraining Orders
+subquestion: |
+  **Understanding Your Rights in DVRO Cases**
+
+  Being named as the Respondent in a Domestic Violence Restraining Order (DVRO) case can be daunting. However, it's essential to know that even if you're the Respondent accused of abusing the other party, you still have the right to file your own DVRO request if you believe you've been a victim of domestic violence.
+  
+  The legal system recognizes that complex situations can arise where both parties feel threatened. As you navigate this journey, remain informed and genuine in your actions, keeping in mind that the court aims to ensure the safety and well-being of all parties involved.
+continue button field: mutual_restraining_orders1
+---
+question: |
+  **Important Information:** Mutual Restraining Orders
+subquestion: |
+  **When Both Parties Request DVROs: What Happens in Court**
+
+  If both parties file requests for Domestic Violence Restraining Orders (DVROs) against each other, it's known as "cross-filing" or "mutual requests." Here's what typically happens in such cases:
+
+  - **Separate Hearings:** Initially, the court may set separate hearings for each DVRO request. This ensures that each party has an individual opportunity to present their case.
+  - **Consolidation:** In some instances, a judge might decide to consolidate the hearings, meaning both requests are addressed in a single hearing. This can make the process more efficient and allow the judge to get a holistic view of the situation.
+  - **Evidence Presentation:** Each party will be given a chance to present evidence and witnesses to support their claims of domestic violence. This could include photos, medical records, text messages, or testimonies.
+  - **Legal Representation:** Even if you're representing yourself, remember that the other party might have legal representation. It's beneficial to be prepared, understand your rights, and, if possible, consider seeking legal advice or representation.
+  - **Decision:** After considering all the evidence and hearing from both parties, the judge will decide whether to grant one, both, or neither of the DVRO requests. It's possible for both parties to be granted restraining orders against each other if the judge believes both have valid claims of abuse.
+  - **Consequences:** If a DVRO is granted, it typically comes with specific conditions, such as prohibiting contact between the parties or requiring one party to move out of a shared residence. It's crucial to understand and adhere to these conditions to avoid legal consequences.
+continue button field: mutual_restraining_orders2
+---
+question: |
+  Additional Considerations to Keep in Mind
+subquestion: |
+  As you begin your case, you will find yourself navigating a complex legal landscape. This process may involve various considerations that can affect your overall experience and the outcomes of your case. 
+  
+  To help you better understand and prepare for this journey, the following pages discuss three crucial factors you may encounter: cost, conflict level, and the professionals who may become involved in your case. 
+  
+  Each of these elements has its nuances, and understanding them can help you to better navigate the DVRO process and plan for the road ahead.
+continue button field: considerations_intro
+---
+question: |
+  Additional Considerations to Keep in Mind: Cost
+subquestion: |
+  #####**Cost**
+  
+  Understanding what the legal process can and might cost is crucial, especially when representing yourself in a DVRO case in California. While the goal is to ensure all parties' safety and well-being, it is also important to plan for the potential costs involved.
+  
+  Below, we break down some of the common and potential costs you might incur in a DVRO case, from waived filing fees to service fees, and even considerations like time off work or childcare. Remember, each case is unique, and actual costs can vary based on individual circumstances.
+  
+  ${prog_disclose(filing_fees)}
+  ${prog_disclose(process_server_fees)}
+  ${prog_disclose(attorneys_fees)}
+  ${prog_disclose(indirect_costs)}
+  
+  Lastly, remember that the cost of not taking action could be much greater in the long run. While it is essential to consider these financial aspects, the primary focus in a DVRO case should always be the parties' safety and well-being.
+continue button field: considerations_cost
+---
+template: filing_fees
+subject: |
+  Filing Fees
+content: |
+  In a DVRO case, you will not typically have to worry about filing fees. California law waives these fees for individuals seeking or responding to a Domestic Violence Restraining Order, recognizing the urgent need for these protections. In other words, you should not have to pay to file your Response in a California Domestic Violence Restraining Order case. 
+---
+template: process_server_fees
+subject: |
+  Service Fees
+content: |
+  Serving your response paperwork is a crucial step in the legal process, ensuring that the petitioner receives the official documents detailing your side of the story. You have several options for serving these documents:
+
+  **Personal Service:**
+
+  - Friend or Family Member: You can ask someone you know, who is over 18 and not involved in the case, to serve the papers. This option is typically free. However, the person serving the court paperwork must be present at the hearing to inform the judge of the service details.
+  - Professional Process Server: You may hire a professional to deliver the papers on your behalf. This method incurs a fee, which can vary based on the service provider.
+
+  **Service by Mail:**
+
+  This method involves mailing the response documents directly to the petitioner. It's essential to send them using a method that provides a proof of delivery, such as certified mail with return receipt. This proof can be crucial as evidence that the petitioner received the documents. Remember to keep a copy of all paperwork sent and any delivery confirmations you receive.
+  
+  Note: We will provide you with thorough instructions for service in the **Part 3, Next Steps** interview. 
+---
+template: attorneys_fees
+subject: |
+  Attorney's Fees
+content: |
+  While you’ve chosen to represent yourself in this case using U Do It Legal, be mindful that the other party in the case might hire an attorney. In some circumstances, the court may order one party to pay all or a portion of the other party’s attorney’s fees. Attorney's fees are generally awarded only to the party that “prevails” in (i.e., wins) the case, with the court also taking into consideration the difference in income or financial resources between the two parties.
+---
+template: indirect_costs
+subject: |
+  Indirect Costs
+content: |
+  Additionally, consider potential indirect costs. For instance, you might need to take time off work to prepare your case or attend court. You might also need childcare during these times. And while you will not have the cost of an attorney, you may want to budget for potential consultation fees with a legal professional to guide you through the process.
+---
+question: |
+  Additional Considerations to Keep in Mind: Conflict Level
+subquestion: |
+  #####**Conflict Level**
+  
+  DVRO cases can vary greatly in terms of conflict levels, ranging from relatively amicable situations where both parties agree on most issues, to highly contentious circumstances where almost every aspect of the case is disputed. 
+  
+  Navigating these conflict levels while self-representing can be challenging, but understanding what to expect can help prepare you for the journey ahead. We explore the different types of conflict you may encounter during your DVRO case below. Each scenario is unique and will require a different approach.
+  
+  ${prog_disclose(low_conflict)}
+  ${prog_disclose(medium_conflict)}
+  ${prog_disclose(high_conflict)}
+  ${prog_disclose(unknown_conflict)}
+  
+  Remember, navigating a DVRO case can be complicated and emotionally draining. No matter the level of conflict, ensure that your physical safety and emotional well-being are prioritized. Reach out for support when necessary and stay informed about your rights and options.
+continue button field: considerations_conflict_level
+---
+template: low_conflict
+subject: |
+  Low Conflict
+content: |
+  **Low Conflict:** In some DVRO cases, the situation may be relatively low conflict. This typically happens if the Respondent (you) agrees to the orders made and is willing to adhere to the orders imposed by the court. If you agree with the requests filed by the petitioner, you can reduce the need for contentious hearings or ongoing legal battles. However, even in low conflict situations, it’s important to remain vigilant and prepared. Unexpected situations may arise, so maintaining open communication with the court is crucial.
+---
+template: medium_conflict
+subject: |
+  Medium Conflict
+content: |
+  **Medium Conflict:**  In medium conflict situations, the Respondent (you) might partially agree with some of the requests filed, but dispute others. These scenarios often require more negotiation when attempting settlement, and may result in multiple court appearances. Remember that every detail you provide—evidence of abuse, records of interactions, pictures, etc.—can influence the judge’s decisions. Be prepared to substantiate your claims and stand your ground in these situations.
+---
+template: high_conflict
+subject: |
+  High Conflict
+content: |
+  **High Conflict:** In high conflict situations, the Respondent (you) may resist all requested orders, any restraining order issued, deny allegations, or even file their own Request for Domestic Violence Restraining Order against the other party. These cases can be extremely stressful and may involve prolonged court battles. Legal counsel or advice from a lawyer can be particularly beneficial in these instances. U Do It Legal urges individuals to hire an attorney rather than relying solely on our services in these situations. Always prioritize your safety; if you fear escalation or violent reactions from the other party, consider also seeking assistance from law enforcement or a domestic violence hotline. The court can also potentially assist in enforcing any protective order issued to you, and otherwise aiding you in your safety.
+---
+template: unknown_conflict
+subject: |
+  Unknown Conflict Level
+content: |
+  **Unknown Conflict Level:** In some cases, the level of conflict may be unpredictable. The each party's reactions might vary, and they may become more confrontational over time. In these cases, be prepared for any eventuality. Courts recommend keeping records of all interactions between you and the other party. Don’t hesitate to seek professional advice or assistance from local law enforcement, local resources, and organizations when needed.
+---
+question: |
+  Additional Considerations to Keep in Mind: Professionals
+subquestion: |
+  #####**Professionals**
+  
+  During the course of a DVRO case, you may encounter several professionals from various fields who play vital roles in the legal proceedings, your safety, and overall wellbeing. Each has a unique responsibility and purpose within the justice system and beyond. Understanding their roles can help you navigate the process more smoothly and effectively. Here's a quick overview of the key players you might interact with:
+  
+  ${prog_disclose(court_clerk)}
+  ${prog_disclose(family_law_facilitator)}
+  ${prog_disclose(judge)}
+  ${prog_disclose(law_enforcement)}
+  ${prog_disclose(process_server)}
+  ${prog_disclose(attorneys)}
+  ${prog_disclose(victims_advocate)}
+  ${prog_disclose(therapist)}
+  
+  Navigating the legal system can feel overwhelming, but understanding the roles of these professionals can provide some clarity. Do not hesitate to ask questions and seek help when you need it. These individuals are there to support you.
+continue button field: considerations_dvro_professionals
+---
+template: court_clerk
+subject: |
+  Court Clerk
+content: |
+  The court clerk is often your first point of contact within the judicial system (that is, unless you say hello to the security guards at the front of the courthouse). Court clerks handle administrative duties in the court, including receiving and filing your court documents, and work directly with the judge. Clerks can answer basic questions about forms and procedures but cannot give legal advice. Always be courteous and polite with the court clerk. 
+---
+template: family_law_facilitator
+subject: |
+  Family Law Facilitator / Custody Mediator
+content: |
+  A family law facilitator is a lawyer who works for the court to assist self-representing litigants with their cases, particularly in matters related to family law. They can help you understand court procedures and prepare your forms, but Family Law Facilitators cannot represent you in court.
+
+  A custody mediator, on the other hand, is trained to assist in resolving disputes related to child custody and visitation. If child custody and visitation orders are being requested in a DVRO proceeding, a child custody mediator may be appointed by the court to help you and the other party reach a mutually beneficial agreement regarding any minor children you have together.
+---
+template: judge
+subject: |
+  Judge / Judicial Officer
+content: |
+  The judge (or occasionally a judicial officer) is the ultimate authority in the courtroom. The judge presides over hearings, makes decisions based on the law and the evidence presented, and issues court orders. In a DVRO case, the judge will decide whether to grant the restraining order and determine any additional orders to be made in connection with the restraining order.
+---
+template: law_enforcement
+subject: |
+  Law Enforcement 
+content: |
+  Law enforcement officers (aka police officers) play an essential role in enforcing court orders. If a temporary restraining order (TRO) or permanent restraining order (DVRO/ROAH) is granted, local law enforcement agencies are typically notified. Law enforcement can enforce the order and may intervene and arrest the Restrained Party if the order is violated.
+  
+  Additionally, many sheriff's departments will serve local restraining orders onto the Restrained Party for free or for a small fee in DVRO cases.
+---
+template: attorneys
+subject: |
+  Attorneys / Lawyers
+content: |
+  While you may be self-representing, the other party involved in your DVRO case may decide to hire an attorney. This person will represent the interests of the other party, presenting their case and arguing on their behalf in court.
+---
+template: process_server
+subject: |
+  Process Server
+content: |
+  As mentioned previously, a process server is a professional that you may optionally hire to serve/deliver legal documents on/to the other party (Petitioner), ensuring he or she is aware of any court forms and documents you file.
+---
+template: victims_advocate
+subject: |
+  Domestic Violence Victims' Advocate
+content: |
+  A domestic violence victims' advocate can offer support and resources to those experiencing domestic violence. Advocates may provide emotional support, help develop safety plans, assist with locating safe housing, and offer information about legal proceedings.
+  
+  Some organizations that render services to support survivors of domestic violence can provide an advocate who will accompany victims of domestic violence to court hearings upon their request. Note, however, that advocates who offer court accompaniment are there for emotional support and cannot speak in court on a party's behalf. 
+---
+template: therapist
+subject: |
+  Therapist
+content: |
+  Therapists or counselors can provide psychological support and coping strategies for dealing with the emotional stress of a DVRO case. Therapists may specialize in trauma, domestic violence, or family counseling and can provide a safe space to express feelings and concerns, and guide you in healing from the trauma.
+---
+---
+question: |
+  Types of Protective and Restraining Orders in California 
+subquestion: |
+  #####In Summary:
+  ${prog_disclose(ro_type_summary)}
+  
+  Click on the different types of protective and restraining orders below to learn more about each order and how they differ. 
+  
+  ${prog_disclose(tro_explanation)}
+  ${prog_disclose(dvro_explanation)}
+  ${prog_disclose(cpo_explanation)}
+  ${prog_disclose(epo_explanation)}
+  ${prog_disclose(chro_explanation)}
+  ${prog_disclose(earo_explanation)}
+  ${prog_disclose(wpvro_explanation)}
+
+continue button field: ro_types
+---
+template: cpo_explanation
+subject: |
+  **Criminal Protective Order** (CPO)
+content: |
+  **Purpose:**
+
+  A Criminal Protective Order (CPO) is a court order that protects a victim of a crime, including domestic violence, from the person who committed the crime, often referred to as the “defendant” or “other party.” In cases where the defendant is charged with a crime related to domestic violence by the District Attorney, the CPO is issued to protect the victim from further abuse and to ensure the victim’s safety during the criminal proceedings.
+  
+  **Issuance:**
+  
+  A CPO is issued by a criminal court judge at the defendant’s arraignment or at any point during the criminal proceedings if the judge believes it is necessary to protect the victim. A CPO can also be issued in conjunction with a criminal protective order petition filed by the victim with the court.
+  
+  **Duration:**
+
+  A CPO can be issued for the duration of the criminal proceedings and, if the defendant is convicted of the crime, the order can remain in effect for up to 10 years.
+
+  **Availability:**
+
+  A CPO can only be issued in connection with a criminal case and is not a substitute for a DVRO. If a victim of domestic violence wants protection beyond the duration of the criminal proceedings, they will need to file a petition for a DVRO with the family court.
+
+  **Notice:**
+
+  The other party is notified of the CPO at the time of their arraignment or when the order is issued, and the order is enforceable by law enforcement.
+
+  ${card_start("Note:", color="light")}
+  A CPO is separate from a DVRO and is issued in a criminal court, while a DVRO is issued in civil/family court. U Do It Legal does not handle or assist with CPOs or criminal matters. However, we do help people navigate the TRO and DVRO/ROAH processes described in the info boxes above. For more information regarding the criminal process, you may watch [this video](https://drive.google.com/file/d/1EJ4GcKGtKMs8FslD6DFB20QsiuFGO7Qn/view).
+  ${card_end()}
+---
+template: epo_explanation
+subject: |
+  **Emergency Protective Order** (EPO)
+content: |
+  **Purpose:** 
+
+  An EPO is issued to provide immediate, short-term protection from domestic violence, stalking, or other forms of abuse.
+
+  **Issuance:**
+
+  Upon the request of a law enforcement (police) officer, EPOs can be issued by a judge. EPOs are typically issued when the officer believes someone is in immediate danger and needs protection.
+
+  **Duration:**
+
+  An EPO is valid for a brief period, usually up to 7 days.
+
+  **Availability:** 
+
+  EPOs can be issued 24 hours a day, 7 days a week, and can be obtained without the person seeking protection appearing in court.
+
+  **Notice:**
+
+  The person being restrained does not need to be present or notified before the EPO is issued.
+  
+  ${card_start("Note", color="info")}
+  Law enforcement officers (police) must initiate the issuance of an EPO by a judge. Because of this, U Do It Legal does not handle or assist with EPOs. However, we do help people navigate the TRO and DVRO/ROAH processes described in the info boxes above. 
+  ${card_end()}
+---
+template: tro_explanation
+subject: |
+  **Temporary Restraining Order** (TRO)
+content: |
+  **Purpose:**
+
+  A temporary restraining order, or TRO, is issued to provide short-term protection from abuse or harassment defined under the law until a court hearing can take place to decide whether a permanent longer-term restraining order is necessary.
+
+  More specifically, a TRO is an order for one person to temporarily stay away from another person, including their home, vehicle, work, and, if applicable, protected household or family members, if requested. If a TRO is granted, and if requested, the court can also order the abusive person to do things like move out of a shared residence, pay utility bills or child support, cease (stop) contact, and the like.
+
+  Additionally: 
+
+  - Anyone 12 and over can apply for a TRO without parental consent.
+  - A TRO must be filed in civil/family court, not criminal court.
+  
+  **Issuance:**
+
+  TROs are issued by a judge after a person seeking protection (the Petitioner) files a request in court. If granted, TROs are typically issued the same-day or the following day.
+
+  **Duration:**
+
+  A TRO typically lasts two to three weeks and is **only valid and enforceable until the date of the hearing.** A judge decides whether to issue a more permanent restraining order at the hearing.
+
+  **Availability:**
+
+  TROs can only be issued during court hours, and the Petitioner typically needs to appear in court to request one. California court hours vary from courthouse to courthouse, but are generally 8:30 AM to 4:30PM. For specific hours and department calendar schedules, visit your local Superior Court website for more information. 
+
+  **Notice:**
+
+  Under certain circumstances, a judge may issue a TRO without first notifying the Respondent of the request if there is a strong basis that notifying the Respondent may cause harm to or put the Petitioner in danger. However, the Respondent must be served with (given) the TRO before police can enforce the order.
+---
+template: dvro_explanation
+subject: |
+  **Domestic Violence Restraining Orders** (DVRO) / **Restraining Orders After Hearing** (ROAH) 
+content: |
+  **Purpose:**
+   
+  Like a TRO, a Domestic Violence Restraining Order (DVRO) is a court order designed to protect victims of domestic violence victim from an abusive partner, a family member, or someone in their household. In California, we often call this order a Domestic Violence Restraining Order (also known as a “Restraining Order After Hearing, “ROAH”).   
+
+  The DVRO/ROAH is a “permanent” restraining order issued by the court against the Respondent **after a hearing**. It may provide the same specific restrictions as a TRO, or impose greater restrictions, and is valid for a specified period of time.
+
+  **Issuance:**
+
+  DVROs/ROAHs are issued by a judge after the person seeking protection (the Petitioner) files a request in court, serves the opposing party (the Respondent), and attends the court set hearing. 
+
+  **Duration:**
+
+  If granted, a DVRO/ROAH can last up to 5 years, after which it can be renewed if necessary.
+
+  **Availability:** 
+
+  DVROs are issued during/after a hearing held during court hours. ROAHs are issued by a judge after the person seeking protection (the Petitioner) attends the DVRO hearing following service of the court documents on the opposing party.
+
+  **Notice:**
+
+  The Respondent must be served with a copy of the court papers and given an opportunity to file a Response before the DVRO/ROAH hearing.
+---
+template: chro_explanation
+subject: |
+  **Civil Harassment Restraining Orders** (CHRO)
+content: |
+  **Purpose:**
+
+  A Civil Harassment Restraining Order (CHRO) is a court order designed to protect individuals from harassment, stalking, or threats by someone who is not a family member or an intimate partner. It is intended to safeguard people from abuse or violence by neighbors, roommates, coworkers, or more distant acquaintances.
+
+  **Issuance:**
+
+  A CHRO is issued by a judge after the person seeking protection (the petitioner) files a request in court. The petitioner must provide evidence of harassment, and the judge will determine whether a CHRO is warranted based on the presented information.
+
+  **Duration:**
+
+  If granted, a CHRO can last up to three years, and it can be extended if necessary. The duration may vary depending on the circumstances of the case and the judge’s discretion.
+
+  **Availability:**
+
+  CHROs can be obtained during court hours, and the petitioner typically needs to appear in court to request one. A hearing will be scheduled for both parties to present their case before the judge makes a decision.
+
+  **Notice:**
+
+  The person being restrained (the other party) must be served with a copy of the court papers and given an opportunity to respond before the CHRO hearing.
+---
+template: earo_explanation
+subject: |
+  **Elder Abuse** (or Dependent Adult) **Restraining Order** (EARO)
+content: |
+  **Purpose:**
+
+  A Dependent Adult or Elder Abuse Restraining Order (EARO) is a court order designed to protect elderly individuals (65 years or older) or dependent adults (18-64 years old with certain disabilities) from abuse, neglect, or exploitation. It offers protection from physical, emotional, or financial harm caused by a family member, caregiver, or any other person responsible for his/her care.
+
+  **Issuance:**
+
+  An EARO is issued by a judge after the person seeking protection (the petitioner), or someone acting on his/her behalf, files a request in court. The petitioner must provide evidence of abuse or neglect, and the judge will determine whether an EARO is warranted based on the presented information.
+
+  **Duration:**
+
+  If granted, an EARO can last up to five years, and it can be extended if necessary. The duration may vary depending on the circumstances of the case and the judge’s discretion.
+
+  **Availability:**
+
+  EAROs can be obtained during court hours, and the petitioner or their representative typically needs to appear in court to request one. A hearing will be scheduled for both parties to present their case before the judge makes a decision.
+
+  **Notice:**
+
+  The person being restrained (the other party) must be served with a copy of the court papers and given an opportunity to respond before the EARO hearing.
+---
+template: wpvro_explanation
+subject: |
+  **Workplace Violence Restraining Orders** (WVRO)
+content: |
+  **Purpose:**
+
+  A Workplace Violence Restraining Order (WVRO) is a court order intended to protect employees and other business personnel from threats, harassment, or violence in their place of work. It is typically requested by an employer on behalf of an employee who is being subjected to these issues, often by another employee or customer.
+
+  **Issuance:**
+
+  A WVRO is issued by a judge after the employer or business owner (the petitioner) files a request in court on behalf of the affected employee. The petitioner must provide evidence of the threats, harassment, or violence, and the judge will decide whether a WVRO is justified based on the provided information.
+
+  **Duration:**
+
+  If granted, a WVRO can last up to three years, and it can be extended if necessary. The duration may depend on the circumstances of the case and the judge’s discretion.
+
+  **Availability:**
+
+  WVROs can be obtained during court hours, and the petitioner (the employer or their representative) typically needs to appear in court to request one. A hearing will be scheduled for both parties to present their case before the judge makes a decision.
+
+  **Notice:**
+
+  The person being restrained (the other party) must be served with a copy of the court papers and given an opportunity to respond before the WVRO hearing.
+---
+template: ro_type_summary
+subject: |
+  Which types of protective or restraining orders does U Do It Legal service? 
+content: |
+  At U Do It Legal, we currently assist both parties in DVRO cases: Petitioners and Respondents. Here's a breakdown of our offerings:
+
+  - **For DVRO Petitioners:** We provide a comprehensive service package to guide Petitioners through the Request for DVRO process. As part of this, the judge will also evaluate the necessity for a temporary restraining order (TRO)
+
+  - **For DVRO Respondents:** We've curated a legal service package that guides you through completing your Response forms and navigating the case process (which is what you are currently using)
+
+  However, please be aware that U Do It Legal currently does not offer assistance for:
+
+  - Emergency Protective Order (which must be requested by law enforcement),
+  - Criminal Protective Order (which are issued in criminal court),
+  - Civil Harassment Restraining Order (we intend to launch these services in 2025 if not sooner),
+  - Elder Abuse Restraining Order (we intend to launch these services in 2025 if not sooner), or
+  - Workplace Violence Restraining Order (we intend to launch these services in 2025 if not sooner).
+---
+question: |
+  How Do DV Victims' Advocates Organizations Define Domestic Violence? 
+subquestion: |
+  ${prog_disclose(advocate_dv_definitions)}
+  
+  To see examples of behaviors broadly defined as domestic or intimate partner violence by various organizations, please click on the information boxes provided below.
+  
+  ${card_start("Note:", color="warning")}
+  Legal definitions of domestic violence and abuse in California (which are explained on the following pages) are narrower than the definitions commonly used by domestic violence victims' advocates. The examples of abusive behaviors below are taken from Domestic Violence Counselor certification materials governed under California Evidence Code §1037.1(a)(2), but not all of these behaviors fall under California's statutory definitions of domestic violence and abuse.
+  ${card_end()}
+  
+  ${prog_disclose(advocate_physical_abuse)}
+  ${prog_disclose(advocate_emotional_abuse)}
+  ${prog_disclose(advocate_sexual_abuse)}
+  ${prog_disclose(advocate_financial_abuse)}
+  ${prog_disclose(advocate_spiritual_abuse)}
+  ${prog_disclose(advocate_legal_abuse)}
+  ${prog_disclose(advocate_cyber_abuse)}
+continue button field: dv_advocate_definitions
+---
+template: advocate_dv_definitions
+subject: |
+  Different Organizations' Definitions of "Domestic Violence"
+content: |
+  Here are some examples of how various organizations define the terms "domestic violence" and "intimate partner violence" (often used interchangeably):
+  
+  - Intimate partner violence refers to behavior by an intimate partner or ex-partner that causes physical, sexual or psychological harm, including physical aggression, sexual coercion, psychological abuse and controlling behaviors. (World Health Organization, Fact Sheet: “Violence Against Women,” 2014)
+  - Domestic violence is a range of behaviors used to establish power and exert control by one intimate partner over the other. (California Partnership to End Domestic Violence, 2015)
+  - Domestic violence is a pattern of assaultive and coercive behaviors that adults or adolescents use against their current or former intimate partners. (Missouri Coalition Against Domestic Violence, 2012)
+---
+template: advocate_physical_abuse
+subject: |
+  Examples of Physical Abuse
+content: |
+  Some examples of physically abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Hitting, punching, slapping, scratching, biting, spitting, restraining, strangling, pushing, kicking, throwing objects at partner
+  - Property damage
+  - Reckless driving
+  - Blocking, or locking partner in or out of the house 
+  - Food, water or sleep deprivation
+  - Attacking with a weapon
+  - Causing severe bodily injury/Committing homicide
+---
+template: advocate_emotional_abuse
+subject: |
+  Examples of Emotional and Psychological Abuse
+content: |
+  Some examples of emotionally abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Verbally attacking one’s vulnerabilities or humiliating them in private, public or online 
+  - Name calling 
+  - Threatening to use violence toward victim, family members, children, friends or pets
+  - Threatening to kidnap children or pets
+  - Isolating partner from family or friends 
+  - Silent treatment 
+  - Lying or manipulating 
+  - Encouraging self blame 
+  - Stalking a person at home or in public 
+---
+template: advocate_sexual_abuse
+subject: |
+  Examples of Sexual and Reproductive Abuse
+content: |
+  Some examples of sexually abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Rape or Marital Rape, such as demanding or forcing sexual intercourse when or in ways that it is unwanted and non-consensual 
+  - Molestation 
+  - Exposure to pornographic material(s) 
+  - Denying access to the use of contraception or sabotaging proper use of contraception
+  - Forcing unwanted pregnancy or unwanted abortion
+  - Withholding sex and affection as punishment
+  - Revenge porn
+  
+  Reproductive Coercion involves behaviors that a partner uses to maintain power and control in a relationship that are related to fertility and reproductive health, such as:
+
+  - explicit attempts to cause a pregnancy or get pregnant against partner’s wishes 
+  - controlling outcomes of a pregnancy
+  - coercing a partner to have unprotected sex 
+  - interfering with proper use of birth control methods
+  
+  (Futures Without Violence)
+
+---
+template: advocate_financial_abuse
+subject: |
+  Examples of Financial and Economic Abuse
+content: |
+  Some examples of financially abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Controlling money/finances (such as cash, bank accounts, or credit cards) or forcing the partner to give up control of their own financial decisions
+  - Withholding or stealing money from the partner
+  - Sabotaging or preventing partner from working or going to school or sabotaging their employment opportunities
+  - Refusing to work and forcing partner to support the family
+  - Running up credit cards in partner’s name
+  - Stealing partner’s identity to apply for loans, and credit cards
+  - Coercing the partner into taking on debt or making financial decisions that benefit the partner
+---
+template: advocate_spiritual_abuse
+subject: |
+  Examples of Spiritual Abuse
+content: |
+  Some examples of spiritually abusive behaviors provided by DV advocates' organizations include:
+  
+  - Denying freedom to worship
+  - Ridiculing religion
+  - Destroying religious icons
+  - Using religion to control victims behaviors/actions
+---
+template: advocate_legal_abuse
+subject: |
+  Examples of Legal Abuse
+content: |
+  Some examples of legally abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Threatening to divorce or divorcing partner 
+  - Threatening to take or taking all assets 
+  - Threatening to take or taking custody of children or pets
+  - Withholding all identification documents (e.g. marriage license, passports, ID cards, etc.) 
+  - Promising to help partner to file for legal status and never doing it
+  - Threatening to report immigration status to U.S. Immigration and Customs Enforcement (ICE)
+---
+template: advocate_cyber_abuse
+subject: |
+  Examples of Technological/Cyber Abuse
+content: |
+  Some examples of technologically abusive behaviors provided by DV advocates' organizations include: 
+  
+  - Tracking location through GPS devices
+  - Recording and uploading sexual activities or photos without permission (revenge porn)
+  - Posting humiliating pictures/messages online
+  - Forcing partner to check-in frequently by text, calling, email, social media 
+  - Hacking email or social media accounts
+  - Downloading spyware on computer or phone to track partner’s activities
+---
+question: |
+  How is Domestic Violence Defined Under California Law?
+subquestion: |
+  **@ Ryan**, *you did not provide any direct edits on these in the Petitioner's Roadmap interview beyond saying we need to cite the statutes, which I've tried to do below. That said, I encourage you to review these descriptions once more given our discussions during filming, and I'll update the Petitioner's interview to reflect any revisions*
+  
+  Under the law, domestic abuse can take different forms and have different definitions. There are multiple forms of abuse that fall under the umbrella of California's legal for domestic violence, some of which include: 
+  
+  ${prog_disclose(physical_abuse_explanation)}
+  ${prog_disclose(verbal_abuse_explanation)}
+  ${prog_disclose(sexual_abuse_explanation)}
+  ${prog_disclose(financial_abuse_explanation)}
+  ${prog_disclose(stalking_explanation)}
+  ${prog_disclose(property_destruction_explanation)}
+  
+  ${card_start("Note:", color="info")}
+  There are additional abusive behaviors that are not explicitly outlined in the law. The information provided here offers a general overview of the various abusive behaviors recognized under the law and the corresponding statutes under the California Family and Penal Codes.  
+  ${card_end()}
+continue button field: ca_law_abuse
+---
+template: physical_abuse_explanation
+subject: |
+  Physical Abuse
+content: |
+  California Family Code section 6203 defines "abuse" as it relates to Domestic Violence Restraining Orders. Physical abuse is included within the broader definition of "abuse" in this section. Family Code section 6203 states:
+
+  (a) For purposes of this act, “abuse” means any of the following:
+
+  - (1) To intentionally or recklessly cause or attempt to cause bodily injury.
+  - (2) Sexual assault.
+  - (3) To place a person in reasonable apprehension of imminent serious bodily injury to that person or to another.
+  - (4) To engage in any behavior that has been or could be enjoined pursuant to Section 6320.
+
+  (b) Abuse is not limited to the actual infliction of physical injury or assault.
+
+  This definition means that physical abuse, as it relates to DVROs, includes intentionally or recklessly causing or attempting to cause bodily injury to another person. Bodily injury refers to any physical harm inflicted upon a person, such as cuts, bruises, or fractures.
+
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+template: coercive_control_explanation
+subject: |
+  Coercive Control
+content: |
+  Family Code section 6320(c) states, "Examples of coercive control include, but are not limited to, unreasonably engaging in any of the following:
+
+  - (1) Isolating the other party from friends, relatives, or other sources of support.
+  - (2) Depriving the other party of basic necessities.
+  - (3) Controlling, regulating, or monitoring the other party’s movements, communications, daily behavior, finances, economic resources, or access to services.
+  - (4) Compelling the other party by force, threat of force, or intimidation, including threats based on actual or suspected immigration status, to engage in conduct from which the other party has a right to abstain or to abstain from conduct in which the other party has a right to engage.
+  - (5) Engaging in reproductive coercion, which consists of control over the reproductive autonomy of another through force, threat of force, or intimidation, and may include, but is not limited to, unreasonably pressuring the other party to become pregnant, deliberately interfering with contraception use or access to reproductive health information, or using coercive tactics to control, or attempt to control, pregnancy outcomes.”
+---
+template: verbal_abuse_explanation
+subject: |
+  Verbal or Emotional Abuse
+content: |
+  In the context of Domestic Violence Restraining Orders (DVROs), California Family Code section 6320 is particularly relevant when it comes to verbal and emotional abuse. While the Family Code does not explicitly define "verbal abuse" or "emotional abuse," it does include "disturbing the peace of the other party" as a form of behavior that can be restrained.
+
+  "Disturb[ing] the peace of the other party" is defined under Family Code section 6320(c) as: 
+
+  “...conduct that, based on the totality of the circumstances, destroys the mental or emotional calm of the other party. This conduct may be committed directly or indirectly, including through the use of a third party, and by any method or through any means including, but not limited to, telephone, online accounts, text messages, internet-connected devices, or other electronic technologies. This conduct includes, but is not limited to, **coercive control**, which is a pattern of behavior that in purpose or effect unreasonably interferes with a person’s free will and personal liberty."
+  
+  ${prog_disclose(coercive_control_explanation)}
+			
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+template: sexual_abuse_explanation
+subject: |
+  Sexual Abuse and Reproductive Coercion
+content: |
+  In the context of Domestic Violence Restraining Orders (DVROs), California Family Code section 6320 addresses various behaviors that can be restrained, including sexual assault.
+
+  While the Family Code does not provide a specific definition of "sexual abuse" for the purpose of DVROs, it does refer to "sexually assaulting" as a behavior that can be restrained. Generally, sexual abuse can be understood as non-consensual sexual acts or behaviors, including, but not limited to, sexual assault, rape, or any form of unwanted sexual contact or coercion.
+
+  Sexual assault is defined under California's Penal Code, specifically in sections 261-269. In California, the term "sexual assault" is often used interchangeably with "rape." According to Penal Code section 261, rape is defined as non-consensual sexual intercourse with a person accomplished by means of force, violence, duress, menace, fear, or fraud. The law also considers sexual intercourse without consent, when the victim is incapacitated or incapable of giving consent, as rape.
+
+  ${prog_disclose(reproductive_coercion)}
+
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+template: reproductive_coercion
+subject: |
+  Reproductive Coercion
+content: |
+  Family Code section 6320(c)(5) states that “reproductive coercion… consists of control over the reproductive autonomy of another through force, threat of force, or intimidation, and may include, but is not limited to, unreasonably pressuring the other party to become pregnant, deliberately interfering with contraception use or access to reproductive health information, or using coercive tactics to control, or attempt to control, pregnancy outcomes.”
+---
+template: financial_abuse_explanation
+subject: |
+  Financial Abuse
+content: |
+  California Family Code does not specifically define "financial abuse" in the context of Domestic Violence Restraining Orders (DVROs). However, financial abuse can be considered a form of abuse that could be addressed through restraining orders.
+
+  In some cases, financial abuse can be considered a form of "disturbing the peace of the other party" under California Family Code section 6320(a) and (c)(3), which defines one example of “coercive control” as, "Controlling, regulating, or monitoring the other party’s… finances, economic resources, or access to services.”
+
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+template: stalking_related_crimes
+subject: |
+  Related Crimes Defined by the California Penal Code
+content: |
+  Related Crimes Defined by the California Penal Code: 
+  
+  - Penal Code 422 PC – criminal threats,
+  - Penal Code 653m PC – making annoying phone calls,
+  - Penal Code 207 PC – kidnapping,
+  - Penal Code 288.2 PC – sending harmful matter to a minor,
+  - Penal Code 653.2 PC – post harmful information on the internet,
+  - Penal Code 632 PC - eavesdropping,
+  - Penal Code 647(j)(4) PC – revenge porn.
+---
+template: stalking_explanation
+subject: |
+  Stalking or Cyberstalking
+content: |
+  In the context of DVROs, restraining orders can be issued to protect victims from stalking and cyberstalking behaviors, as they are considered forms of abuse that disturb the peace of the other party. For example, California Family Code section 6320(a) includes "stalking" as a behavior that can be restrained.
+
+  While the Family Code does not explicitly define "stalking" or "cyberstalking," they can be understood through California Penal Code section 646.9, which defines stalking as:
+
+  "Any person who willfully, maliciously, and repeatedly follows or willfully and maliciously harasses another person and who makes a credible threat with the intent to place that person in reasonable fear for his or her safety, or the safety of his or her immediate family is guilty of the crime of stalking."
+
+  California Penal Code section 646.9 was amended in the late 1990s by changing the definition of credible threats to include “electronically communicated threats.” While "cyberstalking" is a term that is not explicitly defined under California law, it is used more broadly to refer to stalking that occurs electronically, such as through emails, text messages, social media, or other online platforms.  It involves the same willful, malicious, and repeated behavior as stalking but occurs in the digital space. 
+  
+  ${prog_disclose(stalking_related_crimes)}
+  
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+template: property_destruction_explanation
+subject: |
+  Destruction of Personal Property
+content: |
+  In the context of DVROs, restraining orders can be issued to protect victims from abusive behaviors, including the destruction of personal property, as these actions can be considered forms of abuse that disturb the peace of the other party. For example, California Family Code section 6320(a) includes "destroying personal property" as a behavior that can be restrained.
+
+  While the Family Code does not explicitly define the "destruction of personal property," it generally refers to intentionally damaging, breaking, or vandalizing another person's belongings. 
+
+  Remember, this is only a general explanation of the California Family Code. For specific legal advice on this topic, please consult with an attorney.
+---
+question: |
+  How Does California Law Define *Victims* of Domestic Violence?
+subquestion: |
+  Family Code section 6203 defines “Domestic Violence” as “abuse perpetrated against any of the following persons:
+
+  - A spouse or former spouse
+  - A cohabitant or former cohabitant... whose relationship to you was more than purely as a roommate
+  - A person with whom the respondent is having or has had a dating or engagement relationship
+  - A person with whom the respondent has had a child
+  - A child of a party
+  - Any other person related by consanguinity or affinity within the second degree.” 
+
+  ${prog_disclose(ca_law_victims_explanation)}
+  
+  For a Domestic Violence Restraining Order case in California, your relationship with the other party must fit into one of the specified categories. If your relationship doesn't meet these criteria, you or the other party may be eligible to file a request for a Civil Harassment Restraining Order instead.
+continue button field: ca_law_victims
+---
+template: ca_law_victims_explanation
+subject: |
+  What does this mean in more simple terms?
+content: |
+  In other words, to qualify for a DVRO, the other party must be:
+
+  The other parent of your child(ren), or 
+  your:
+
+  - Current or former Spouse (e.g. Husband/Wife)
+  - Current or former Registered Domestic Partner
+  - Current or former Dating Partner (e.g. Boyfriend/Girlfriend) or Fiancé
+  - Parent, Step-Parent, or Parent-in-Law
+  - Child, Step-Child, or Legally Adopted Child
+  - Child's Spouse
+  - Brother, Sister, Sibling, Half-Sibling, Step-Sibling, or Sibling-in-law
+  - Grandparent, Step-Grandparent, or Grandparent-in-Law
+  - Grandchild, Step-Grandchild, or Grandchild-in-Law
+---
+question: |
+  Types of Orders You Can Request Under a DVRO
+subquestion: |
+  There are many different types of specific restraining orders that may be issued under a Temporary Restraining Order (TRO) or Domestic Violence Restraining Order (DVRO/ROAH). In the following pages, we'll delve into some of the most common types of restraining orders issued in such cases, shedding light on their purposes, nuances, and how they might be relevant to your situation. 
+  
+  Familiarizing yourself with these will empower you to navigate your legal journey with more clarity and confidence.
+  
+  ${card_start("Note:", color="info")}
+  We will provide thorough descriptions of each order type in your next interview: **Part 2: Response to Request for Domestic Violence Restraining Order**. 
+  ${card_end()}
+continue button field: order_types_intro
+---
+question: |
+ Types of Orders You Can Request Under a DVRO
+subquestion: |
+   Here are some examples of the common types of orders the other party may have requested in his or her Request for Domestic Violence Restraining Order (form DV-100):
+   
+   ${prog_disclose(personal_conduct_orders)}
+   ${prog_disclose(stay_away_orders)}
+   ${prog_disclose(move_out_orders)}
+   ${prog_disclose(custody_visitation_orders)}
+   ${prog_disclose(support_orders)}
+   ${prog_disclose(property_control_orders)}
+   ${prog_disclose(firearms_restrictions_orders)}
+   
+   These are only some of the orders a party can request through a Domestic Violence Restraining Order. We will help you understand the required forms and guide you through each type of order you can request in the next interview.
+continue button field: order_types
+---
+template: personal_conduct_orders
+subject: |
+  Personal Conduct Orders
+content: |
+  Personal conduct orders help protect the protected party by telling the restrained party he/she must stop specific behaviors, like contacting, threatening, or physically hurting the protected party. 
+---
+template: stay_away_orders
+subject: |
+  Stay-Away Orders
+content: |
+  Stay-away orders require the restrained party to stay a certain distance away from the protected party, their home, workplace, or other important places. These orders can help create a physical barrier to reduce the chance of further incidents.
+---
+template: move_out_orders
+subject: |
+  Move-Out Orders
+content: |
+  If the parties share a home or residence, move-out orders can make the restrained party move out of the shared home, typically in the presence of law enforcement. This allows only the protected party to access the home.
+---
+template: custody_visitation_orders
+subject: |
+  Child Custody and Visitation (Parenting Time) Orders
+content: |
+  If you and the other party have minor children together, child custody and visitation orders set up rules for who takes care of your children and when the restrained party can visit the child/children. This helps to ensure the safety and well-being of the children. If either party requests child custody and visitation orders in your case, you may be ordered to attend mediation prior to your hearing.
+  
+  ${prog_disclose(custody_mediation_explanation)}
+---
+template: custody_mediation_explanation
+subject: |
+  Child Custody Mediation
+content: |
+  Mediators work for the courts and help parents make parenting plans that are good for the children. Mediators know how to work with separated couples, and they are trained to understand domestic violence. You have a right to meet separately with the mediator in cases involving alleged domestic violence. 
+---
+template: support_orders
+subject: |
+  Child or Spousal Support Orders
+content: |
+  If you and the other party have minor children together, or if you and the other party are married/registered domestic partners, child or spousal support orders may be ordered. The court may order one spouse or parent to pay support to the other to help provide financial stability during and after the case.
+---
+template: property_control_orders
+subject: |
+  Property Control Orders
+content: |
+  Property control orders give a party the right to use and control certain shared property, like a car, a bank account, or a house, even if the property is jointly owned. This can help a party maintain access to essential assets/property, and protect his or her belongings.
+---
+template: firearms_restrictions_orders
+subject: |
+  Firearms Restrictions
+content: |
+  Firearms restrictions prevent the restrained party from owning, using, or possessing guns. This can help reduce the risk of further violence.
+  
+  If a TRO or DVRO/ROAH issued against you in the state of California, you cannot own, posess, have, buy or try to buy, receive or try to receive, or in any other way get any firearm (gun), firearm part (receiver, fram, or unfinished receiver or frame as identified in Penal Code section 16531), or ammunition. Within 24 hours of recieving a TRO or DVRO issued against you, you must sell to or store with a licensed gun dealer, or turn in to law enforcement, any prohibited items you have in your immediate possession or control. 
+  
+  If law enforcement asks you for your prohibited items, you must turn them over immediately. 
+  
+  Within 48 hours of receiving a TRO or DVRO/ROAH issued against you, you must file a receipt with the court that proves all prohibited items have been turned in, sold, or stored. If law enforcement serves you with a restraining order, you must give a copy of the receipt to that law enforcement agency. 
+---
+question: |
+  Additional (Free) Resources for Assistance and Support
+subquestion: |
+  As a self-representing litigant navigating the complexities of filing a Domestic Violence Restraining Order (DVRO), it is critical to explore a variety of supportive resources. These resources can provide emotional support, practical guidance, and tangible assistance throughout the legal process. The following are five essential resources that can offer invaluable help, be it immediate safety planning, legal counseling, or more holistic support services. Utilizing these resources can greatly aid in ensuring your personal well-being and equipping you to better handle your legal case.
+  
+  ${prog_disclose(the_hotline)}
+  ${prog_disclose(self_help_centers)}
+continue button field: free_resources
+---
+template: the_hotline
+subject: |
+  The National Domestic Violence Hotline (*live support, expert advocacy, crisis intervention, referrals, and safety planning tools*)
+content: |  
+  24 hours a day, seven days a week, 365 days a year, the National Domestic Violence Hotline (aka "The Hotline") provides essential tools and support to help survivors of domestic violence so they can live their lives free of abuse. Access their website [at this link](https://www.thehotline.org/), or call the National Domestic Violence Hotline at **(800) 799-7233**. For SMS, text **START** to **88788**.
+
+  Contacts to The Hotline can expect highly-trained, expert advocates to offer free, confidential, and compassionate support, crisis intervention information, education, and referral services in over 200 languages.
+---
+template: self_help_centers
+subject: |
+  Court Self-Help Centers (*form review and procedural assistance*)
+content: |
+  Self-Help centers are typically located within courthouses or nearby, offering free legal assistance to individuals like you who are representing themselves in legal matters.
+
+  At a Self-Help Center, you can get guidance on understanding court procedures, preparing legal forms, and identifying other resources you might need for your case. You can also ask questions about the legal process and get assistance with paperwork. Like U Do It Legal, center staff cannot provide legal advice, but they can explain how the law works, help you understand your rights, direct you to resources and services that can further assist you, and review your completed court forms. 
+  
+  Note that Self-Help Centers vary greatly depending on which court and county you are in. Check your local court's website for more information on your local Self-Help Center's services and eligibility criteria.
+---
+mandatory: True
+question: |
+  Congratulations, you've completed your first interview!
+subquestion: |
+  You may exit this interview and proceed to **Part 2: Response to Request for Domestic Violence Restraining Order** to begin preparing your court forms and documents. 
+  
+  #####Important Time-Sensitive Reminders
+  
+  **File Your Response by Your Hearing Date:**
+  
+  Remember, you must complete and file your Response paperwork by your scheduled hearing date (see form DV-109, item 3 in the Petitioner's paperwork) if you want the court to hear your side of the story. Taking no action may cost you enormously. 
+  
+  **If You Need Moe Time, You Can Request A Continuance:**
+  
+  If you need more time, remember that you are entitled to one continuance (postponement), which you can request by completing interview Part 3.1: Request to Reschedule Hearing
+  
+  **Mandatory Firearms Restrictions and Receipts:**
+  
+  Additionally, if you were served with a Temporary Restraining Order (form DV-110) you are prohibited from owning, using, or possessing guns:
+    
+  - Within 24 hours of recieving a TRO or DVRO issued against you, you must sell to or store with a licensed gun dealer, or turn in to law enforcement, any prohibited items you have in your immediate possession or control. 
+  - Within 48 hours of receiving a TRO or DVRO/ROAH issued against you, you must file a receipt with the court that proves all prohibited items have been turned in, sold, or stored. If law enforcement serves you with a restraining order, you must give a copy of the receipt to that law enforcement agency.
+continue button field: outro

@@ -1,0 +1,544 @@
+#### @ KELLY ensure Josh updates priveledges for Response Interviews
+metadata:
+  title: |
+    Request for Order: Request to Modify or End Domestic Violence Restraining Order
+  short title: |
+    RFO DVRO
+  description: |
+    An interview guiding self-representing protected parties under a DVRO through their request to modify or end their Domestic Violence Restraining Order
+  authors:
+    - name: Kelly D. Crabtree
+      organization: U Do It Legal
+    - name: Ryan E. Stearns
+      organization: U Do It Legal
+      require privileges: [dvro-p2, admin]
+    - exit url: https://www.udoitlegal.com/
+  required privileges for listing: [dvro-p2, admin] ####Update Privileges
+  sessions are unique: True
+  hidden: True
+  jurisdiction: CA
+  tags:
+    - California
+    - Domestic Violence
+    - Restraining Order
+    - DVRO
+    - Self-Represented Litigant
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - .ThreePartsDate
+  - .PhoneNumberDataType
+  - docassemble.AssemblyLine.al_document
+  - .progressivedisclosure
+---
+features:
+  labels above fields: True
+  question back button: True
+  navigation back button: False
+  navigation: False
+  navbar: False
+  progress bar: True
+  javascript:
+    - intlTelInput-jquery.min.js
+    - intlTelInput-jquery.js
+    - intlTelInput.js
+    - phone-number-validation.js
+  css:
+    - docassemble.ALToolbox:prog_disclose.css
+    - intlTelInput.min.css
+    - phone-number-validator.css
+    - custom.css
+---
+include:
+  - docassemble.ALToolbox:escape_button.yml
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+  - statistics
+---
+code: |
+  from itertools import chain
+  from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+  from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+  counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+  - pet: Individual
+  - resp: Individual
+  - children: DAList.using(ask_number=True, object_type=Individual)
+  - otherprotectedpeople: DAList.using(ask_number=True, object_type=Individual)
+  - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+  - prior_restrainingorder1: ALDocumentUpload.using(
+          title="Other Restraining/Protective Order Involving Respondent",
+          filename="prior_restrainingorder1",
+        )
+  - prior_restrainingorder2: ALDocumentUpload.using(
+          title="Second Other Restraining/Protective Order Involving Respondent",
+          filename="prior_restrainingorder2",
+        )
+  - previous_childsupport_order: ALDocumentUpload.using(
+          title="Child Support Order Currently In Effect",
+          filename="previous_childsupport_order",
+        )
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+  menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+  if returning_user(minutes=5):
+    welcome_back
+---
+event: welcome_back
+question: |
+  Welcome back!
+subquestion: |
+  You are currently in the
+  **${ nav.get_section(display=True) }**
+  section.
+
+  ${ nav }
+
+  Press "Continue" to pick up
+  where you left off.
+buttons:
+  Continue: continue
+---
+sections:
+	- introduction: Introduction
+    subsections: 
+    - safety_warnings: Safety Warning 
+    - intro: Introduction
+  - caseinfo: Case Information
+		subsections:
+			- aboutyou: About You
+			- otherprotectedpeople: Other Protected People
+			- aboutrespondent: About the Restrained Party
+			- othercases: Other Court Cases/Restraining Orders
+  - orders: change_or_end_orders
+---
+mandatory: True
+code: |
+  nav.set_section('introduction')
+  nav.set_section('safety_warning')
+  safety_warning
+  nav.set_section('intro')
+  interview_part
+  
+  nav.set_section('caseinfo')
+  
+  nav.set_section('aboutyou')
+  pet.name.first
+  pet.address.street
+
+  nav.set_section('otherprotectedpeople')
+  otherprotectedpeople.there_are_any
+  if otherprotectedpeople.there_are_any:
+    otherprotectedpeople.target_number
+    otherprotectedpeople.gather()
+  
+  nav.set_section('aboutrespondent')
+  resp.name.first
+
+  nav.set_section('case_information')
+  court_name
+  other_restraining_order
+  if other_restraining_order:
+    has_other_restraining_order
+  if other_restraining_order:
+    another_restraining_order
+    if another_restraining_order:
+      has_another_restraining_order
+  
+  nav.set_section('change_or_end_orders')
+  children.there_are_any
+  if children.there_are_any:
+    children.gather()
+---
+question: |
+  Welcome to U Do It Legal's Request For Order, **Request to Modify or End Domestic Violence Restraining Order** Interview 
+subquestion: |
+  **If you are in danger right now, or at any time, call 911.**
+
+  ${card_start("Quick Escape:", color="warning")}
+  If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+  ${card_end()}
+  
+  Please note that websites you visit may be viewed by someone else later.
+  
+  To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+  
+  For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+continue button field: safety_warning
+---
+template: part1
+subject: |
+  **Part 1, Request For Order: Request to Change or End DVRO**
+content: |
+  This interview covers:
+  
+  - Your Request For Order: Request to Change or End a Domestic Violence Restraining Order 
+---
+template: part2
+subject: |
+  **Part 2, Next Steps** 
+content: |
+  This interview covers instructions for Filing, Service, Hearing Preparation, and more. 
+  
+  It also generates written instructions in a PDF that you can download or email to yourself at the end of the interview. 
+---
+template: part2_1
+subject: |
+  **Part 2.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule their hearing** 
+content: |
+  This interview prepares the following forms for you:
+  
+  - Request to Continue Hearing ([form FL-306](https://www.courts.ca.gov/documents/fl306.pdf))
+  
+  This interview prepares the following proposed order forms for court completion:
+  
+  - Order on Request to Continue Hearing ([form FL-309](https://www.courts.ca.gov/documents/fl309.pdf))
+---
+question: |
+  **Interview 1:** Request For Order 
+subquestion: |
+  You're currently completing **Part 1** of our 2-part interview series for Protected Parties who wish to change or end orders granted under a DVRO:
+  
+  ${card_start("You are here:", color="light")}
+  ${prog_disclose(part1)}
+  ${card_end()}
+  
+  ${prog_disclose(part2)}
+  
+  ${prog_disclose(part2_1)}
+
+continue button field: interview_part
+---
+question: |
+  This Interview's Purpose (pt. 1/3)
+subquestion: |
+  This interview is designed to guide you, step-by-step, through the processes of preparing form FL-300 (the Request for Order) to request a modification to your existing Domestic Violence Restraining Order (DVRO). 
+  
+  ${prog_disclose(fl_300_explanation)}
+   
+  Our aim is to provide you with clear and concise information, ensuring you understand your rights, responsibilities, and the basics of requesting to change or end the orders granted under your DVRO. 
+continue button field: purpose1
+---
+question: |
+  This Interview's Purpose (pt. 2/3)
+subquestion: |
+  Additionally, this interview will help you complete and download form FL-300 and any applicable attachment documents in 3 steps:
+
+  **Step 1.** Answer questions that will prepare your forms for you.
+  
+  **Step 2.** Preview the completed forms.
+  
+  **Step 3.** Download or email the forms to yourself so you can submit them to the court and keep them as part of your safety plan.
+continue button field: purpose2
+---
+question: |
+  This Interview's Purpose (pt. 3/3)
+subquestion: |  
+  Lastly, note that this interview can take between one to several hours to complete, depending on your specific situation. Ensure you are in a private and secure location while completing this interview. 
+continue button field: purpose3
+---
+template: fl_300_explanation
+subject: |
+  **FL-300**, Request For Order 
+content: |
+  [Form FL-300](https://www.courts.ca.gov/documents/fl300.pdf) is the form that this interview will help you prepare to request that the court make changes to your existing restraining order. If there's something about the order that isn't working for you, or if the situation has changed and you feel the order is no longer necessary, you use this form to tell the court exactly what you want to change and why. This could be anything from modifying visitation to canceling the restraining order entirely. You'll need to provide details about what’s changed in your situation that makes you believe a modification or termination is needed. It's also the form you'd use to request new orders, like child custody, if that hasn’t been settled yet."
+
+  Remember, any changes to the order need to be approved by a judge, so filling out this form is just the first step. After you submit it, there will be a court hearing where you can explain your reasons to the judge.
+---
+question: |
+  Who is Protected Under the Existing DV Restraining Order (DVRO)? 
+subquestion: |
+  **Party Names/Labels Definitions:**
+  
+  - **Petitioner**: The person (you) who initiated the original Request for Domestic Violence Restraining Order (DVRO), also known as the Protected Party
+  - **Protected Party**: The person (or people) protected under the DVRO
+  - **Respondent**: The person against whom the Petitioner requested the DVRO, also known as the Restrained Party if a DVRO was granted 
+  - **Restrained Party**: The person restrained under the DVRO  
+  
+  #####**Petitioner/Protected Party:** What is your name?
+  
+  Provide your full legal name. This should match the name written on your Driver's Licence or ID.
+fields:
+  - First name: pet.name.first
+  - Middle name (if applicable): pet.name.middle
+    required: False 
+  - Last name: pet.name.last
+  - Suffix (if applicable): pet.name.suffix
+    required: False
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  Who is Protected Under the Existing DV Restraining Order (DVRO)? 
+subquestion: |
+  **Your Information:** Provide Your Contact Information
+  
+  Provide your phone number below. You can use any phone number, whether your cell, work, or home number. Note that the Restrained Party will see this information and that listing it is optional. 
+  
+  If the Other Party does not have your current phone number, you may leave this blank or use an alternative phone number where the court can reach you. The court may reach out to you at this number.
+fields:
+  - Phone Number: pet.phone
+    help: "You may use the following format: ###-###-####"
+    required: false
+  - note: |
+       Provide your preferred email address below. The court may use it to contact you. Note that the Restrained Party will see this information and that listing it is optional, so you may leave it blank if you prefer.
+  - Email Address: pet.email
+    datatype: email 
+    required: false
+validation code: |
+  pet.phone = phone_number_formatted(pet.phone)  
+---
+template: dv_shelter_warning
+subject: |
+  What if I'm staying at a Domestic Violence Shelter?
+content: |
+   ${card_start("Warning", color="warning")}
+   As a reminder, if you are staying at a domestic violence shelter, do NOT write the physical address of the domestic violence shelter anywhere. Most shelters have a P.O. Box you can use if the court needs to contact you or mail you anything.
+   ${card_end()}
+---
+question: |
+  Who is Protected Under the Existing DV Restraining Order (DVRO)? 
+subquestion: |
+  **Note on Address Confidentiality:**
+  
+  California mandates that if a party (or his or her children) alleges to be a victim of domestic violence or abuse at the hands of the opposing party, that the victim and his or her children's current address must remain confidential if unknown to the other party. 
+  
+  The Court requires that you include an address on your forms where you can receive mail regarding the case you are filing, such as a friend or relative's address or P.O. box. **This address does not have to be the place where you live.** Court documents and court files are public record and whatever address is included on your forms will be seen by the other party and anyone else who looks at the Court file. 
+  
+  **Your Information:** Provide Your Mailing Address
+  
+  Provide your mailing address, and make sure it matches the address written on your other court forms.
+  ${prog_disclose(dv_shelter_warning)}
+  #####Your Mailing Address:
+fields:
+  - Street address: pet.address.street  
+  - Apartment or Unit: pet.address.unit
+    required: False 
+  - City: pet.address.city
+  - State: pet.address.state
+    code: states_list()
+  - Zip: pet.address.zip
+---
+question: |
+  Who is Protected Under the Existing DV Restraining Order (DVRO)? 
+sunquestion: |
+  Look at Item 3 (Other Protected People) on form DV-130 (Restraining Order After Hearing) 
+fields: 
+  - Is anyone else (other than you) listed as a protected person under the DVRO/ROAH?: otherprotectedpeople.there_are_any 
+    datatype: yesnoradio
+  - How many people are listed, in total, as Other Protected People under the existing DVRO (check Item 3 and any attachments to form DV-130)?: otherprotectedpeople.target_number
+    datatype: integer
+    show if: otherprotectedpeople.there_are_any 
+---
+question: |
+  Other Protected People
+subquestion: |
+  % if otherprotectedpeople.target_number == 1:
+  Tell us about the person listed under Item 3: 'Other Protected People' on form DV-110 (and any attachments to form DV-110, if applicable).
+  % elif otherprotectedpeople.target_number >= 2 and i == 0:
+  Tell us about the first person listed under Item 3: 'Other Protected People' on form DV-110 (and any attachments to form DV-110, if applicable).
+  % else:
+  You told us 
+  about **${comma_and_list([otherprotectedpeople.complete_elements()])}**. 
+  Tell us about the **${ordinal(i)}** person listed under Item 3: 'Other Protected People' on form DV-110 (and any attachments to form DV-110, if applicable).
+  % endif
+fields:
+  - First name: otherprotectedpeople[i].name.first 
+  - Middle name (optional): otherprotectedpeople[i].name.middle
+    required: False
+  - Last name: otherprotectedpeople[i].name.last
+  - Suffix (if applicable): otherprotectedpeople[i].name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  Who is your Domestic Violence Restraining Order (DVRO) against?
+subquestion: |
+  #####**Restrained Party's Information** 
+  
+  Provide the Restrained Party's full legal name.
+fields:
+  - First name: resp.name.first
+  - Middle name (if applicable): resp.name.middle
+    required: false
+  - Last name: resp.name.last
+  - Suffix (if applicable): resp.name.suffix
+    required: false
+    datatype: combobox
+    code: |
+      name_suffix()
+    help: |
+      You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+  Identify your Court and Case Number
+subquestion: |
+  Provide the following information about the court in which are filing your request to change or end the DVRO.
+  
+  Generally, Requests for Order (RFOs) like these are typically handled by the court that originally issued the restraining order, to maintain consistency and proper jurisdiction over the case. If you are filing your request to modify or end the DVRO at the same court in which you filed your original request for the restraining order, you can locate the court name, address, and location on the first page of form DV-130 (Restraining Order After Hearing).
+  
+  ${prog_disclose(different_court)}
+fields: 
+  - Court name: court_name
+    maxlength: 28
+  - County: court_county
+    code: counties_list
+  - note: |
+      Please provide the court's address below
+  - Street: courtstreetaddress_street 
+  - City: courtstreetaddress_city
+  - Zip code: courtstreetaddress_zip
+  - Case Number: case_number 
+    help: "Your DVRO's case number will be written on each page of form DV-130 (Restraining Order After Hearing)"
+---
+template: different_court
+subject: |
+  What if I want to file my request in a different court?
+content: |
+  If you have relocated to another jurisdiction or county in California and do not know which court you should file in, please find your court [at this Find My Court link](https://www.courts.ca.gov/find-my-court.htm). If you live in Los Angeles County, please find your court [at this link](http://www.lacourt.org/filinglocatornet/ui/filingsearch.aspx).
+  
+  ${card_start("Note:", color="info")}
+  Not every courthouse accepts restraining order papers. Find the courthouse in your county that will file restraining order papers by going to Find my Court and looking under "Matters Served" and find the nearest courthouse that accepts restraining orders or family cases.
+  ${card_end()}
+---
+depends on:
+  - has_other_restraining_order
+code: |
+  prior_restrainingorder1.enabled=has_other_restraining_order
+---
+question: |
+  Restraining/Protective Orders Involving ${ resp.name.first }
+fields: 
+  - Are there any restraining orders or protectice orders **currently in place** between you and ${resp.name.first}?: other_restraining_order
+    datatype: yesnoradio
+  - Date of the order: other_restraining_order1_date
+    datatype: date
+    show if: other_restraining_order
+  - Date it expires: other_restraining_order1_expiration_date
+    datatype: date
+    show if: other_restraining_order
+    min: ${ today().minus(months=6) }
+---
+question: |
+  Upload a Copy of the Restraining/Protective Order Involving ${ resp.name.first }
+fields: 
+  - Are you able to upload a copy of the order?: has_other_restraining_order
+    datatype: yesnoradio
+  - Upload a copy of the order: prior_restrainingorder1.file
+    datatype: file
+    show if: has_other_restraining_order
+---
+depends on:
+  - has_another_restraining_order
+code: |
+  prior_restrainingorder2.enabled=has_another_restraining_order
+---
+question: |
+  Other Restraining/Protective Orders Involving ${ resp.name.first }
+fields: 
+  - Are there any *other* restraining or protective orders **currently in place between you and ${resp.name.first}** OR **that have expired in the last six months**?: another_restraining_order
+    datatype: yesnoradio
+  - Date of the other order: other_restraining_order2_date
+    datatype: date
+    show if: another_restraining_order
+  - Date it expires: other_restraining_order2_expiration_date
+    datatype: date
+    show if: another_restraining_order
+    min: ${ today().minus(months=6) }
+  
+---
+question: |
+  Upload a Copy of the Other Restraining/Protective Order Involving ${ resp.name.first }
+fields: 
+  - Are you able to upload a copy of the order?: has_another_restraining_order
+    datatype: yesnoradio
+  - Upload a copy of the order: prior_restrainingorder2.file
+    datatype: file
+    show if: has_another_restraining_order
+---
+question: |
+  Other Court Cases with ${ resp.name.first }
+subquestion: |
+  % if otherprotectedpeople.there_are_any:
+  Have you or ${ comma_and_list(otherprotectedpeople) } been involved in any other court case with ${ resp.name.first }?
+  % else:
+  Have you been involved in any other court case with ${ resp.name.first }?
+  % endif
+  
+  Other court cases may include:
+  
+  - Custody (Parentage/Paternity) 
+  - Divorce, Legal Separation, or Nullity
+  - Juvenile (Child Welfare or Juvenile Justice):
+  - Guardianship
+  - Criminal
+fields: 
+  - no label: othercourtcases
+    datatype: yesnoradio
+---
+question: |
+  Other Court Cases with ${ resp.name.first }
+subquestion: |
+  % if otherprotectedpeople.there_are_any:
+  Check each case type that you or ${ comma_and_list(otherprotectedpeople) } have been involved in with ${ resp.name.first }.
+  % else:
+  Check each case type that you have been involved in with ${ resp.name.first }.
+  % endif
+fields: 
+  - Child Custody (Parentage or Paternity): prior_parentage
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_parentage_info
+    show if: prior_parentage
+    help: "Example: East Los Angeles, CA / 2023 / Case Number: 23ELPT12345"
+  - Divorce, Nullity, or Legal Separation: prior_divorce
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_divorce_info
+    show if: prior_divorce
+    help: "Example: Hollywood, CA / 2021 / Case Number: 21HWFL12345"
+  - Juvenile (Child Welfare or Juvenile Justice): prior_juvenile
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_juvenile_info
+    show if: prior_juvenile
+    help: "Example: Santa Monica, CA / 2022 / Case Number: 22CCJP12345A"
+  - Guardianship: prior_guardianship
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_guardianship_info
+    show if: prior_guardianship
+    help: "Example: El Monte, CA / 2020 / Case Number: 20EMFL12345"
+  - Criminal: prior_criminal
+    datatype: yesno
+  - If you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_criminal_info
+    show if: prior_criminal
+    help: "Example: Pasadena, CA / 2023 / Case Number: 23PDCM12345"
+  - Other: prior_other
+    datatype: yesno
+  - First, specify the type of case. Then, if you know, list where the case was filed (city, state, or tribe), the year it was filed, and case number: prior_other_info
+    show if: prior_other
+    help: "Example: Child Support / Norwalk, CA / 2020 / 20NWCS12345"
+
+validation code: |
+  if prior_parentage is False and prior_divorce is False and prior_juvenile is False and prior_guardianship is False and prior_criminal is False and prior_other is False:
+    validation_error("You must check at least one case type")
+---

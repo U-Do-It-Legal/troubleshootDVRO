@@ -1,0 +1,941 @@
+metadata:
+    title: |
+        Request for DVRO: Part 2, Case Information
+    short title: |
+        CLETS-001 and DV-109
+    description: |
+        An interview guiding self-representing DVRO Petitioners through the California Law Enforcement Telecommunications System Information Form (Confidential CLETS-001 form) and Notice of Court Hearing (form DV-109) as part of their Request for DVRO Petition.
+    authors:
+        - name: Kelly D. Crabtree
+          organization: U Do It Legal
+        - name: Ryan E. Stearns
+          organization: U Do It Legal
+          revision_date: 2023-04-19
+          require privileges: [dvro-p1, admin]
+    required privileges for listing: [dvro-p1, admin]
+    sessions are unique: True
+    hidden: True
+    jurisdiction: CA
+    tags:
+        - California
+        - Domestic Violence
+        - Restraining Order
+        - DVRO
+        - Self-Represented Litigant
+---
+modules:
+    - docassemble.ALToolbox.misc
+    - .ThreePartsDate
+    - .PhoneNumberDataType
+    - docassemble.AssemblyLine.al_document
+    - .progressivedisclosure
+---
+features:
+    labels above fields: True
+    question back button: True
+    navigation back button: False
+    navigation: False
+    navbar: False
+    progress bar: False
+
+    javascript:
+        - intlTelInput-jquery.min.js
+        - intlTelInput-jquery.js
+        - intlTelInput.js
+        - phone-number-validation.js
+    css:
+        - docassemble.ALToolbox:prog_disclose.css
+        - intlTelInput.min.css
+        - phone-number-validator.css
+        - custom.css
+---
+include:
+    - docassemble.ALToolbox:escape_button.yml
+    - docassemble.ALToolbox:phone-number-validation.yml
+    - docassemble.demo:data/questions/examples/cards.yml
+---
+imports:
+    - statistics
+---
+code: |
+    from itertools import chain
+    from docassemble.base.functions import alpha, roman, item_label, comma_and_list, get_language, set_language, get_dialect, set_country, get_country, word, comma_list, ordinal, ordinal_number, need, nice_number, quantity_noun, possessify, verb_past, verb_present, noun_plural, noun_singular, space_to_underscore, force_ask, force_gather, period_list, name_suffix, currency, indefinite_article, nodoublequote, capitalize, title_case, url_of, do_you, did_you, does_a_b, did_a_b, your, her, his, is_word, get_locale, set_locale, process_action, url_action, get_info, set_info, get_config, prevent_going_back, qr_code, action_menu_item, from_b64_json, defined, value, message, response, json_response, command, single_paragraph, quote_paragraphs, location_returned, location_known, user_lat_lon, interview_url, interview_url_action, interview_url_as_qr, interview_url_action_as_qr, interview_email, get_emails, get_default_timezone, user_logged_in, interface, user_privileges, user_has_privilege, user_info, action_arguments, action_argument, background_action, background_response, background_response_action, background_error_action, us, set_live_help_status, chat_partners_available, phone_number_in_e164, phone_number_formatted, phone_number_is_valid, countries_list, country_name, write_record, read_records, delete_record, variables_as_json, all_variables, language_from_browser, device, plain, bold, italic, states_list, state_name, subdivision_type, indent, raw, fix_punctuation, set_progress, get_progress, referring_url, undefine, invalidate, dispatch, yesno, noyes, split, showif, showifdef, phone_number_part, set_parts, log, encode_name, decode_name, interview_list, interview_menu, server_capabilities, session_tags, get_chat_log, get_user_list, get_user_info, set_user_info, get_user_secret, create_user, create_session, get_session_variables, set_session_variables, get_question_data, go_back_in_session, manage_privileges, redact, forget_result_of, re_run_logic, reconsider, set_title, set_save_status, single_to_double_newlines, verbatim, add_separators, store_variables_snapshot, update_terms
+    from docassemble.base.util import LatitudeLongitude, RoleChangeTracker, Name, IndividualName, Address, City, Event, Person, Thing, Individual, ChildList, FinancialList, PeriodicFinancialList, Income, Asset, Expense, Value, PeriodicValue, OfficeList, Organization, send_email, send_sms, send_fax, map_of, last_access_time, last_access_delta, last_access_days, last_access_hours, last_access_minutes, returning_user, timezone_list, as_datetime, current_datetime, date_difference, date_interval, today, month_of, day_of, dow_of, year_of, format_date, format_datetime, format_time, DARedis, DACloudStorage, DAGoogleAPI, SimpleTextMachineLearner, ocr_file, ocr_file_in_background, read_qr, get_sms_session, initiate_sms_session, terminate_sms_session, path_and_mimetype, run_python_module, pdf_concatenate, include_docx_template, start_time, zip_file, validation_error, DAValidationError, action_button_html, url_ask, overlay_pdf, DAStore, explain, clear_explanations, explanation, set_status, get_status, DAWeb, DAWebError, json, re, iso_country, assemble_docx, docx_concatenate, task_performed, task_not_yet_performed, mark_task_as_performed, times_task_performed, set_task_counter, stash_data, retrieve_stashed_data, DABreadCrumbs, DAOAuth, DAObject, DAList, DADict, DAOrderedDict, DASet, DAFile, DAFileCollection, DAFileList, DAStaticFile, DAEmail, DAEmailRecipient, DAEmailRecipientList, DATemplate, DAEmpty, DALink, selections, objects_from_file, RelationshipTree, DAContext
+---
+#### Counties list
+code: |
+    counties_list = ['Alameda', 'Alpine', 'Amador', 'Butte', 'Calaveras', 'Colusa', 'Contra Costa', 'Del Norte', 'El Dorado', 'Fresno', 'Glenn', 'Humboldt', 'Imperial', 'Inyo', 'Kern', 'Kings', 'Lake', 'Lake', 'Los Angeles', 'Madera', 'Marin', 'Mariposa', 'Mendocino', 'Merced', 'Modoc', 'Mono', 'Monterey', 'Napa', 'Nevada', 'Orange', 'Placer', 'Plumas', 'Riverside', 'Sacramento', 'San Benito', 'San Bernardino', 'San Diego', 'San Francisco', 'San Joaquin', 'San Luis Opispo', 'San Mateo', 'Santa Barbara', 'Santa Clara', 'Santa Cruz', 'Shasta', 'Sierra', 'Siskiyou', 'Solano', 'Sonoma', 'Stanislaus', 'Sutter', 'Tehama', 'Toulumne', 'Trinity', 'Tulare', 'Ventura', 'Yolo', 'Yuba']
+---
+#### This block defines all of the objects referenced throughout the interview
+objects:
+    - pet: Individual
+    - resp: Individual
+    - additionalprotectedpersons: DAList.using(ask_number=True, object_type=Individual)
+    - firearms: DAList.using(ask_number=False, object_type=Thing)
+    - ammunition: DAList.using(ask_number=False, object_type=Thing)
+    - al_logo: DAStaticFile.using(filename='UDILLogoTransparent2.svg')
+---
+mandatory: True
+code: |
+    set_parts(logo='<img src="' + al_logo.url_for() + '"style="height: 3rem;">')
+---
+mandatory: True
+code: |
+    menu_items = [ action_menu_item('Roadmap', 'road_map') ]
+---
+initial: True
+code: |
+    if returning_user(minutes=5):
+      welcome_back
+---
+event: welcome_back
+question: |
+    Welcome back!
+subquestion: |
+    You are currently in the
+    **${ nav.get_section(display=True) }**
+    section.
+
+    ${ nav }
+
+    Press "Continue" to pick up
+    where you left off.
+buttons:
+    Continue: continue
+---
+sections:
+    - intro: Introduction
+    - caseinfo: Case Information
+    - aboutyou: About You
+    - additionalprotectedpeople: Other Protected People
+    - aboutrespondent: About the Other Party
+    - respsfirearms: Firearms and Ammunition
+    - conclusion: Conclusion
+---
+mandatory: True
+code: |
+    nav.set_section('intro')
+    safety_warning
+    interview_part
+    welcome1
+    welcome2
+
+    nav.set_section('caseinfo')
+    amended_form
+
+    nav.set_section('aboutyou')
+    pet.name.first
+    pet.birthdate
+    pet.address.street
+    safe_at_home
+
+    nav.set_section('additionalprotectedpeople')
+    additionalprotectedpersons.there_are_any
+    if additionalprotectedpersons.there_are_any:
+      additionalprotectedpersons.target_number
+      additionalprotectedpersons.gather()
+
+    nav.set_section('aboutrespondent')
+    resp.name.first
+    resp.sex
+    resp.address.street
+    resp.employed
+
+    nav.set_section('respsfirearms')
+    firearms.there_are_any
+    if firearms.there_are_any:
+      firearms.gather()
+    if ammunition.there_are_any:
+      ammunition.gather()
+
+    court_name
+    filing_date
+
+    download_forms
+---
+question: |
+    Welcome to U Do It Legal's **Request for Domestic Violence Restraining Order, Part 2**
+subquestion: |
+    **If you are in danger right now, or at any time, call 911.**
+
+    ${card_start("Quick Escape:", color="warning")}
+    If at any point you need to quickly exit out of this website, press the red "Escape" Button in the top left corner of the screen to be taken to the Google Search homepage.
+    ${card_end()}
+
+    Please note that websites you visit may be viewed by someone else later.
+
+    To further protect yourself, especially if you are being stalked, always clear your browsing history after browsing/searching the web. Consider using a public or friend’s computer or phone if you are concerned about someone viewing your browsing history.
+
+    For confidential, 24/7 Domestic Violence Support services, please call the **National Domestic Violence Hotline** at **800-799-7233** or for SMS, text **START** to **88788** (available in English, Spanish, and 200+ other languages through interpretation services).
+
+    We commend you for and support you in taking the necessary steps to further protect yourself and your loved ones. Before you continue, please make sure you are in a safe place.
+continue button field: safety_warning
+---
+template: part1
+subject: |
+    **Part 1, Introduction**
+content: |
+    This interview covers:
+
+    - Your Request for Domestic Violence Restraining Order Roadmap
+    - The Importance of Safety Planning and Related Resources
+---
+template: part2
+subject: |
+    **Part 2, Case Information**
+content: |
+    This interview prepares the following forms for you:
+
+    - California Law Enforcement Telecommunications System Information Form (form [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf))
+    - Notice of Hearing (form [DV-109](https://www.courts.ca.gov/documents/dv109.pdf))
+---
+template: part3
+subject: |
+    **Part 3, Requesting Restraining Orders**
+content: |
+    This interview prepares the following form for you:
+
+    - Request for Domestic Violence Restraining Order (form [DV-100](https://www.courts.ca.gov/documents/dv100.pdf))
+
+    This interview also prepares the following proposed order form for court completion:
+
+    - Temporary Restraining Order ([form DV-110](https://www.courts.ca.gov/documents/dv110.pdf))
+---
+template: part3_1
+subject: |
+    **Part 3.1, Financial Information** (Optional) *For those requesting spousal support or child support orders**
+content: |
+    This interview prepares the following form for you: 
+
+    - Income and Expense Declaration (form [FL-150](https://www.courts.ca.gov/documents/fl150.pdf))
+---
+template: part3_2
+subject: |
+    **Part 3.2, Child Custody and Visitation** (Optional) *For those requesting child custody and visitation orders**
+content: |
+    This interview prepares the following forms for you:
+
+    - Request for Child Custody and Visitation Orders (form [DV-105](https://www.courts.ca.gov/documents/dv105.pdf))
+    - Request for Child Abduction Prevention Orders (form [DV-108](https://www.courts.ca.gov/documents/dv108.pdf)) (Optional) *if requesting orders to prevent your child from being kidnapped by the other party**
+
+    This interview also prepares the following proposed order forms for court completion:
+
+    - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf))
+    - Child Abduction PReventions Orders (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *if applicable**
+    - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf)) *if applicable**
+---
+template: part3_3
+subject: |
+    **Part 3.3, Request to Keep Minor's Information Confidential** (Optional) *For those requesting to keep information about a minor in a DVRO proceeding confidential from the public or the Other Party**
+content: |
+    This interview prepares the following form for you:
+
+    - Request to Keep Minor's Information Confidential (form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf))
+
+    This interview also prepares the following proposed order form for court completion:
+
+    - Order on Request to Keep Minor's Information Confidential (form [DV-165](https://www.courts.ca.gov/documents/dv165.pdf))
+---
+template: part4
+subject: |
+    **Part 4, Next Steps**
+content: |
+    This interview not only guides you through your next steps after form preparation, encompassing filing, service, hearing preparation, and more, but also provides you with a personalized Proof of Service (form [DV-200](https://www.courts.ca.gov/documents/dv200.pdf)) featuring a completed caption for your ease. For context, the "caption" is the section at the top of a legal document where you provide your basic information, like your name and address.
+
+    In addition to the prepped Proof of Service form, which is intended to be completed by your designated server, the interview provides you with a written summary and a checklist of your next steps, ensuring your readiness to confidently navigate each step of your case beyond preparing your court forms and documents.
+---
+template: part4_1
+subject: |
+    **Part 4.1, Request to Reschedule Hearing** (Optional) *For those who need to reschedule/postpone their hearing**
+content: |
+    This interview prepares the following forms for you:
+
+    - Request to Continue Hearing (form [DV-115](https://www.courts.ca.gov/documents/dv115.pdf))
+
+    This interview prepares the following proposed order forms for court completion:
+
+    - Order on Request to Continue Hearing (form [DV-116](https://www.courts.ca.gov/documents/dv116.pdf))
+---
+template: part5
+subject: |
+    **Part 5, Restraining Order After Hearing and Renewal**
+content: |
+    This interview is tailored toward individuals who were granted a Restraining Order After Hearing. It explains different scenarios that may happen after your hearing and will provide you with blank versions of the relevant ROAH forms, such as:
+
+    - Restraining Order After Hearing (form [DV-130](https://www.courts.ca.gov/documents/dv130.pdf))
+    - Child Custody and Visitation Order (form [DV-140](https://www.courts.ca.gov/documents/dv140.pdf)) *If child custody and visitation orders are issued**
+    - Child Abduction Prevention Order (form [DV-145](https://www.courts.ca.gov/documents/dv145.pdf)) *If child abduction prevention orders are issued**
+    - Supervised Visitation and Exchange Order (form [DV-150](https://www.courts.ca.gov/documents/dv150.pdf))  *If supervised visitation or exchange orders are issued**
+    - Order on Request to Keep Minor's Information Confidential (Form [DV-160](https://www.courts.ca.gov/documents/dv160.pdf)) *If orders to keep minor's information confidential are issued**
+    - Child Support Information and Order Attachment (Form [FL-342](https://www.courts.ca.gov/documents/fl342.pdf)) *If child support orders are issued**
+    - Spousal, Domestic Partner, or Family Support Order Attachment (Form [FL-343](https://www.courts.ca.gov/documents/fl343.pdf)) *If spousal, partner, or family support orders are issued**
+
+    This interview will also offer valuable recommendations on locating assistance for ROAH form preparation if your court does not prepare ROAH forms or self-representing parties. Please note that, as of 2023, we are aware of only 6 CA counties that do not prepare ROAH forms for self-representing parties.
+
+    Lastly, this interview will provide you with a personalized Request to Renew Restraining Order (form [DV-700](https://www.courts.ca.gov/documents/dv700.pdf)) and Notice of Hearing to Renew Restraining Order (form [DV-710](https://www.courts.ca.gov/documents/dv710.pdf)) featuring completed captions for your ease, should you wish to renew the ROAH prior to its expiration.
+---
+question: |
+    Let's get started.
+subquestion: |
+    Our website will guide you through and assist you with the preparation of the court forms and documents required for your Domestic Violence Restraining Order (DVRO) proceeding.  
+
+    This interview is **Part 2** of 5:
+
+    ${prog_disclose(part1)}
+
+    ${card_start("You are here:", color="light")}
+    ${prog_disclose(part2)}
+    ${card_end()}
+
+    ${prog_disclose(part3)}
+      
+    ${prog_disclose(part3_1)}
+
+    ${prog_disclose(part3_2)}
+
+    ${prog_disclose(part3_3)}
+
+    ${prog_disclose(part4)}
+
+    ${prog_disclose(part4_1)}
+
+    ${prog_disclose(part5)}
+continue button field: interview_part
+---
+template: clets_001_explanation
+subject: |
+    **CLETS-001,** California Law Enforcement Telecommunications System Information Form
+content: |
+    The [CLETS-001](https://www.courts.ca.gov/documents/clets001.pdf) form provides the physical characteristics and other identifying information about the petitioner (you) and the person from whom you are seeking protection. The information provided on the form is confidential and private and does not become part of the public court file. Instead, it is provided to authorized law enforcement agencies and entered into the California Law Enforcement Telecommunications System (CLETS) database, which allows law enforcement officers to access the information and enforce the restraining order if necessary.
+---
+template: dv_109_explanation
+subject: |
+    **DV-109,** Notice of Court Hearing
+content: |
+    The [DV-109, Notice of Court Hearing](https://www.courts.ca.gov/documents/dv109.pdf), form is used in California to notify parties involved in a Domestic Violence Restraining Order (DVRO) case of the date, time, and location of the court hearing. The form is typically used by the court clerk to notify the petitioner (you) and respondent (the Other Party) of the hearing. The form includes information about the case and the parties involved, such as case number, names, and contact information. The DV-109 form is an important document in a DVRO case, as it ensures that both parties are aware of the hearing and can attend or take appropriate action.
+---
+question: |
+    Let's get started.
+subquestion: |
+    This interview will help you complete and download your court forms in 3 steps:
+
+    **Step 1.** Answer questions that will prepare your forms for you.
+
+    **Step 2.** Preview the completed forms.
+
+    **Step 3.** Download or email the forms to yourself so you can submit them to the court and keep them as part of your safety plan.
+
+    This website will automatically save your work. Carefully review your answers before proceeding to the next page.
+continue button field: welcome1
+---
+question: |
+    Complete your Court Forms
+subquestion: |
+    More specifically, this interview will help you complete 2 court forms: 
+
+    ${prog_disclose(clets_001_explanation)}
+
+    ${prog_disclose(dv_109_explanation)}
+
+    This interview is designed to familiarize you with how to use our software, all while helping  you complete the two simplest forms in the Request for DVRO Petition (aka, the first set of paperwork you submit to the court). It should take you less than an hour to complete.
+continue button field: welcome2
+---
+initial: True
+code: |
+    after_hours = ((current_datetime() > current_datetime().replace(hour=16,minute=30)) or (current_datetime() < current_datetime().replace(hour=8,minute=30)) )
+    court_closed_today = (today().dow > 5)
+---
+template: amending_petition_explanation
+subject: 'What do we mean by "Have you previously filed..."'
+content: |
+    If you have not submitted any paperwork to the court to request a Domestic Violence Restraining Order, select 'No.' 
+
+    If you have already submitted paperwork with the court in *this* case, and you are now changing some of the information that you previously submitted, select 'Yes.'
+
+    ${card_start("Note on past cases:", color="info")}
+    If you requested a Domestic Violence Restraining Order against this person in the past, and if the court heard and denied your previous Request for DVRO, note that that is a *separate* case. Your new case against this same person will not be considered a continuation of your prior case, but the court may have questions about the prior case.
+    ${card_end()}
+---
+question: |
+    **Amending a Request for DVRO**
+fields:
+    - Have you previously filed (submitted) a Request for Domestic Violence Restraining Order Petition in *this* case?: amended_form
+      datatype: yesnoradio
+      label above field: True
+    - note: '${prog_disclose(amending_petition_explanation)}'
+    - Case Number (if you've been assigned one): case_number
+      show if: amended_form
+      help: |
+          Your case number will be stamped or written at the top of any forms you've filed with the court. If you have not filed any court forms with the court, you do not have a case number yet and you may leave this field blank.
+---
+question: |
+    **Protected Party:** What is your name?
+subquestion: |
+    Provide your full legal name. This should match the name written on your Driver's Licence or ID.
+fields:
+    - First name: pet.name.first
+    - Middle name (if applicable): pet.name.middle
+      required: False
+    - Last name: pet.name.last
+    - Suffix (if applicable): pet.name.suffix
+      required: False
+      datatype: combobox
+      code: |
+          name_suffix()
+      help: |
+          You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+---
+question: |
+    **Your Information:** Provide your identifying information information and characteristics
+subquestion: |
+    The information you provide on this page will remain confidential and private (i.e., it will not be seen by the Other Party or become part of the public court record). 
+
+    This confidential information is placed into the California Law Enforcement Telecommunications System (CLETS) and used by law enforcement officers to identify you in instances in which they need to enforce your restraining order.
+fields:
+    - Date of Birth: pet.birthdate
+      datatype: date
+    - Phone Number: pet.phone
+      hint: '###-###-####'
+      required: false
+    - Sex: pet.sex
+      choices:
+          - Male: pet.sex_male
+          - Female: pet.sex_female
+          - Nonbinary: pet.sex_nonbinary
+    - Height: pet.height
+      help: |
+          Example: 5'5"
+    - Weight: pet.weight
+      help: 'Example: 150 lbs'
+    - Race: pet.race
+      help: |
+          Some common racial and ethnic categories include: White, Black or African American, American Indian or Alaska Native, Asian, Native Hawaiian or Pacific Islander, Hispanic or Latino/Latina/Latinx, and Multiracial (ensure you specify)
+    - Hair Color: pet.hair_color
+    - Eye Color: pet.eye_color
+    - Vehicle Type, Model, and Year: pet.vehicle
+      required: false
+      help: 'Example: 2010 Toyota Corolla'
+    - License Plate Number and State: pet.license_number
+      required: false
+      help: 'Example: ABC123, CA'
+---
+question: |
+    **Your Information:** Provide the address you would like to use on your court forms
+subquestion: |
+    [California Government Code section 6206](https://www.sos.ca.gov/registries/safe-home/laws/confidential-address-program-victims-domestic-violence-sexual-assault-and-stalking-program-law) states that if a party (or his or her children) alleges to be a victim of domestic violence or abuse at the hands of the opposing party, that the victim and his or her children's current address may remain confidential if unknown to the other party. 
+
+    The Court requires that you include an address on your forms where you can receive mail regarding the case you are filing, such as a friend or relative's address or a P.O. box. **This address does not have to be the place where you live.** Court documents and court files are public record and whatever address is included on your forms will be seen by the other party and anyone else who looks at the Court file. 
+
+    ${card_start("Note:", color="info")}
+    If you are able to receive mail from your home, you may write down your residential address even if you have left the home due to the abuse you claim, and you intend to return to and live at the home and have ${ resp.name.first } removed.
+    ${card_end()}
+
+    #####Your Mailing Address:
+fields:
+    - Street address: pet.address.street
+    - Apartment or Unit: pet.address.unit
+      required: False
+    - City: pet.address.city
+    - State: pet.address.state
+      code: states_list()
+    - Zip: pet.address.zip
+
+    - Are you staying in a domestic violence shelter right now?: dv_shelter
+      datatype: yesnoradio
+    - note: |
+          ${card_start("Warning", color="warning")}
+          Do NOT write the physical address of the domestic violence shelter anywhere. Most shelters have a P.O. Box you can use if the court needs to contact you or mail you anything.
+          ${card_end()}
+      show if: dv_shelter
+---
+question: |
+    Address Confidentiality: California's Safe at Home Program
+subquestion: |
+    #####**Confidential Address Program**
+
+    If you are a victim of domestic violence or live with a victim of domestic violence, there is a special program called Safe At Home that you can apply for. It is a free program that would help you keep your address private.
+
+    To learn more about the program, go to [this link](https://www.sos.ca.gov/registries/safe-home/). Note that it may take several weeks to be approved.
+continue button field: safe_at_home
+---
+question: |
+    **Other Party's Information**
+subquestion: |
+    #####Who are you getting a restraining order against?
+
+    Provide the Other Party's full legal name. Under 'Other names used,' provide any nicknames people use to refer to him or her.
+fields:
+    - First name: resp.name.first
+    - Middle name (if applicable): resp.name.middle
+      required: false
+    - Last name: resp.name.last
+    - Suffix (if applicable): resp.name.suffix
+      required: false
+      datatype: combobox
+      code: |
+          name_suffix()
+      help: |
+          You may type the suffix in the box or click the arrow to the right to select one from a drop-down menu.
+    - Other names used: resp.other_names
+      required: false
+      help: |
+          You may list any other names that the Other Party uses. This may include any full names that are different from the one written above and/or nicknames that the Other Party commonly goes by.
+---
+question: |
+    **${resp.name}'s Information**
+subquestion: |
+    Provide ${resp.name.first}'s identifying information and characteristics. Law enforcement will use this information to identify ${resp.name.first} and enforce this restraining order. Be as detailed as possible. 
+
+    If you do not know how to answer a field, you can either: 
+
+    1) take your best guess (*For example: if you need to guess his/her eye color*), or 
+
+    2) leave it blank (*For example: if you do not know his/her social security number*).
+
+    #####Other Party's Information:
+fields:
+    - Sex: resp.sex
+      choices:
+          - Male: resp.sex_male
+          - Female: resp.sex_female
+          - Nonbinary: resp.sex_nonbinary
+    - Height: resp.height
+      help: |
+          Example: 5'10"
+    - Weight: resp.weight
+      help: 'Example: 175 lbs'
+    - Race: resp.race
+      help: |
+          Some common racial and ethnic categories include: White, Black or African American, American Indian or Alaska Native, Asian, Native Hawaiian or Pacific Islander, Hispanic or Latino/Latina/Latinx, and Multiracial (ensure you specify)
+    - Hair Color: resp.hair_color
+    - Eye Color: resp.eye_color
+    - Age (give estimate if you do not know exact age): resp.age
+    - Date of Birth (if known): resp.birthdate
+      datatype: date
+      required: false
+    - Describe any marks, scars, or tattoos: resp.marks_scars_tattoos
+      required: false
+      help: 'Example: Large cross tattoo on right arm'
+      maxlength: 75
+    - Vehicle Type, Model, and Year: resp.vehicle
+      required: false
+      help: 'Example: 2010 Toyota Corolla'
+    - License Plate Number and State: resp.license_plate_number
+      required: false
+      help: 'Example: ABC123, CA'
+    - Driver's License Number and State: resp.drivers_license_number
+      required: false
+      help: 'Example: Y1234567, CA'
+    - Social Security Number: resp.ssn
+      required: false
+      hint: |
+          ###-##-####
+      help: |
+          You may provide ${resp.name.first}'s SSN in this format, "###-##-####" or write, "Unknown"
+    - Phone Number: resp.phone
+      required: false
+      hint: |
+          ###-###-####
+---
+question: |
+    **${resp.name}'s Information**
+subquestion: |
+    #####Provide ${ resp.name.first }'s address:
+
+    If you do not know ${ resp.name.first }'s current address, you may provide their last known address (be it your home, a friend or family member's home, etc.).
+fields:
+    - Street address: resp.address.street
+    - Apartment or Unit: resp.address.unit
+      required: False
+    - City: resp.address.city
+    - State: resp.address.state
+      code: states_list()
+    - Zip: resp.address.zip
+---
+question: |
+    **${resp.name}'s Information**
+subquestion: |
+    #####Provide ${ resp.name.first }'s employment and business address information:
+fields:
+    - Is ${ resp.name.first } currently employed?: resp.employed
+      datatype: yesnoradio
+    - Employer/Company Name: resp.employer
+      show if: resp.employed
+      help: |
+          If ${resp.name.first} is self employed, write his/her company's name. If he or she does not have a company name, you may write "${resp.name} (Self Emplpoyed)"
+    - Occupation/Job Title: resp.occupation
+      show if: resp.employed
+      maxlength: 40
+    - Typical Work Hours: resp.work_hours
+      show if: resp.employed
+      help: |
+          Example: "9:00am to 5:00pm." If ${resp.name.first}'s work schedule varies, you may write the hours he/she typically works.
+    - Business Phone Number: resp.business_phone_number
+      required: false
+      show if: resp.employed
+      help: |
+          You may use the following format: ###-###-####
+    - note: '#####Business Address'
+      show if: resp.employed
+    - Street: resp.business_address_street
+      show if: resp.employed
+      required: false
+    - Unit: resp.business_address_unit
+      required: false
+      show if: resp.employed
+    - City: resp.business_address_city
+      show if: resp.employed
+    - State: resp.business_address_state
+      show if: resp.employed
+      code: states_list()
+    - Zip: resp.business_address_zip
+      datatype: integer
+      required: false
+      show if: resp.employed
+---
+question: |
+    Additional Protected People
+subquestion: |
+    ${card_start("Note:", color="info")}
+    Unless you request otherwise, if granted, these restraining orders will apply to and protect **only you**. Here, you can request protection for additional people (such as children, roommates, partners, etc.).
+    ${card_end()}
+fields:
+    - Do you want the restraining order to protect your children, family, or someone you live with?: additionalprotectedpersons.there_are_any
+      datatype: yesnoradio
+---
+question: |
+    Additional Protected People
+fields:
+    - How many additional people are you requesting protection for (not including yourself)?: additionalprotectedpersons.target_number
+      datatype: integer
+      max: 10
+---
+question: |
+    Additional Protected People
+subquestion: |
+    % if additionalprotectedpersons.target_number == 1:
+    Tell us about the child, household or family member for whom you are requesting protection under this order.
+    % elif additionalprotectedpersons.target_number >= 2 and i == 0:
+    Tell us about the **first** child, household or family member for whom you are requesting protection under this order.
+    % else:
+    You told us about **${comma_and_list([additionalprotectedpersons.name.first for additionalprotectedpersons in additionalprotectedpersons.complete_elements()])}**. 
+    Now tell us about the **${ordinal(i)}** child, household or family member for whom you are requesting protection under this order. 
+    % endif
+
+fields:
+    - First name: additionalprotectedpersons[i].name.first
+    - Middle name (if applicable): additionalprotectedpersons[i].name.middle
+      required: false
+    - Last name: additionalprotectedpersons[i].name.last
+    - Suffix (if applicable): additionalprotectedpersons[i].name.suffix
+      required: false
+      datatype: combobox
+      code: |
+          name_suffix()
+    - Date of Birth: additionalprotectedpersons[i].birthdate
+      datatype: date
+    - Sex (Write M for Male, F for Female, or NB for Non-binary): additionalprotectedpersons[i].sex
+    - Race: additionalprotectedpersons[i].race
+      help: |
+          Some common racial and ethnic categories include: White, Black or African American, American Indian or Alaska Native, Asian, Native Hawaiian or Pacific Islander, Hispanic or Latino/Latina/Latinx, and Multiracial (ensure you specify)
+    - Relationship to you: additionalprotectedpersons[i].relationship
+      help: 'Daughter, Grandfather, etc.'
+---
+question: |
+    Firearms (Guns), Firearms Parts, or Ammunition
+subquestion: |
+    ${card_start("Tell us about any Firearms, Firearm Parts, or Ammunition:",color="info")}
+
+    A firearm includes a handgun, rifle, shotgun, and assault weapon. A firearm part means a receiver, frame, or unfinished receiver or unfinished frame. Ammunition includes bullets, shells, cartridges, and clips.
+    ${card_end()}
+fields:
+    - Does ${ resp.name.first } have any **firearms or firearms parts**?: firearms.there_are_any
+      datatype: yesnomaybe
+    - Does ${ resp.name.first } have any **ammunition**?: ammunition.there_are_any
+      datatype: yesnomaybe
+---
+question: |
+    Firearms (Guns) and Firearms Parts
+subquestion: |
+    **As a reminder:** A firearm (gun) includes a handgun, rifle, shotgun, and assault weapon. A firearm part means a receiver, frame, or unfinished receiver or unfinished frame.
+fields:
+    - Describe the ${ordinal(i)} type of firearm (gun) or firearm part: firearms[i].name.text
+    - Serial Number (if known): firearms[i].number
+      required: False
+    - How many or what amount?: firearms[i].amount
+    - Location, if known: firearms[i].location
+      help: |
+          If you do not know the firearm or firearm part's location, you may write 'Unknown'
+list collect:
+    enable: not firearms.has_been_gathered()
+    is final: True
+    allow delete: True
+    add another label: Add more
+    label: |
+        #####Firearm/Firearm Part ${ i+1 }.
+---
+question: |
+    Ammunition
+subquestion: |
+    **As a reminder:** Ammunition includes bullets, shells, cartridges, and clips.
+fields:
+    - Describe the ${ordinal(i)} type of ammunition: ammunition[i].name.text
+    - How many or what amount?: ammunition[i].amount
+    - Location, if known: ammunition[i].location
+      help: |
+          If you do not know the firearm or firearm part's location, you may write 'Unknown'
+list collect:
+    enable: not ammunition.has_been_gathered()
+    is final: True
+    allow delete: True
+    add another label: Add more
+    label: |
+        #####Ammunition ${ i+1 }.
+---
+code: |
+    combined_firearms = firearms.extend(ammunition)
+---
+question: |
+    Identify your Court
+subquestion: |
+    Please provide the following information about the Court in which you will be filing your paperwork. If you do not know which court you should file in, please find your court [at this Find My Court link](https://www.courts.ca.gov/find-my-court.htm). If you live in Los Angeles County, please find your court [at this link](http://www.lacourt.org/filinglocatornet/ui/filingsearch.aspx).
+
+    ${card_start("Note:", color="info")}
+    Not every courthouse accepts restraining order papers. Find the courthouse in your county that will file restraining order papers by going to Find my Court and looking under "Matters Served" and find the nearest courthouse that accepts restraining orders or family cases.
+    ${card_end()}
+fields:
+    - Court name: court_name
+      maxlength: 28
+    - County: court_county
+      code: counties_list
+    - note: |
+          Please provide the court's address below
+    - Street: courtstreetaddress_street
+    - City: courtstreetaddress_city
+    - Zip code: courtstreetaddress_zip
+---
+question: |
+    When do you plan on filing?
+subquestion: |
+    We automatically answer "today" for you, below. You can change the date. If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file
+fields:
+    - When do you plan to file this amended Petition with the court?: filing_date
+      datatype: date
+      default: ${today().format("yyyy-MM-dd")}
+---
+question: |
+    When do you plan to file your application?
+subquestion: |
+    We automatically answer "today" for you, below. You can change the date.
+
+    If you are keeping these forms as part of your safety plan, you can always cross out today's date and write in the date you actually file.
+fields:
+    - Date: signature_date
+      datatype: date
+      default: ${today().format("yyyy-MM-dd")}
+---
+mandatory: true
+event: download_forms
+question: |
+    Your forms are ready to download.
+subquestion: |
+    Thank you. Your completed forms are ready to download and deliver.
+
+    ${prog_disclose(review_your_forms)}
+    ${prog_disclose(edit_if_needed)}
+    ${prog_disclose(sign_the_forms)}
+    ${prog_disclose(next_steps_interview)}
+
+    ${ action_button_html(al_user_bundle.as_pdf().url_for(), label="Download All Completed Forms as a Single PDF", icon='download') } 
+
+    ${ action_button_html(al_user_bundle2.as_pdf().url_for(), label="Download Completed CLETS-001", icon='download') } 
+
+    ${ action_button_html(al_user_bundle3.as_pdf().url_for(), label="Download Completed DV-109", icon='download') } 
+
+    ${ al_user_bundle.send_button_html() }
+---
+template: review_your_forms
+subject: |
+    1. Review Your Forms
+content: |
+    **Review Your Forms:** Examine the form(s) generated below. Clicking the 'Download' button will either open your completed forms as an editable PDF in a new tab or save them directly to your device. Alternatively, you can choose to email the forms to yourself using the 'Send' button.
+---
+template: edit_if_needed
+subject: |
+    2. Edit If Needed
+content: |
+    **Edit if Needed:** If any corrections are necessary, feel free to edit the forms directly in your browser, using a PDF editor of your choice, or by printing them out and making changes with a pen in blue or black ink. Remember, it's okay to cross out or use white-out for corrections, but ensure the forms are still clean and easy to read.
+---
+template: sign_the_forms
+subject: |
+    3. Sign the Forms
+content: |
+    **Sign the Forms:** Carefully review each page and provide your signature on any sections that require it. If additional documents are attached to the completed court forms, write in the number of pages attached on any sections that require it.
+---
+template: next_steps_interview
+subject: |
+    4. Next Steps
+content: |
+    **Next Steps:** Once you're satisfied with your forms, head back to your membership homepage to continue with the next relevant interview.
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+    Get a copy of your forms in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+    Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+    Download zip
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+    % if len(x) > 1:
+    Your ${ x.title } document is ready
+    % else:
+    Your "${ x.title }" documents are ready
+    % endif
+content: |
+    Thank you for using U Do It Legal!
+
+    Please find the completed documents for ${ pet.name }'s Request for DVRO attached.
+---
+#### Attachment objects
+objects:
+    - al_user_bundle: ALDocumentBundle.using(elements=[CLETS_001_attachment, DV_109_attachment], title="Forms to download and deliver to court", filename="Completed_CLETS_001.pdf")
+    - al_user_bundle2: ALDocumentBundle.using(elements=[CLETS_001_attachment], title="Forms to download and deliver to court", filename="Completed_CLETS_001.pdf")
+    - al_user_bundle3: ALDocumentBundle.using(elements=[DV_109_attachment], title="Forms to download and deliver to court", filename="Completed_CLETS_001.pdf")
+---
+objects:
+    - CLETS_001_attachment: ALDocument.using(filename="CLETS_001", title="CLETS-001, California Law Enforcement Telecommunications System Information Form", enabled=True, has_addendum=True, preserve_words=True, default_overflow_message=" [See Attachment]")
+    - DV_109_attachment: ALDocument.using(filename="DV_109", title="DV-109, Notice of Court Hearing", enabled=True, has_addendum=False, preserve_words=True, default_overflow_message=" [See Attachment]")
+---
+#### CLETS-001 Attachment code
+attachment:
+    variable name: CLETS_001_attachment.addendum
+    docx template file: CLETS_001_Attachment.docx
+---
+code: |
+    CLETS_001_attachment.overflow_fields['firearms'].overflow_trigger = 1
+    CLETS_001_attachment.overflow_fields['firearms'].label = "3. Guns or Firearms"
+    CLETS_001_attachment.overflow_fields['ammunition'].overflow_trigger = 1
+    CLETS_001_attachment.overflow_fields['ammunition'].label = "3. Ammunition"
+    CLETS_001_attachment.overflow_fields['additionalprotectedpersons'].overflow_trigger = 2
+    CLETS_001_attachment.overflow_fields['additionalprotectedpersons'].label = "4. Other Protected People"
+    CLETS_001_attachment.overflow_fields.gathered = True
+---
+attachment:
+    variable name: CLETS_001_attachment[i]
+    name: CLETS-001
+    filename: CLETS-001
+    skip undefined: true
+    pdf template file: 2023_CLETS_001.pdf
+    fields:
+        - initial_filing: '${not amended_form}'
+        - inital_filing_date: |
+              % if not amended_form:
+              ${filing_date}
+              % endif
+        - amended: '${amended_form}'
+        - amended_date: |
+              % if amended_form:
+              ${filing_date}
+              % endif
+        - case_number: '${case_number}'
+        - pet_name: '${pet.name}'
+        - pet_male: |
+              ${(pet.sex == 'pet.sex_male')}
+        - pet_female: |
+              ${(pet.sex == 'pet.sex_female')}
+        - pet_weight: '${pet.weight}'
+        - pet_race: '${pet.race}'
+        - pet_height: '${pet.height}'
+        - pet_eye_color: '${pet.eye_color}'
+        - pet_age: '${pet.age_in_years()}'
+        - pet_dob: '${pet.birthdate}'
+        - pet_hair_color: '${pet.hair_color}'
+        - pet_address_street: '${pet.address.street} ${pet.address.unit}'
+        - pet_phone: '${pet.phone}'
+        - pet_address_state: '${pet.address.state}'
+        - pet_address_zip: '${pet.address.zip}'
+        - pet_address_city: '${pet.address.city}'
+        - pet_vehicle_license_number: '${pet.license_number}'
+        - pet_veichle_type_model_year: '${pet.vehicle}'
+        - resp_name: '${resp.name}'
+        - resp_male: |
+              ${(resp.sex == 'resp.sex_male')}
+        - resp_female: |
+              ${(resp.sex == 'resp.sex_female')}
+        - resp_weight: '${resp.weight}'
+        - resp_race: '${resp.race}'
+        - resp_height: '${resp.height}'
+        - resp_eye_color: '${resp.eye_color}'
+        - resp_age: '${resp.age}'
+        - resp_dob: '${resp.birthdate}'
+        - resp_hair_color: '${resp.hair_color}'
+        - resp_address_street: '${resp.address.street} ${resp.address.unit}'
+        - resp_phone: '${resp.phone}'
+        - resp_address_state: '${resp.address.state}'
+        - resp_address_zip: '${resp.address.zip}'
+        - resp_address_city: '${resp.address.city}'
+        - resp_work_address_street: '${resp.business_address_street} ${resp.business_address_unit}'
+        - resp_work_phone: '${resp.business_phone_number}'
+        - resp_work_address_state: '${resp.business_address_state}'
+        - resp_work_address_zip: '${resp.business_address_zip}'
+        - resp_work_address_city: '${resp.business_address_city}'
+        - resp_employer: '${resp.employer}'
+        - resp_occupation: '${resp.occupation}'
+        - resp_work_hours: '${resp.work_hours}'
+        - resp_license_number: '${resp.drivers_license_number}'
+        - resp_social_security: '${resp.ssn}'
+        - resp_vehicle_type_model_year: '${resp.vehicle}'
+        - resp_vehicle_license_number: '${resp.license_plate_number}'
+        - resp_marks_scars_tattoos: '${resp.marks_scars_tattoos}'
+        - resp_other_names: '${resp.other_names}'
+        - describe_firearms: |
+              % if firearms.number() == 1 and ammunition.number() == 0:
+              Description: ${firearms.item(0).name.text} ${firearms.item(0).number} / Amount: ${firearms.item(0).amount} / Location: ${firearms.item(0).location}
+              % elif firearms.number() == 0 and ammunition.number() == 1:
+              Description: ${ammunition.item(0).name.text} / Amount: ${ammunition.item(0).amount} / Location: ${ammunition.item(0).location}
+              % elif (firearms.there_are_any and firearms.number() >= 2): 
+              Description: ${firearms.item(0).name.text} ${firearms.item(0).number} / Amount: ${firearms.item(0).amount} / Location: ${firearms.item(0).location} (See Attachment)
+              % elif (ammunition.there_are_any and ammunition.number() >= 2) and not firearms.number() >= 2: 
+              Description: ${ammunition.item(0).name.text} / Amount: ${ammunition.item(0).amount} / Location: ${ammunition.item(0).location} (See Attachment)
+              % elif not firearms.there_are_any and not ammunition.there_are_any:
+              Petitioner is unaware of any firearms, firearm parts, or ammunition possessed by or accessible to Respondent.
+              % endif
+        - other_protected_person1_name: '${additionalprotectedpersons.item(0).name}'
+        - other_protected_person1_dob: '${additionalprotectedpersons.item(0).birthdate}'
+        - other_protected_person1_sex: '${additionalprotectedpersons.item(0).sex}'
+        - other_protected_person1_race: '${additionalprotectedpersons.item(0).race}'
+        - other_protected_person1_relationship: '${additionalprotectedpersons.item(0).relationship}'
+        - other_protected_person2_name: '${additionalprotectedpersons.item(1).name}'
+        - other_protected_person2_dob: '${additionalprotectedpersons.item(1).birthdate}'
+        - other_protected_person2_sex: '${additionalprotectedpersons.item(1).sex}'
+        - other_protected_person2_race: '${additionalprotectedpersons.item(1).race}'
+        - other_protected_person2_relationship: '${additionalprotectedpersons.item(1).relationship}'
+        - more_than_2_other_protected_persons: '${additionalprotectedpersons.target_number >= 3}'
+---
+#### DV-109 attachment Code
+attachment:
+    variable name: DV_109_attachment[i]
+    name: DV-109, Notice of Court Hearing
+    filename: DV-109
+    skip undefined: true
+    pdf template file: 2023_DV_109.pdf
+    fields:
+        - pet.name: '${pet.name}'
+        - resp.name: '${resp.name}'
+        - case_number: '${case_number}'
+        - case_number2: '${case_number}'
+        - case_number3: '${case_number}'
+        - court_name: '${court_name}'
+        - court_address_county: '${court_county}'
+        - court_address_street: '${courtstreetaddress_street}'
+        - court_city_state_zip: '${courtstreetaddress_city}, CA ${courtstreetaddress_zip}'
